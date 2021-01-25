@@ -8,14 +8,16 @@ describe('RecipeView tests', () => {
 
 });
 
+
+//TODO fix this
 describe('InstructionList tests', () => {
     afterEach(cleanup);
 
     test('displays a list of instructions', () => {
-        let testInstr = ["heat stove", "cover pan in oil", "add batter", "cook"];
+        let testInstr = ["heat stove", "cover pan in oil", "add batter"];
         render(<InstructionList instr={testInstr} />);
         testInstr.forEach((value, index) => {
-            expect(screen.getByText(value)).toBeInTheDocument();
+            expect(screen.getByText(Recipe.printInstruction(value,index))).toBeInTheDocument();
         });
     });
 

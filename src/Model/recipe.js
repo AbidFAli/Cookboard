@@ -1,4 +1,4 @@
-import { Nutrient, Ingredient, Measurable } from './ingredient.js';
+//import { Nutrient, Ingredient, Measurable } from './ingredient.js';
 
 //A class describing a cooking recipe
 export class Recipe {
@@ -12,7 +12,7 @@ export class Recipe {
         this.mName = name;
         this.mDesc = desc;
 
-        if (this.mInstructions != null) {
+        if (instr != null) {
             this.mInstructions = [].concat(instr);
         }
         else {
@@ -29,9 +29,41 @@ export class Recipe {
         this.mTimeToMake = 0;
         this.mTimeToMakeUnit = ""; //enum
         this.mNumServed = 0;
-        this.mServings = 0;
-        this.mServingsUnit = ""; //make this an enum
+        this.mYield = 0; //number of servings created
+        this.mServingSize = 0;
+        this.mServingUnit = ""; //make this an enum
         this.mTotalCalories = 0;
+    }
+    /*
+     * @param servingInfo = {
+     * numServed: number of people service; number
+     * yield: yield of the recipe; number
+     * servingSize: serving size; number
+     * servingUnit: serving unit; string
+     * }
+     * 
+     */
+    setServingInfo(servingInfo) {
+        this.mNumServed = servingInfo.numServed;
+        this.mYield = servingInfo.yield;
+        this.mServingSize = servingInfo.servingSize;
+        this.mServingUnit = servingInfo.servingUnit;
+    }
+    /*
+     * @returns servingInfo = {
+     * numServed: number of people service; number
+     * yield: yield of the recipe; number
+     * servingSize: serving size; number
+     * servingUnit: serving unit; string
+     * }
+     */
+    getServingInfo() {
+        return {
+            numServed: this.mNumServed,
+            yield: this.mYield,
+            servingSize: this.mServingSize,
+            servingUnit: this.mServingUnit
+        };
     }
     get name() {
         return this.mName;
@@ -52,7 +84,7 @@ export class Recipe {
         this.mInstructions = newInstructions;
     }
     get stars() {
-        return this.mStars();
+        return this.mStars;
     }
     set stars(newStars) {
         this.mStars = newStars;
@@ -75,17 +107,23 @@ export class Recipe {
     set numServed(newNum) {
         this.mNumServed = newNum;
     }
-    get servings() {
-        return this.mServings;
+    get yield() {
+        return this.mYield;
     }
-    set servings(newNum) {
-        this.mServings = newNum;
+    set yield(newNum) {
+        this.mYield = newNum;
     }
-    get servingsUnit() {
-        return this.mServingsUnit;
+    get servingUnit() {
+        return this.mServingUnit;
     }
     set servingsUnit(newUnit) {
-        this.mServingsUnit = newUnit;
+        this.mServingUnit = newUnit;
+    }
+    get servingSize() {
+        return this.mServingSize;
+    }
+    set servingSize(newSize) {
+        this.mServingSize = newSize;
     }
     get totalCalories() {
         return this.mTotalCalories;
@@ -103,6 +141,15 @@ export class Recipe {
         return this.mIngredients.find((elem) => {
             return ingredientName.toUpperCase() === elem.name.toUpperCase();
         });
+    }
+    /*
+     * Helper function to print a formatted instruction
+     * @param instr: the instruction; string
+     * @param pos: position(starting from 0) in the list of instructions; number
+     * @returns: a string;
+     */
+    static printInstruction(instr, pos) {
+        return `${1 + pos}. ${instr}`;
     }
 }
 

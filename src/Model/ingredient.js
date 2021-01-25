@@ -8,7 +8,7 @@ class Measurable {
         this.mName = name;
         this.mAmount = amount;
         if (unit == null) {
-            unit = "";
+            this.mUnit = "";
         }
         else {
             this.mUnit = unit;

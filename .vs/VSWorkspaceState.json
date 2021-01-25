@@ -3,8 +3,10 @@
     "",
     "\\public",
     "\\src",
-    "\\src\\components"
+    "\\src\\components",
+    "\\src\\img",
+    "\\src\\Model"
   ],
-  "SelectedNode": "\\src\\img",
+  "SelectedNode": "\\src\\components\\RecipeWindow.js",
   "PreviewInSolutionExplorer": false
 }

@@ -34,4 +34,10 @@ describe("Recipe tests", () => {
         let ing1 = testRecipe.getIngredient("sugar");
         expect(ing1).toBeNull;
     });
+
+    test("prints instructions", () => {
+        let instr = "hello"
+        let pos = 0;
+        expect(Recipe.printInstruction(instr, pos)).toMatch("1. hello");
+    });
 });

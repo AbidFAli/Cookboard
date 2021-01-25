@@ -1,5 +1,7 @@
-import './App.css';
+//import './App.css';
 import React from 'react';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import Container from '@material-ui/core/Container';
 import { Navbar } from './components/Navbar.js';
 import { RecipeWindow } from './components/RecipeWindow.js';
 import { Recipe } from './Model/recipe.js';
@@ -16,6 +18,16 @@ let testIngredients =
 
 
 let testRecipe = new Recipe("waffles", "yummy", testInstr, testIngredients);
+testRecipe.setServingInfo({
+    numServed: 3,
+    yield: 10,
+    servingSize: 1,
+    servingUnit: "waffle" 
+});
+testRecipe.stars = 4;
+testRecipe.timeToMake = 20;
+testRecipe.timeToMakeUnit = "minutes";
+
 
 class App extends React.Component {
     static navTabs = [
@@ -35,10 +47,12 @@ class App extends React.Component {
 
     render() { 
         return (
-            <div className="App">
-                {this.navBar}
-                <RecipeWindow recipe={testRecipe} />
-            </div>
+            <React.Fragment>
+                <CssBaseline />
+                <Container maxWidth='md'>
+                    <RecipeWindow recipe={testRecipe} />
+                </Container>
+            </React.Fragment>
         );
     }
 

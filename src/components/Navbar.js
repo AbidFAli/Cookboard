@@ -12,7 +12,7 @@ export class Navbar extends React.Component {
         });
 
         return (
-            <div className="navBar">
+            <div>
                 <nav> {content} </nav>
             </div>
         );
