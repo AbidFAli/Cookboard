@@ -1,7 +1,7 @@
 import React from 'react';
 import { Recipe } from '../Model/recipe.js';
 import { Ingredient } from '../Model/ingredient.js'
-import { RecipeWindow, InstructionList, IngredientList } from './RecipeWindow.js';
+import { RecipePage, InstructionList, IngredientList } from './RecipePage.js';
 import { cleanup, screen, render } from '@testing-library/react';
 
 describe('RecipeView tests', () => {

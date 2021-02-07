@@ -3,9 +3,17 @@ import React from 'react';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Container from '@material-ui/core/Container';
 import { Navbar } from './components/Navbar.js';
-import { RecipeWindow } from './components/RecipeWindow.js';
+import { RecipePage } from './components/RecipePage.js';
+import { MyRecipesPage} from './components/MyRecipesPage.js'
 import { Recipe } from './Model/recipe.js';
 import { Ingredient } from './Model/ingredient.js';
+import {
+    BrowserRouter as Router,
+    Switch,
+    Route,
+    Redirect
+} from "react-router-dom";
+
 
 let testInstr = ["heat stove", "cover pan in oil", "add batter", "cook"];
 let testIngredients =
@@ -28,6 +36,15 @@ testRecipe.stars = 4;
 testRecipe.timeToMake = 20;
 testRecipe.timeToMakeUnit = "minutes";
 
+let testRecipeList = [
+    testRecipe,
+    new Recipe("pancakes"),
+    new Recipe("pizza"),
+    new Recipe("quesadillas"),
+    new Recipe("spaghetti"),
+    new Recipe("keema")
+];
+
 
 class App extends React.Component {
     static navTabs = [
@@ -45,14 +62,25 @@ class App extends React.Component {
         this.navBar = <Navbar links={App.navTabs} />;
     }
 
+    //
+    //<RecipePage recipe={testRecipe} />
+
     render() { 
         return (
-            <React.Fragment>
+            <Router>
                 <CssBaseline />
                 <Container maxWidth='md'>
-                    <RecipeWindow recipe={testRecipe} />
+                    <Switch>
+                        <Route path="/myrecipes">
+                            <MyRecipesPage recipes={testRecipeList} />
+                        </Route>
+                        <Route path="/">
+                            <Redirect to="/myrecipes" />
+                        </Route>
+                    </Switch>
+                    
                 </Container>
-            </React.Fragment>
+            </Router>
         );
     }
 

@@ -17,7 +17,7 @@ import backImg from './../img/icons8-go-back-48.png';
 /*
  *@prop recipe: the Recipe object containing info about the recipe to display.
  */
-class RecipeWindow extends React.Component {
+class RecipePage extends React.Component {
     /*
      *@param mRecipe: the Recipe object containing info about the recipe to display.
      */
@@ -186,4 +186,4 @@ class IngredientList extends React.Component {
 }
 
 
-export { RecipeWindow, InstructionList, IngredientList };
+export { RecipePage, InstructionList, IngredientList };
