@@ -1,5 +1,6 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { Recipe } from '../Model/recipe.js';
+
 import Card from '@material-ui/core/Paper';
 import EditIcon from '@material-ui/icons/Edit';
 import Grid from '@material-ui/core/Grid';
@@ -8,8 +9,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Paper from '@material-ui/core/Paper';
-import StarIcon from '@material-ui/icons/Star';
-import StarBorderIcon from '@material-ui/icons/StarBorder';
+import Rating from '@material-ui/lab/Rating';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 
@@ -18,66 +18,56 @@ import backImg from './../img/icons8-go-back-48.png';
 /*
  *@prop recipe: the Recipe object containing info about the recipe to display.
  */
-class RecipePage extends React.Component {
-    /*
-     *@param mRecipe: the Recipe object containing info about the recipe to display.
-     */
-    constructor(props) {
-        super(props);
-        this.mRecipe = props.recipe;
-    }
+const RecipePage = ({recipe}) => {
+    const [description, setDescription] = useState(recipe.desc != null ? recipe.desc : '')
+    const [rating, setRating] = useState(recipe.stars != null ? recipe.stars : 0)
 
-    render() {
-
-        return (
-            <Grid container spacing={4}>
-                <Grid container item xs={12} spacing={3} justify='space-between' alignItems='flex-end'>
-                    <Grid item>
-                        <Typography variant="h2">
-                            {this.mRecipe.name}
-                        </Typography>
-                        <IconButton>
-                            <EditIcon />
-                        </IconButton>
-                    </Grid>
-                    <Grid item >
-                        <Typography variant="h4">
-                            {this.mRecipe.timeToMake} {this.mRecipe.timeToMakeUnit}
-                        </Typography>
-                    </Grid>
+    return (
+        <Grid container spacing={4}>
+            <Grid container item xs={12} spacing={3} justify='space-between' alignItems='flex-end'>
+                <Grid item>
+                    <Typography variant="h2">
+                        {recipe.name}
+                    </Typography>
                 </Grid>
-                <Grid item xs={12}>
-                    <Paper>
-                        <DescriptionRating desc={this.mRecipe.desc} stars={this.mRecipe.stars} />
-                    </Paper>
-                </Grid>
-                <Grid item  xs={12}>
-                    <Paper>
-                        <Typography variant="h5" gutterBottom>
-                            Ingredients
-                        </Typography>
-                        <IngredientList ingr={this.mRecipe.ingredients} />
-                    </Paper>
-                </Grid>
-                <Grid item  xs={12} >
-                    <Paper>
-                        <Typography variant="h5" gutterBottom>
-                            Serving Info
-                        </Typography>
-                        {servingInfoList(this.mRecipe.getServingInfo())}
-                    </Paper>
-                </Grid>
-                <Grid item xs={12} >
-                    <Paper>
-                        <Typography variant="h5" gutterBottom>
-                            Instructions
-                        </Typography>
-                        <InstructionList instr={this.mRecipe.instructions} />
-                    </Paper>
+                <Grid item >
+                    <Typography variant="h4">
+                        {recipe.timeToMake} {recipe.timeToMakeUnit}
+                    </Typography>
                 </Grid>
             </Grid>
-        );
-    }
+            <Grid item xs={12}>
+                <Paper>
+                    <DescriptionRating desc={description} setDesc = {setDescription} rating={rating} setRating = {setRating} />
+                </Paper>
+            </Grid>
+            <Grid item  xs={12}>
+                <Paper>
+                    <Typography variant="h5" gutterBottom>
+                        Ingredients
+                    </Typography>
+                    <IngredientList ingr={recipe.ingredients} />
+                </Paper>
+            </Grid>
+            <Grid item  xs={12} >
+                <Paper>
+                    <Typography variant="h5" gutterBottom>
+                        Serving Info
+                    </Typography>
+                    {servingInfoList(recipe.getServingInfo())}
+                </Paper>
+            </Grid>
+            <Grid item xs={12} >
+                <Paper>
+                    <Typography variant="h5" gutterBottom>
+                        Instructions
+                    </Typography>
+                    <InstructionList instr={recipe.instructions} />
+                </Paper>
+            </Grid>
+        </Grid>
+    );
+    
 }
 
 const servingInfoList = (props) => {
@@ -96,14 +86,7 @@ const servingInfoList = (props) => {
     );
 }
 
-const generateStars = (numStars) => {
-    let content = Array(5).fill(<StarBorderIcon />);
 
-    for (let i = 0; i < numStars; i++) {
-        content[i] = <StarIcon />;
-    }
-    return content;   
-}
 
 /*
  *@param props = {
@@ -111,7 +94,13 @@ const generateStars = (numStars) => {
  *  stars: number of recipe stars; number
  * } 
  */
-const DescriptionRating = (props) => {
+const DescriptionRating = ({desc, setDesc, rating, setRating}) => {
+    const [descriptionEditable, setDescriptionEditable] = useState(false)
+    const handleChangeDesc = (newDesc) => {
+        setDesc(newDesc)
+        console.log('New description is' + newDesc)
+    }
+
     return (
         <Grid container>
             <Grid item xs={6}>
@@ -125,12 +114,20 @@ const DescriptionRating = (props) => {
                 </Typography>
             </Grid>
             <Grid item xs={6}>
-                <Typography variant="body1" >
-                    {props.desc}
-                </Typography>
+                <TextField
+                    name = "fieldDescription"
+                    disabled = {!descriptionEditable}
+                    defaultValue= {desc} 
+                    onChange = {(event) => handleChangeDesc(event.target.value)}/>
+                <IconButton onClick = {() => setDescriptionEditable(!descriptionEditable)}>
+                    <EditIcon />
+                </IconButton>
             </Grid>
             <Grid item xs={6}>
-                {generateStars(props.stars)}
+                <Rating name = "rating" 
+                        value = {rating}
+                        preciscion = {0.5}
+                        onChange = {(event, newRating) => setRating(newRating) }/>
             </Grid>
         </Grid>
         );
