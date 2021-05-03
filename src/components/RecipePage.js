@@ -1,16 +1,17 @@
 import React from 'react';
 import { Recipe } from '../Model/recipe.js';
-
+import Card from '@material-ui/core/Paper';
+import EditIcon from '@material-ui/icons/Edit';
+import Grid from '@material-ui/core/Grid';
+import IconButton from '@material-ui/core/IconButton';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-import Typography from '@material-ui/core/Typography';
-import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import Card from '@material-ui/core/Paper';
-
 import StarIcon from '@material-ui/icons/Star';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
+import Typography from '@material-ui/core/Typography';
+import TextField from '@material-ui/core/TextField';
 
 import backImg from './../img/icons8-go-back-48.png';
 
@@ -35,6 +36,9 @@ class RecipePage extends React.Component {
                         <Typography variant="h2">
                             {this.mRecipe.name}
                         </Typography>
+                        <IconButton>
+                            <EditIcon />
+                        </IconButton>
                     </Grid>
                     <Grid item >
                         <Typography variant="h4">
@@ -47,7 +51,7 @@ class RecipePage extends React.Component {
                         <DescriptionRating desc={this.mRecipe.desc} stars={this.mRecipe.stars} />
                     </Paper>
                 </Grid>
-                <Grid item xs={12} spacing={3}>
+                <Grid item  xs={12}>
                     <Paper>
                         <Typography variant="h5" gutterBottom>
                             Ingredients
@@ -55,7 +59,7 @@ class RecipePage extends React.Component {
                         <IngredientList ingr={this.mRecipe.ingredients} />
                     </Paper>
                 </Grid>
-                <Grid item xs={12} spacing={3}>
+                <Grid item  xs={12} >
                     <Paper>
                         <Typography variant="h5" gutterBottom>
                             Serving Info
@@ -63,7 +67,7 @@ class RecipePage extends React.Component {
                         {servingInfoList(this.mRecipe.getServingInfo())}
                     </Paper>
                 </Grid>
-                <Grid item xs={12} spacing={3}>
+                <Grid item xs={12} >
                     <Paper>
                         <Typography variant="h5" gutterBottom>
                             Instructions

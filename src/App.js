@@ -25,7 +25,7 @@ let testIngredients =
     ];
 
 
-let testRecipe = new Recipe("waffles", "yummy", testInstr, testIngredients);
+let testRecipe = new Recipe("waffles",3001, "yummy", testInstr, testIngredients);
 testRecipe.setServingInfo({
     numServed: 3,
     yield: 10,
@@ -38,11 +38,11 @@ testRecipe.timeToMakeUnit = "minutes";
 
 let testRecipeList = [
     testRecipe,
-    new Recipe("pancakes"),
-    new Recipe("pizza"),
-    new Recipe("quesadillas"),
-    new Recipe("spaghetti"),
-    new Recipe("keema")
+    new Recipe("pancakes", 2001),
+    new Recipe("pizza", 2002),
+    new Recipe("quesadillas", 2003),
+    new Recipe("spaghetti", 2004),
+    new Recipe("keema", 2005)
 ];
 
 

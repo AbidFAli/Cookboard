@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Recipe } from '../Model/recipe.js';
 
 import AddIcon from '@material-ui/icons/Add';
@@ -13,6 +13,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import Paper from '@material-ui/core/Paper';
 import RestaurantRoundedIcon from '@material-ui/icons/RestaurantRounded';
+import Radio from '@material-ui/core/Radio'
 import Typography from '@material-ui/core/Typography';
 
 import {
@@ -33,27 +34,40 @@ import { RecipePage } from './RecipePage.js';
  * path: current path of the MyRecipesPage housing the RecipeList
  * }
  */
-const RecipeList = (props) => {
-    let content;
+export function RecipeList(props){
+    let content = null;
     const history = useHistory();
+    const [selectedRecipe, setSelectedRecipe] = useState(null); //id of the selected recipe
+
+    function handleCheck(event, recipe){
+        setSelectedRecipe(recipe)
+        console.log(`${recipe.name}'s check handler was called`)
+    }
+
     if (props.recipes != null) {
-        content = props.recipes.map((value, index) => {
+        content = props.recipes.map((recipe, index) => {
             return (
-                <List component="ul">
+                
                     <ListItem key={index} button onClick={() => history.push(`${props.path}/${index}`)}>
                         <ListItemIcon>
                             <RestaurantRoundedIcon />
                         </ListItemIcon>
-                        <ListItemText primary={value.name} />
+                        <ListItemText primary={recipe.name} />
                         <ListItemSecondaryAction>
+                            <Radio
+                                edge="end"
+                                onChange={(event) => handleCheck(event, recipe)  /* only fires when radio is clicked */}
+                                checked = {selectedRecipe !== null && selectedRecipe.id === recipe.id}
+                            />
                             </ListItemSecondaryAction>
                     </ListItem>
-                </List>
+                
             );
         });
     }
-    return content;
+    return (<List component="ul">{content}</List>);
 }
+
 const ButtonBar = (props) => {
     return (
         <ButtonGroup>
@@ -70,7 +84,8 @@ const ButtonBar = (props) => {
  * }
  */
 export function MyRecipesPage(props){
-    let { path, url } = useRouteMatch();
+    let { path } = useRouteMatch();
+    let [selected, setSelected] = useState(null);
     let page = (
         <Grid container spacing={4}>
             <Grid container item xs={12} spacing={3} justify='center' alignItems='flex-end'>

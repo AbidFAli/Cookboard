@@ -8,9 +8,10 @@ export class Recipe {
     * @param instr: a list of instructions; array of string
     * @param ingredients: a list of ingredients; array of Ingredient object
     */
-    constructor(name,desc,instr, ingredients) {
+    constructor(name,id,desc,instr, ingredients) {
         this.mName = name;
         this.mDesc = desc;
+        this.mId = id;
 
         if (instr != null) {
             this.mInstructions = [].concat(instr);
@@ -64,6 +65,12 @@ export class Recipe {
             servingSize: this.mServingSize,
             servingUnit: this.mServingUnit
         };
+    }
+    get id(){
+        return this.mId;
+    }
+    set id(newId){
+        this.mId = newId;
     }
     get name() {
         return this.mName;
