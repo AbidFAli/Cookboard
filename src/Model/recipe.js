@@ -26,13 +26,15 @@ export class Recipe {
         else {
             this.mIngredients = [];
         }
+        this.mServingInfo = {
+            numServed: 0,
+            yield: 0,
+            servingSize: 0,
+            unit: ""
+        }
         this.mStars = 0;
         this.mTimeToMake = 0;
         this.mTimeToMakeUnit = ""; //enum
-        this.mNumServed = 0;
-        this.mYield = 0; //number of servings created
-        this.mServingSize = 0;
-        this.mServingUnit = ""; //make this an enum
         this.mTotalCalories = 0;
     }
     /*
@@ -45,10 +47,7 @@ export class Recipe {
      * 
      */
     setServingInfo(servingInfo) {
-        this.mNumServed = servingInfo.numServed;
-        this.mYield = servingInfo.yield;
-        this.mServingSize = servingInfo.servingSize;
-        this.mServingUnit = servingInfo.servingUnit;
+        this.servingInfo = servingInfo
     }
     /*
      * @returns servingInfo = {
@@ -59,12 +58,7 @@ export class Recipe {
      * }
      */
     getServingInfo() {
-        return {
-            numServed: this.mNumServed,
-            yield: this.mYield,
-            servingSize: this.mServingSize,
-            servingUnit: this.mServingUnit
-        };
+        return this.servingInfo;
     }
     get id(){
         return this.mId;
@@ -107,30 +101,6 @@ export class Recipe {
     }
     set timeToMakeUnit(newUnit) {
         this.mTimeToMakeUnit = newUnit;
-    }
-    get numServed() {
-        return this.mNumServed;
-    }
-    set numServed(newNum) {
-        this.mNumServed = newNum;
-    }
-    get yield() {
-        return this.mYield;
-    }
-    set yield(newNum) {
-        this.mYield = newNum;
-    }
-    get servingUnit() {
-        return this.mServingUnit;
-    }
-    set servingsUnit(newUnit) {
-        this.mServingUnit = newUnit;
-    }
-    get servingSize() {
-        return this.mServingSize;
-    }
-    set servingSize(newSize) {
-        this.mServingSize = newSize;
     }
     get totalCalories() {
         return this.mTotalCalories;
