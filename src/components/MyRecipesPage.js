@@ -1,6 +1,4 @@
-import React, { useState } from 'react';
-import { Recipe } from '../Model/recipe.js';
-
+import React, { useState, useEffect } from 'react';
 import AddIcon from '@material-ui/icons/Add';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
@@ -17,13 +15,12 @@ import Radio from '@material-ui/core/Radio'
 import Typography from '@material-ui/core/Typography';
 
 import {
-    BrowserRouter as Router,
     useRouteMatch, useHistory,
     Switch, Route
 } from "react-router-dom"
 
-import { RecipePage } from './RecipePage.js';
-
+import { RecipePage } from './recipe-page/RecipePage';
+import recipeService from '../services/recipeService'
 
 
 //onClick={() => <Redirect to={`${props.path}/${index}`} 
@@ -48,7 +45,7 @@ export function RecipeList(props){
         content = props.recipes.map((recipe, index) => {
             return (
                 
-                    <ListItem key={index} button onClick={() => history.push(`${props.path}/${index}`)}>
+                    <ListItem key={index} button onClick={() => history.push(`${props.path}/${recipe.id}`)}>
                         <ListItemIcon>
                             <RestaurantRoundedIcon />
                         </ListItemIcon>
@@ -84,8 +81,39 @@ const ButtonBar = (props) => {
  * }
  */
 export function MyRecipesPage(props){
+    const history = useHistory();
     let { path } = useRouteMatch();
     let [selected, setSelected] = useState(null);
+    let [recipes, setRecipes] = useState([])
+
+    useEffect(() => {
+        recipeService.getAll().then((fetchedRecipes) => {
+            setRecipes(fetchedRecipes)
+        })
+    }, []);
+
+    const goToNew = () => {
+        history.push(`${path}/new`)
+        console.log(`${path}/new`)
+    }
+
+    const addRecipe = (newRecipe) => {
+        let newRecipes = Array.from(recipes)
+        newRecipes.push(newRecipe)
+        setRecipes(newRecipes)
+    }
+
+    const updateRecipe = (editedRecipe) => {
+        let newRecipes = recipes.filter(recipe => recipe.id != editedRecipe.id)
+        newRecipes.push(editedRecipe)
+        setRecipes(newRecipes)
+    }
+
+    const removeRecipe = (recipeToRemove) => {
+        let newRecipes = recipes.filter(recipe => recipe.id != recipeToRemove.id)
+        setRecipes(newRecipes)
+    }
+
     let page = (
         <Grid container spacing={4}>
             <Grid container item xs={12} spacing={3} justify='center' alignItems='flex-end'>
@@ -102,31 +130,36 @@ export function MyRecipesPage(props){
             </Grid>
             <Grid item xs={12}>
                 <Paper>
-                    <RecipeList recipes={props.recipes} path={path} />
+                    <RecipeList recipes={recipes} path={path} />
                 </Paper>
             </Grid>
             <Grid item>
-                <Fab color="primary" aria-label="add">
+                <Fab color="primary" aria-label="add" onClick = {goToNew}>
                     <AddIcon />
                 </Fab>
             </Grid>
         </Grid>
     );
 
+
     return (
-        <Router>
             <Switch>
+                <Route path = '/new'>
+                    <RecipePage prevPath = {path} handleAddRecipe = {addRecipe} />
+                </Route>
                 <Route path={`${path}/:recipeId`}
                     render={({ match }) => (
-                        <RecipePage recipe={props.recipes[match.params.recipeId]} />
+                        <RecipePage 
+                            recipe={recipes.find(recipe => recipe.id === match.params.recipeId)} 
+                            prevPath = {path}
+                            handleAddRecipe = {addRecipe}
+                            />
                     )}
                 />
                 <Route exact path={path}>
                     {page}
                 </Route>
             </Switch>
-        </Router>
-
         );
     
 }

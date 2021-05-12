@@ -1,27 +1,8 @@
 import React from 'react';
-import { Recipe } from '../Model/recipe.js';
-import { Ingredient } from '../Model/ingredient.js'
-import { RecipePage, InstructionList, IngredientList } from './RecipePage.js';
+import { Ingredient } from '../../Model/ingredient.js'
+import { IngredientList } from './IngredientList.js';
 import { cleanup, screen, render } from '@testing-library/react';
 
-describe('RecipeView tests', () => {
-
-});
-
-
-//TODO fix this
-describe('InstructionList tests', () => {
-    afterEach(cleanup);
-
-    test('displays a list of instructions', () => {
-        let testInstr = ["heat stove", "cover pan in oil", "add batter"];
-        render(<InstructionList instr={testInstr} />);
-        testInstr.forEach((value, index) => {
-            expect(screen.getByText(Recipe.printInstruction(value,index))).toBeInTheDocument();
-        });
-    });
-
-});
 
 describe('IngredientList tests', () => {
     afterEach(cleanup);

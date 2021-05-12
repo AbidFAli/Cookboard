@@ -4,8 +4,6 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Container from '@material-ui/core/Container';
 import { Navbar } from './components/Navbar.js';
 import { MyRecipesPage} from './components/MyRecipesPage.js'
-import { Recipe } from './Model/recipe.js';
-import { Ingredient } from './Model/ingredient.js';
 import {
   BrowserRouter as Router,
   Switch,
@@ -14,35 +12,7 @@ import {
 } from "react-router-dom";
 
 
-let testInstr = ["heat stove", "cover pan in oil", "add batter", "cook"];
-let testIngredients =
-  [
-    new Ingredient("flour", 1.5, "cups"),
-    new Ingredient("backing powder", 3.5, "tsp"),
-    new Ingredient("salt", 1, "tsp"),
-    new Ingredient("egg",1)
-  ];
 
-
-let testRecipe = new Recipe("waffles",3001, "yummy", testInstr, testIngredients);
-testRecipe.setServingInfo({
-  numServed: 3,
-  yield: 10,
-  servingSize: 1,
-  servingUnit: "waffle" 
-});
-testRecipe.stars = 4;
-testRecipe.timeToMake = 20;
-testRecipe.timeToMakeUnit = "minutes";
-
-let testRecipeList = [
-  testRecipe,
-  new Recipe("pancakes", 2001),
-  new Recipe("pizza", 2002),
-  new Recipe("quesadillas", 2003),
-  new Recipe("spaghetti", 2004),
-  new Recipe("keema", 2005)
-];
 
 
 class App extends React.Component {
@@ -61,9 +31,6 @@ class App extends React.Component {
       this.navBar = <Navbar links={App.navTabs} />;
   }
 
-    //
-    //<RecipePage recipe={testRecipe} />
-
   render() { 
       return (
         <Router>
@@ -71,7 +38,7 @@ class App extends React.Component {
           <Container maxWidth='md'>
             <Switch>
               <Route path="/myrecipes">
-                <MyRecipesPage recipes={testRecipeList} />
+                <MyRecipesPage />
                 </Route>
                 <Route path="/">
                   <Redirect to="/myrecipes" />
