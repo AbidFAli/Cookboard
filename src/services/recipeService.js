@@ -14,7 +14,7 @@ const getAll = () => {
 }
 
 const update = (recipe) => {
-  return axios.put(BASE_URL + `/${recipe.id}`).then(result => result.data)
+  return axios.put(BASE_URL + `/${recipe.id}`, recipe).then(result => result.data)
 }
 
 const destroy = (recipe) => {

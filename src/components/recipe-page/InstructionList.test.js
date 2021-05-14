@@ -1,7 +1,13 @@
 import React from 'react';
-import { Recipe } from '../../Model/recipe.js';
-import { InstructionList, } from './InstructionList';
 import { cleanup, screen, render } from '@testing-library/react';
+import {within} from '@testing-library/dom'
+import userEvent from '@testing-library/user-event'
+
+import { Recipe } from '../../Model/recipe.js';
+import { InstructionList } from './InstructionList';
+import { RecipePage} from './RecipePage';
+
+//Integration tests with RecipePage and InstructionList
 
 
 describe('InstructionList tests', () => {

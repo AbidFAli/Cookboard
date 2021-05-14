@@ -3,7 +3,6 @@ import React, {useState} from 'react';
 import AddIcon from '@material-ui/icons/Add';
 import Button from '@material-ui/core/Button';
 import CloseIcon from '@material-ui/icons/Close'
-import curry from 'lodash/curry'
 import DeleteIcon from '@material-ui/icons/Delete';
 import IconButton from '@material-ui/core/IconButton';
 import List from '@material-ui/core/List';
@@ -12,10 +11,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import TextField from '@material-ui/core/TextField';
 
 
-
-
-
-const IngredientList = ({ingredients, editable, handleAdd, handleEdit}) => {
+const IngredientList = ({ingredients, editable, handleAdd, handleEdit, handleRemove}) => {
   const [adding, setAdding] = useState(false)
   const [newName, setNewName] = useState('')
   const [newAmount, setNewAmount] = useState(0)
@@ -30,30 +26,33 @@ const IngredientList = ({ingredients, editable, handleAdd, handleEdit}) => {
 
   let content = ingredients.map((ingr, index) => {
     return (
-      <Ingredient 
+      <Ingredient
+        key = {ingr.id}
         ingr = {ingr}
         pos = {index}
         editable = {editable}
         handleEdit = {handleEdit}
+        handleRemove = {handleRemove}
       />
     );
   });
+
   let buttons = null;
   if(adding && editable){
     buttons = (
       <React.Fragment>
         <TextField 
-          name = "newNameField"
+          inputProps = {{ 'data-testid' : 'newNameField' }}
           label = "Name"
           value = {newName} 
           onChange = {(event) => setNewName(event.target.value)} />
-        <TextField 
-          name = "newAmountField"
+        <TextField
+          inputProps = {{ 'data-testid' : 'newAmountField' }} 
           label = "Amount"
           value = {newAmount}
           onChange = {(event) => setNewAmount(event.target.value)}/>
         <TextField 
-          name = "newUnitField"
+          inputProps = {{ 'data-testid' : 'newUnitField' }}
           label = "Unit"
           value = {newUnit}
           onChange = {(event) => setNewUnit(event.target.value)}/>
@@ -68,7 +67,7 @@ const IngredientList = ({ingredients, editable, handleAdd, handleEdit}) => {
   }
   else if(editable){
    buttons = (
-    <IconButton onClick = {() => setAdding(true)}>
+    <IconButton data-testid = "startAddButton" onClick = {() => setAdding(true)}>
       <AddIcon />
     </IconButton>
    )
@@ -86,7 +85,7 @@ const IngredientList = ({ingredients, editable, handleAdd, handleEdit}) => {
 
 }
 
-const Ingredient = ({ingr, pos, editable, handleEdit}) => {
+const Ingredient = ({ingr, pos, editable, handleEdit, handleRemove}) => {
   const [name, setName] = useState(ingr != null ? ingr.name : '');
   const [amount, setAmount] = useState(ingr != null ? ingr.amount : '');
   const [unit, setUnit] = useState(ingr != null ? ingr.unit : '');
@@ -95,27 +94,26 @@ const Ingredient = ({ingr, pos, editable, handleEdit}) => {
     setName(name)
     let editedIngredient = {...ingr}
     editedIngredient.name = name
-    handleEdit(pos, editedIngredient)
+    handleEdit(editedIngredient)
   }
 
   const handleAmountChange = (amount) => {
     setAmount(amount)
     let editedIngredient = {...ingr}
     editedIngredient.amount = amount
-    handleEdit(pos, editedIngredient)
+    handleEdit(editedIngredient)
   }
 
   const handleUnitChange = (unit) => {
     setUnit(unit)
     let editedIngredient = {...ingr}
     editedIngredient.unit = unit
-    handleEdit(pos, editedIngredient)
+    handleEdit(editedIngredient)
   }
   
-  //TODO change key to id
   if(editable){
     return (
-      <ListItem key={pos}>
+      <ListItem data-testid = {ingr.id}>
         <TextField 
           label = "Name"
           value = {name}
@@ -131,7 +129,7 @@ const Ingredient = ({ingr, pos, editable, handleEdit}) => {
           value = {unit}
           onChange = {(event) => handleUnitChange(event.target.value)}
         />
-        <IconButton size = "small">
+        <IconButton size = "small" data-testid = "deleteIngredientButton" onClick = {() => handleRemove(ingr)}>
           <DeleteIcon />
         </IconButton>
       </ListItem>
@@ -139,8 +137,8 @@ const Ingredient = ({ingr, pos, editable, handleEdit}) => {
   }
   else{
     return (
-      <ListItem key={ingr.name}>
-        <ListItemText primary={`${ingr.name}, ${ingr.amount} ${ingr.unit}`} />
+      <ListItem>
+        <ListItemText primary={`${ingr.name}, ${ingr.amount} ${ingr.unit ? ingr.unit: ""}`} />
       </ListItem>
     );
   }

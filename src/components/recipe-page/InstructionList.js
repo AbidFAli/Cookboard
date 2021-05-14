@@ -9,41 +9,32 @@ import ListItemText from '@material-ui/core/ListItemText';
 import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
 
-const InstructionList = ({instructions, setInstructions, editable}) => {
+const InstructionList = ({instructions, editable, handleAdd, handleRemove, handleEdit}) => {
   const [adding, setAdding] = useState(false)
   const [newInstruction, setNewInstruction] = useState('')
 
-  const addInstruction = function(newInstruction){
-    let newInstructions = Array.from(instructions)
-    newInstructions.push(newInstruction)
+  const handleAddWrapper = function(newInstruction){
+    handleAdd(newInstruction)
     setNewInstruction('')
-    setInstructions(newInstructions)
   }
 
-  const removeInstruction = function(index){
-    let newInstructions = Array.from(instructions)
-    newInstructions.splice(index,1)
-    setInstructions(newInstructions)
-  }
 
-  const editInstruction = function(index, newInstruction){
-    let newInstructions = Array.from(instructions)
-    newInstructions[index] = newInstruction
-    setInstructions(newInstructions)
-  }
-  
-  let content = instructions.map((value,index) => {
+  let content = null
+  if(instructions != null){
+    content = instructions.map((value,index) => {
       return(
-          <Instruction 
-            instr = {value} 
-            pos = {index}
-            deleteHandler = {removeInstruction}
-            editable = {editable}
-            editInstruction = {editInstruction}
-          />            
+        <Instruction
+          key = {value}
+          instr = {value} 
+          pos = {index}
+          deleteHandler = {handleRemove}
+          editable = {editable}
+          editInstruction = {handleEdit}
+        />            
       ) 
-        
-  });
+    });
+  }
+
   let buttons = null;
   if(adding && editable){
     buttons = (
@@ -53,7 +44,7 @@ const InstructionList = ({instructions, setInstructions, editable}) => {
           value = {newInstruction}
           onChange = {(event) => setNewInstruction(event.target.value)}
         />
-        <Button onClick = {() => addInstruction(newInstruction)}>
+        <Button onClick = {() => handleAddWrapper(newInstruction)}>
           Add instruction
         </Button>
         <IconButton onClick = {() => setAdding(false)}>
@@ -82,11 +73,11 @@ const InstructionList = ({instructions, setInstructions, editable}) => {
   );
 }
 
-const Instruction = ({instr, pos, deleteHandler, editable, editInstruction}) => {
+const Instruction = ({instr, pos, editable, handleEdit, handleRemove}) => {
   const [instrText, setInstrText] = useState(instr != null ? instr : '')
-  const handleEdits = (newText) => {
+  const handleEditWrapper = (newText) => {
     setInstrText(newText)
-    editInstruction(pos, newText)
+    handleEdit(pos, newText)
   }
 
   if(editable){
@@ -95,9 +86,9 @@ const Instruction = ({instr, pos, deleteHandler, editable, editInstruction}) => 
         <ListItemText primary={`${1 + pos}.`}/>
         <TextField 
           value = {instrText}
-          onChange = {(event) => handleEdits(event.target.value)}
+          onChange = {(event) => handleEditWrapper(event.target.value)}
         />
-        <IconButton size = "small" onClick = {() => deleteHandler(pos)}>
+        <IconButton size = "small" onClick = {() => handleRemove(pos)}>
           <DeleteIcon />
         </IconButton>
       </ListItem>

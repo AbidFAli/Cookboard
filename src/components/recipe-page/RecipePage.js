@@ -21,8 +21,6 @@ import { IngredientList } from './IngredientList'
 import { useHistory} from 'react-router';
 
 
-
-
 /*
  *@prop recipe: the Recipe object containing info about the recipe to display.
  */
@@ -55,29 +53,61 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe}) => {
         newRecipe = await recipeService.update(newRecipe)
       }else{
         newRecipe = await recipeService.create(newRecipe)
+        handleAddRecipe(newRecipe)
+        history.replace(`${prevPath}/${newRecipe.id}`)
       }
-      
-      handleAddRecipe(newRecipe)
-      history.replace(`${prevPath}/${newRecipe.id}`)
-      //TODO: navigate to the recipe's actual page
+    }
+    
+    const restoreDefaultState = () => {
+      setName(recipe != null ? recipe.name : '')
+      setDescription(recipe != null ? recipe.description : '')
+      setInstructions(recipe != null ? recipe.instructions : [])
+      setIngredients(recipe != null ? recipe.ingredients : [])
+      setRating(recipe != null ? recipe.stars : 0)
+      setTimeToMake(recipe != null ? recipe.timeToMake : null)
+      setServingInfo(recipe != null ? recipe.servingInfo : null)
+    }
+
+    const changeEditable = () => {
+      if(editable){
+        restoreDefaultState()
+      }
+      setEditable(!editable)
     }
 
     const addIngredient = function(newIngredient){
       let newIngredients = Array.from(ingredients)
       newIngredients.push(newIngredient)
       setIngredients(newIngredients)
+      
     }
 
-    const removeIngredient = function(index){
-      let newIngredients = Array.from(ingredients)
-      newIngredients.splice(index,1)
+    const removeIngredient = function(ingredientToRemove){
+      let newIngredients = ingredients.filter((ingredient) => ingredient.id !== ingredientToRemove.id)
       setIngredients(newIngredients)
     }
 
-    const editIngredient = function(index, editedIngredient){
-      let newIngredients = Array.from(ingredients)
-      newIngredients[index] = editedIngredient
+    const editIngredient = function(editedIngredient){
+      let newIngredients = ingredients.map(ingredient => ingredient.id === editedIngredient.id ? editedIngredient : ingredient)
       setIngredients(newIngredients)
+    }
+
+    const addInstruction = function(newInstruction){
+      let newInstructions = Array.from(instructions)
+      newInstructions.push(newInstruction)
+      setInstructions(newInstructions)
+    }
+  
+    const removeInstruction = function(index){
+      let newInstructions = Array.from(instructions)
+      newInstructions.splice(index,1)
+      setInstructions(newInstructions)
+    }
+  
+    const editInstruction = function(index, newInstruction){
+      let newInstructions = Array.from(instructions)
+      newInstructions[index] = newInstruction
+      setInstructions(newInstructions)
     }
 
     let saveButton = null;
@@ -97,14 +127,14 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe}) => {
               </Grid>
           </Grid>
           <Grid item xs={12}>
-              <Paper>
-                  <DescriptionRating 
-                      desc={description} 
-                      setDesc = {setDescription}
-                      rating={rating}
-                      setRating = {setRating} 
-                      editable = {editable}/>
-              </Paper>
+            <Paper>
+              <DescriptionRating 
+                desc={description} 
+                setDesc = {setDescription}
+                rating={rating}
+                setRating = {setRating} 
+                editable = {editable}/>
+            </Paper>
           </Grid>
           <Grid item  xs={12}>
               <Paper>
@@ -127,16 +157,26 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe}) => {
               editable = {editable} />
           </Grid>
           <Grid item xs={12} >
-              <Paper>
-                  <Typography variant="h5" gutterBottom>
-                      Instructions
-                  </Typography>
-                  <InstructionList instructions={instructions} setInstructions = {setInstructions} editable = {editable} />
-              </Paper>
+            <Paper>
+              <Typography variant="h5" gutterBottom>
+                  Instructions
+              </Typography>
+              <InstructionList 
+                instructions={instructions}
+                editable = {editable}
+                handleAdd = {addInstruction}
+                handleRemove = {removeInstruction}
+                handleEdit = {editInstruction} />
+            </Paper>
           </Grid>
           <Grid item xs = {12} >
             {saveButton}
-            <Fab name = "editButton" color = {editable === false ? "primary" : "secondary" } onClick = {() => setEditable(!editable)}>
+            <Fab 
+              data-testid = "editButton" 
+              alt ="Edit recipe" 
+              color = {editable === false ? "primary" : "secondary" } 
+              onClick = {() => changeEditable()}
+              >
               {
                 editable
                 ? <CancelIcon/>
