@@ -145,7 +145,7 @@ export function MyRecipesPage(props){
     return (
             <Switch>
                 <Route path = '/new'>
-                    <RecipePage prevPath = {path} handleAddRecipe = {addRecipe} />
+                    <RecipePage prevPath = {path} handleAddRecipe = {addRecipe} handleUpdateRecipe = {updateRecipe} />
                 </Route>
                 <Route path={`${path}/:recipeId`}
                     render={({ match }) => (
@@ -153,6 +153,7 @@ export function MyRecipesPage(props){
                             recipe={recipes.find(recipe => recipe.id === match.params.recipeId)} 
                             prevPath = {path}
                             handleAddRecipe = {addRecipe}
+                            handleUpdateRecipe = {updateRecipe}
                             />
                     )}
                 />

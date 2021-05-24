@@ -1,15 +1,16 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import Button from '@material-ui/core/Button'
 import CancelIcon from '@material-ui/icons/Cancel'
 import EditIcon from '@material-ui/icons/Edit';
 import Fab from '@material-ui/core/Fab'
 import Grid from '@material-ui/core/Grid';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
+// import List from '@material-ui/core/List';
+// import ListItem from '@material-ui/core/ListItem';
+// import ListItemText from '@material-ui/core/ListItemText';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
+
 
 import recipeService from '../../services/recipeService'
 import DescriptionRating from './DescriptionRating'
@@ -17,6 +18,7 @@ import RecipeName from './RecipeName'
 import ServingInfoList from './ServingInfoList'
 import TimingInfo from './TimingInfo'
 import { InstructionList } from './InstructionList'
+import Instruction from '../../Model/instruction'
 import { IngredientList } from './IngredientList'
 import { useHistory} from 'react-router';
 
@@ -24,33 +26,47 @@ import { useHistory} from 'react-router';
 /*
  *@prop recipe: the Recipe object containing info about the recipe to display.
  */
-const RecipePage = ({recipe, prevPath, handleAddRecipe}) => {
+const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => {
     const history = useHistory();
 
     //recipe state
-    const [name, setName] = useState(recipe != null ? recipe.name : '')
-    const [description, setDescription] = useState(recipe != null ? recipe.description : '')
-    const [instructions, setInstructions] = useState(recipe != null ? recipe.instructions : [])
-    const [ingredients, setIngredients] = useState(recipe != null ? recipe.ingredients : [])
-    const [rating, setRating] = useState(recipe != null ? recipe.stars : 0)
+    const [id, setId] = useState(recipe != null ? recipe.id : null)
+    const [name, setName] = useState(recipe != null && recipe.name != null ? recipe.name : '')
+    const [description, setDescription] = useState(recipe != null && recipe.description != null ? recipe.description : '')
+    const [instructions, setInstructions] = useState(recipe != null && recipe.instructions != null ? recipe.instructions : [])
+    const [ingredients, setIngredients] = useState(recipe != null && recipe.ingredients != null ? recipe.ingredients : [])
+    const [rating, setRating] = useState(recipe != null && recipe.rating != null ? recipe.rating : 0)
     const [timeToMake, setTimeToMake] = useState(recipe != null ? recipe.timeToMake : null)
     const [servingInfo, setServingInfo] = useState(recipe != null ? recipe.servingInfo : null)
-    
     const [editable, setEditable] = useState(false)
     const [created, setCreated] = useState(recipe != null)
     
+    useEffect(() => {
+      let instr;
+      if(recipe != null && recipe.instructions != null){
+        instr = Array.from(recipe.instructions)
+      }
+      else{
+        instr = []
+      }
+
+      let newInstructions = instr.map((text) =>  new Instruction(text));
+      setInstructions(newInstructions)
+    }, [recipe])
+
     const handleSave = async () => {
       setEditable(false);
       let newRecipe = {...recipe}
       newRecipe.name = name
       newRecipe.description = description
-      newRecipe.instructions = instructions
+      newRecipe.instructions = instructions.map(instr => instr.text)
       newRecipe.ingredients = ingredients
       newRecipe.rating = rating
       newRecipe.timeToMake = timeToMake
       newRecipe.servingInfo = servingInfo
       if(created){
         newRecipe = await recipeService.update(newRecipe)
+        handleUpdateRecipe(newRecipe)
       }else{
         newRecipe = await recipeService.create(newRecipe)
         handleAddRecipe(newRecipe)
@@ -59,11 +75,18 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe}) => {
     }
     
     const restoreDefaultState = () => {
-      setName(recipe != null ? recipe.name : '')
-      setDescription(recipe != null ? recipe.description : '')
-      setInstructions(recipe != null ? recipe.instructions : [])
-      setIngredients(recipe != null ? recipe.ingredients : [])
-      setRating(recipe != null ? recipe.stars : 0)
+      setName(recipe != null && recipe.name != null ? recipe.name : '')
+      setDescription(recipe != null && recipe.description != null ? recipe.description : '')
+      let newInstructions = []
+      if(recipe != null && recipe.instructions != null){
+        newInstructions = recipe.instructions.map((text) =>  new Instruction(text))
+      }
+      else{
+        setInstructions(newInstructions)
+      }
+    
+      setIngredients(recipe != null && recipe.ingredients != null ? recipe.ingredients : [])
+      setRating(recipe != null && recipe.rating != null ? recipe.rating : 0)
       setTimeToMake(recipe != null ? recipe.timeToMake : null)
       setServingInfo(recipe != null ? recipe.servingInfo : null)
     }
@@ -104,9 +127,10 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe}) => {
       setInstructions(newInstructions)
     }
   
-    const editInstruction = function(index, newInstruction){
+    //needs changing
+    const editInstruction = function(index, newInstructionText){
       let newInstructions = Array.from(instructions)
-      newInstructions[index] = newInstruction
+      newInstructions[index].text = newInstructionText
       setInstructions(newInstructions)
     }
 

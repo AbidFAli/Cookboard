@@ -22,6 +22,12 @@ const destroy = (recipe) => {
 }
 
 
+let recipeService = {
+  create,
+  getById,
+  getAll,
+  update,
+  destroy
+}
 
-
-export default {create, getById, getAll, update, destroy};
+export default recipeService;

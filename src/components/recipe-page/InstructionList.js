@@ -9,27 +9,30 @@ import ListItemText from '@material-ui/core/ListItemText';
 import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
 
+import Instruction from '../../Model/instruction'
+
 const InstructionList = ({instructions, editable, handleAdd, handleRemove, handleEdit}) => {
   const [adding, setAdding] = useState(false)
-  const [newInstruction, setNewInstruction] = useState('')
+  const [newInstructionText, setNewInstructionText] = useState('')
 
-  const handleAddWrapper = function(newInstruction){
+  const handleAddWrapper = function(newInstructionText){
+    let newInstruction = new Instruction(newInstructionText)
     handleAdd(newInstruction)
-    setNewInstruction('')
+    setNewInstructionText('')
   }
 
 
   let content = null
   if(instructions != null){
-    content = instructions.map((value,index) => {
+    content = instructions.map((instr,index) => {
       return(
-        <Instruction
-          key = {value}
-          instr = {value} 
+        <InstructionView
+          key = {instr.id}
+          instr = {instr} 
           pos = {index}
-          deleteHandler = {handleRemove}
+          handleRemove = {handleRemove}
           editable = {editable}
-          editInstruction = {handleEdit}
+          handleEdit = {handleEdit}
         />            
       ) 
     });
@@ -40,11 +43,11 @@ const InstructionList = ({instructions, editable, handleAdd, handleRemove, handl
     buttons = (
       <React.Fragment>
         <TextField
-          name = "newInstructionField"
-          value = {newInstruction}
-          onChange = {(event) => setNewInstruction(event.target.value)}
+          inputProps = {{ "data-testid" : "newInstructionField" }}
+          value = {newInstructionText}
+          onChange = {(event) => setNewInstructionText(event.target.value)}
         />
-        <Button onClick = {() => handleAddWrapper(newInstruction)}>
+        <Button onClick = {() => handleAddWrapper(newInstructionText)}>
           Add instruction
         </Button>
         <IconButton onClick = {() => setAdding(false)}>
@@ -55,7 +58,7 @@ const InstructionList = ({instructions, editable, handleAdd, handleRemove, handl
   }
   else if(editable){
     buttons = (
-      <IconButton onClick = {() => setAdding(true)}>
+      <IconButton onClick = {() => setAdding(true)} data-testid = "addingInstructionButton">
         <AddIcon />
       </IconButton>
     )
@@ -63,18 +66,20 @@ const InstructionList = ({instructions, editable, handleAdd, handleRemove, handl
 
 
   return (
-      <React.Fragment>
-          <List component = "ol">
-              {content}
-          </List>
-          {buttons}
-      </React.Fragment>
+      <div data-testid = "instructionList">
+        <List component = "ol">
+          {content}
+        </List>
+        {buttons}
+      </div>
+
+      
 
   );
 }
 
-const Instruction = ({instr, pos, editable, handleEdit, handleRemove}) => {
-  const [instrText, setInstrText] = useState(instr != null ? instr : '')
+const InstructionView = ({instr, pos, editable, handleEdit, handleRemove}) => {
+  const [instrText, setInstrText] = useState(instr != null ? instr.text : '')
   const handleEditWrapper = (newText) => {
     setInstrText(newText)
     handleEdit(pos, newText)
