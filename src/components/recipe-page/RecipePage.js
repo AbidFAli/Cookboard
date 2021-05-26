@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import Button from '@material-ui/core/Button'
 import CancelIcon from '@material-ui/icons/Cancel'
 import EditIcon from '@material-ui/icons/Edit';
@@ -10,17 +10,18 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
+import { useHistory} from 'react-router';
 
-
-import recipeService from '../../services/recipeService'
 import DescriptionRating from './DescriptionRating'
+import recipeService from '../../services/recipeService'
+import RecipeErrorService from '../../services/recipeErrorService'
 import RecipeName from './RecipeName'
-import ServingInfoList from './ServingInfoList'
+import { ServingInfoList } from './ServingInfoList'
 import TimingInfo from './TimingInfo'
 import { InstructionList } from './InstructionList'
 import Instruction from '../../Model/instruction'
 import { IngredientList } from './IngredientList'
-import { useHistory} from 'react-router';
+
 
 
 /*
@@ -28,6 +29,7 @@ import { useHistory} from 'react-router';
  */
 const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => {
     const history = useHistory();
+    const errorService = useRef(new RecipeErrorService())
 
     //recipe state
     const [id, setId] = useState(recipe != null ? recipe.id : null)
@@ -40,6 +42,7 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
     const [servingInfo, setServingInfo] = useState(recipe != null ? recipe.servingInfo : null)
     const [editable, setEditable] = useState(false)
     const [created, setCreated] = useState(recipe != null)
+    const [hasErrors, setHasErrors] = useState(false)
     
     useEffect(() => {
       let instr;
@@ -54,23 +57,29 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
       setInstructions(newInstructions)
     }, [recipe])
 
+    const updateHasErrors = () => {
+      setHasErrors(errorService.current.numErrors() == 0)
+    }
+
     const handleSave = async () => {
-      setEditable(false);
-      let newRecipe = {...recipe}
-      newRecipe.name = name
-      newRecipe.description = description
-      newRecipe.instructions = instructions.map(instr => instr.text)
-      newRecipe.ingredients = ingredients
-      newRecipe.rating = rating
-      newRecipe.timeToMake = timeToMake
-      newRecipe.servingInfo = servingInfo
-      if(created){
-        newRecipe = await recipeService.update(newRecipe)
-        handleUpdateRecipe(newRecipe)
-      }else{
-        newRecipe = await recipeService.create(newRecipe)
-        handleAddRecipe(newRecipe)
-        history.replace(`${prevPath}/${newRecipe.id}`)
+      if(!hasErrors){
+        setEditable(false);
+        let newRecipe = {...recipe}
+        newRecipe.name = name
+        newRecipe.description = description
+        newRecipe.instructions = instructions.map(instr => instr.text)
+        newRecipe.ingredients = ingredients
+        newRecipe.rating = rating
+        newRecipe.timeToMake = timeToMake
+        newRecipe.servingInfo = servingInfo
+        if(created){
+          newRecipe = await recipeService.update(newRecipe)
+          handleUpdateRecipe(newRecipe)
+        }else{
+          newRecipe = await recipeService.create(newRecipe)
+          handleAddRecipe(newRecipe)
+          history.replace(`${prevPath}/${newRecipe.id}`)
+        }
       }
     }
     
@@ -89,6 +98,7 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
       setRating(recipe != null && recipe.rating != null ? recipe.rating : 0)
       setTimeToMake(recipe != null ? recipe.timeToMake : null)
       setServingInfo(recipe != null ? recipe.servingInfo : null)
+      setId(recipe != null ? recipe.id : null)
     }
 
     const changeEditable = () => {
@@ -137,7 +147,16 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
     let saveButton = null;
     if(editable){
         let text = created ? "Save Changes" : "Create Recipe"
-        saveButton = ( <Button variant = "outlined" color = "primary" onClick = {() => handleSave()}>{text}</Button>);
+        saveButton = ( 
+        <Button 
+          variant = "outlined" 
+          color = "primary" 
+          onClick = {() => handleSave()}
+          disabled = {hasErrors}
+        >
+          {text}
+        </Button>
+        );
     } 
 
     return (
@@ -178,7 +197,8 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
               <ServingInfoList 
               servingInfo = {servingInfo} 
               setServingInfo = {setServingInfo} 
-              editable = {editable} />
+              editable = {editable}
+              updateHasErrors = {updateHasErrors} />
           </Grid>
           <Grid item xs={12} >
             <Paper>

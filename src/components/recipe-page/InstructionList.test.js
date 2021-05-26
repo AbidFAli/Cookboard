@@ -4,32 +4,40 @@ import {fireEvent, within} from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 
 import { Recipe } from '../../Model/recipe.js';
-import { InstructionList } from './InstructionList';
+import { ERROR_BLANK_INSTRUCTION } from './InstructionList';
 import { RecipePage} from './RecipePage';
 
 //Integration tests with RecipePage and InstructionList
 
 jest.mock('../../services/recipeService')
 
-describe('InstructionList tests', () => {
+describe('InstructionList', () => {
   afterEach(cleanup);
-  let addHandler = jest.fn();
-  let updateHandler = jest.fn()
+  let addHandler, updateHandler;
+
+  beforeEach(() => {
+    addHandler = jest.fn();
+    updateHandler = jest.fn()
+  })
+
+  function renderRecipe(recipe) {
+    render(<RecipePage recipe = {recipe} prevPath = "" handleAddRecipe = {addHandler} handleUpdateRecipe = {updateHandler} />);
+  }
+
   test('displays a list of instructions', () => {
       let testInstr = ["heat stove", "cover pan in oil", "add batter"];
-      
       
       let recipe = {
         name: "something",
         instructions: testInstr
       }
-      render(<RecipePage recipe = {recipe} prevPath = "" handleAddRecipe = {addHandler} />);
+      renderRecipe(recipe)
       testInstr.forEach((value, index) => {
           expect(screen.getByText(Recipe.printInstruction(value,index))).toBeInTheDocument();
       });
   });
 
- describe('instructions can be added', () => {
+ describe('when adding instructions,', () => {
    let recipe
    beforeEach(() => {
     recipe = {
@@ -37,8 +45,8 @@ describe('InstructionList tests', () => {
     }
    });
 
-   test('to a recipe with no instructions', async () => {
-     render(<RecipePage recipe = {recipe} prevPath = "" handleAddRecipe = {addHandler} handleUpdateRecipe = {updateHandler} />);
+   test('adding succeeds for a recipe with no instructions', async () => {
+     renderRecipe(recipe)
      fireEvent.click(screen.getByTestId('editButton'))
      fireEvent.click(screen.getByTestId('addingInstructionButton'))
      userEvent.type(screen.getByTestId("newInstructionField"), "turn on stove")
@@ -47,9 +55,9 @@ describe('InstructionList tests', () => {
      expect(await screen.findByText("1. turn on stove")).toBeInTheDocument();
    })
 
-   test('to a recipe with some instructions', async () => {
+   test('adding succeeds for a recipe with some instructions', async () => {
     recipe.instructions = ['step one', 'step two']
-    render(<RecipePage recipe = {recipe} prevPath = "" handleAddRecipe = {addHandler} handleUpdateRecipe = {updateHandler} />);
+    renderRecipe(recipe)
     fireEvent.click(screen.getByTestId('editButton'))
     fireEvent.click(screen.getByTestId('addingInstructionButton'))
     let newInstruction = "step three"
@@ -59,7 +67,17 @@ describe('InstructionList tests', () => {
     expect(await screen.findByText(`3. ${newInstruction}`)).toBeInTheDocument();
    })
 
+   test.only('does not allow blank instructions to be added' , () => {
+     renderRecipe(recipe)
+     fireEvent.click(screen.getByTestId('editButton'))
+     fireEvent.click(screen.getByTestId('addingInstructionButton'))
+     userEvent.clear(screen.getByTestId("newInstructionField"))
+     fireEvent.click(screen.getByText(/Add instruction/i))
+     expect(screen.getByText(ERROR_BLANK_INSTRUCTION)).toBeInTheDocument()
+   })
+
  })
+ 
  describe('instructions can be edited', () => {
   let recipe
   beforeEach(() => {
@@ -67,7 +85,7 @@ describe('InstructionList tests', () => {
      name: "waffles",
      instructions: ['step one', 'step two', 'step three']
    }
-   render(<RecipePage recipe = {recipe} prevPath = "" handleAddRecipe = {addHandler} handleUpdateRecipe = {updateHandler} />);
+   renderRecipe(recipe)
    fireEvent.click(screen.getByTestId('editButton'))
   });
 

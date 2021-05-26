@@ -10,18 +10,47 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import TextField from '@material-ui/core/TextField';
 
+const ERROR_AMOUNT = "Amount must be a number"
+const ERROR_NAME = "Name is required"
 
 const IngredientList = ({ingredients, editable, handleAdd, handleEdit, handleRemove}) => {
   const [adding, setAdding] = useState(false)
   const [newName, setNewName] = useState('')
-  const [newAmount, setNewAmount] = useState(0)
+  const [newAmount, setNewAmount] = useState(1)
   const [newUnit, setNewUnit] = useState('')
+  const [amountErrorMessage, setAmountErrorMessage] = useState(null)
+  const [nameErrorMessage, setNameErrorMessage] = useState(null)
+
 
   const addIngredient = () => {
-    handleAdd({name : newName, amount: newAmount, unit: newUnit});
-    setNewName('')
-    setNewAmount(0)
-    setNewUnit('')
+    let amount = Number(newAmount)
+    let hasError = false;
+    if(amount == 0 || !Number.isFinite(amount)){
+      setAmountErrorMessage(ERROR_AMOUNT)
+      hasError = true;
+    }
+    else{
+      setAmountErrorMessage(null)
+    }
+
+    if(newName.trim() === ''){
+      setNameErrorMessage(ERROR_NAME)
+      hasError = true;
+    }
+    else{
+      setNameErrorMessage(null)
+    }
+
+    if(!hasError){
+      handleAdd({
+        name : newName, 
+        amount: amount, 
+        unit: newUnit.trim() === '' ? undefined : newUnit
+      });
+      setNewName('')
+      setNewAmount(1)
+      setNewUnit('')
+    }
   }
 
   let content = ingredients.map((ingr, index) => {
@@ -44,12 +73,16 @@ const IngredientList = ({ingredients, editable, handleAdd, handleEdit, handleRem
         <TextField 
           inputProps = {{ 'data-testid' : 'newNameField' }}
           label = "Name"
-          value = {newName} 
+          value = {newName}
+          error = {nameErrorMessage != null}
+          helperText = {nameErrorMessage}
           onChange = {(event) => setNewName(event.target.value)} />
         <TextField
           inputProps = {{ 'data-testid' : 'newAmountField' }} 
           label = "Amount"
           value = {newAmount}
+          error = {amountErrorMessage != null}
+          helperText = {amountErrorMessage}
           onChange = {(event) => setNewAmount(event.target.value)}/>
         <TextField 
           inputProps = {{ 'data-testid' : 'newUnitField' }}
@@ -74,13 +107,12 @@ const IngredientList = ({ingredients, editable, handleAdd, handleEdit, handleRem
   }
 
   return (
-    <React.Fragment>
+    <div data-testid = "ingredientList">
       <List component = "ul">
         {content}
       </List>
       {buttons}
-    </React.Fragment>
-
+    </div>
   );
 
 }
@@ -147,4 +179,4 @@ const Ingredient = ({ingr, pos, editable, handleEdit, handleRemove}) => {
 
 
 
-export {IngredientList};
+export {IngredientList, ERROR_AMOUNT, ERROR_NAME};

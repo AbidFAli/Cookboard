@@ -11,14 +11,23 @@ import TextField from '@material-ui/core/TextField';
 
 import Instruction from '../../Model/instruction'
 
+const ERROR_BLANK_INSTRUCTION = "Enter an instruction"
+
 const InstructionList = ({instructions, editable, handleAdd, handleRemove, handleEdit}) => {
   const [adding, setAdding] = useState(false)
   const [newInstructionText, setNewInstructionText] = useState('')
+  const [errorMessage, setErrorMessage] = useState(null)
 
   const handleAddWrapper = function(newInstructionText){
-    let newInstruction = new Instruction(newInstructionText)
-    handleAdd(newInstruction)
-    setNewInstructionText('')
+    if(newInstructionText.trim() === ''){ 
+      setErrorMessage(ERROR_BLANK_INSTRUCTION)
+    }
+    else{
+      let newInstruction = new Instruction(newInstructionText)
+      handleAdd(newInstruction)
+      setNewInstructionText('')
+      setErrorMessage(null)
+    }
   }
 
 
@@ -45,6 +54,8 @@ const InstructionList = ({instructions, editable, handleAdd, handleRemove, handl
         <TextField
           inputProps = {{ "data-testid" : "newInstructionField" }}
           value = {newInstructionText}
+          error = {errorMessage != null}
+          helperText = {errorMessage}
           onChange = {(event) => setNewInstructionText(event.target.value)}
         />
         <Button onClick = {() => handleAddWrapper(newInstructionText)}>
@@ -87,7 +98,7 @@ const InstructionView = ({instr, pos, editable, handleEdit, handleRemove}) => {
 
   if(editable){
     return (
-      <ListItem key = {pos} component="li">
+      <ListItem component="li">
         <ListItemText primary={`${1 + pos}.`}/>
         <TextField 
           value = {instrText}
@@ -101,11 +112,11 @@ const InstructionView = ({instr, pos, editable, handleEdit, handleRemove}) => {
   }
   else{
     return (
-        <ListItem key = {pos} component="li">
+        <ListItem component="li">
           <ListItemText primary={`${1 + pos}. ${instrText}`}/>
         </ListItem>
     )
   }
 }
 
-export {InstructionList };
+export {InstructionList, ERROR_BLANK_INSTRUCTION };

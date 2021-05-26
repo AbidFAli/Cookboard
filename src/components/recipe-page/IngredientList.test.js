@@ -4,41 +4,53 @@ import {within} from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 
 import { Ingredient } from '../../Model/ingredient.js'
-import { IngredientList } from './IngredientList.js';
+import { IngredientList, ERROR_AMOUNT, ERROR_NAME } from './IngredientList.js';
 import { RecipePage} from './RecipePage';
 
 
 //Integration tests with RecipePage and IngredientList
 
+jest.mock('../../services/recipeService')
+
 describe('IngredientList', () => {
     afterEach(cleanup);
     let recipe = null;
-    let addHandler = null;
+    let addHandler, updateHandler;
+
+    function renderRecipe(recipe) {
+        render(<RecipePage recipe = {recipe} prevPath = "" handleAddRecipe = {addHandler} handleUpdateRecipe = {updateHandler} />);
+    }
+
+    beforeEach(() => {
+        addHandler = jest.fn()
+        updateHandler = jest.fn()
+    });
+
     describe('displays', () => {
         beforeEach(() => {
             recipe = {
                 name: "waffles",
                 ingredients: []
             }
-            addHandler = jest.fn()
         })
         test('a list of one ingredient', () => {
+
             recipe.ingredients =
             [
                 {name: "ing1", amount: 1, unit: "tsp", id: "2001"}
             ];
-            render(<RecipePage recipe = {recipe} prevPath = "" handleAddRecipe = {addHandler} />);
+            renderRecipe(recipe)
             expect(screen.getByText("ing1, 1 tsp")).toBeInTheDocument();
         });
     
-        test('displays an ingredient without a unit', () => {
+        test('an ingredient without a unit', () => {
             recipe.ingredients = [{name: "egg", amount: 1, id: "2001"}];
 
-            render(<RecipePage recipe = {recipe} prevPath = "" handleAddRecipe = {addHandler} />);
+            renderRecipe(recipe)
             expect(screen.getByText(/egg, 1/)).toBeInTheDocument();
         });
     
-        test('displays a list of ingredients', () => {
+        test('a list of ingredients', () => {
             recipe.ingredients =
                 [
                     new Ingredient("flour", 1.5, "cups"),
@@ -46,7 +58,7 @@ describe('IngredientList', () => {
                     new Ingredient("salt", 1, "tsp"),
                 ];
 
-            render(<RecipePage recipe = {recipe} prevPath = "" handleAddRecipe = {addHandler} />);
+            renderRecipe(recipe)
             expect(screen.getByText("flour, 1.5 cups")).toBeInTheDocument;
             expect(screen.getByText("baking powder, 3.5 tsp")).toBeInTheDocument;
             expect(screen.getByText("salt, 1 tsp")).toBeinTheDocument;
@@ -58,9 +70,8 @@ describe('IngredientList', () => {
             name: "waffles",
             ingredients: [ {name: "egg", amount: 1, id: "2001"}]
         }
-        addHandler = jest.fn()
-        render(<RecipePage recipe = {recipe} prevPath = "" handleAddRecipe = {addHandler} />);
-
+        
+        renderRecipe(recipe)
         fireEvent.click(screen.getByTestId('editButton'))
         const eggTextField = screen.getByDisplayValue("egg")
         userEvent.clear(eggTextField)
@@ -70,22 +81,66 @@ describe('IngredientList', () => {
 
     })
 
-    test('allows ingredients to be added', async () => {
-        recipe = {
-            name: "waffles",
-            ingredients: []
-        }
-        addHandler = jest.fn()
-        render(<RecipePage recipe = {recipe} prevPath = "" handleAddRecipe = {addHandler} />);
-        fireEvent.click(screen.getByTestId('editButton'))
-        fireEvent.click(screen.getByTestId('startAddButton'))
-        userEvent.type(screen.getByTestId("newNameField"), "batter")
-        userEvent.clear(screen.getByTestId("newAmountField"))
-        userEvent.type(screen.getByTestId("newAmountField"), "1")
-        userEvent.type(screen.getByTestId("newUnitField"), "scoop")
-        fireEvent.click(screen.getByText('Add ingredient'))
-        fireEvent.click(screen.getByText("Save Changes"))
-        expect(await screen.findByText("batter, 1 scoop")).toBeInTheDocument()
+    describe('when adding ingredients', () => {
+        beforeEach(() => {
+            recipe = {
+                name: "waffles",
+                ingredients: []
+            }
+            renderRecipe(recipe)
+            fireEvent.click(screen.getByTestId('editButton'))
+            fireEvent.click(screen.getByTestId('startAddButton'))
+        })
+
+        test('succeeds for an ingredient with a name, unit, and amount', async () => {
+            userEvent.type(screen.getByTestId("newNameField"), "batter")
+            userEvent.clear(screen.getByTestId("newAmountField"))
+            userEvent.type(screen.getByTestId("newAmountField"), "1")
+            userEvent.type(screen.getByTestId("newUnitField"), "scoop")
+            fireEvent.click(screen.getByText('Add ingredient'))
+            fireEvent.click(screen.getByText("Save Changes"))
+            expect(await screen.findByText("batter, 1 scoop")).toBeInTheDocument()
+        })
+
+        test('succeeds for an ingredient missing a unit', async () => {
+            userEvent.type(screen.getByTestId("newNameField"), "batter")
+            userEvent.clear(screen.getByTestId("newAmountField"))
+            userEvent.type(screen.getByTestId("newAmountField"), "1")
+            fireEvent.click(screen.getByText('Add ingredient'))
+            fireEvent.click(screen.getByText("Save Changes"))
+            expect(await screen.findByText("batter, 1")).toBeInTheDocument()
+        })
+
+        test('displays an error when the ingredient does not have a name', () => {
+            userEvent.clear(screen.getByTestId("newNameField"))
+            userEvent.clear(screen.getByTestId("newAmountField"))
+            userEvent.type(screen.getByTestId("newAmountField"), "1")
+            fireEvent.click(screen.getByText('Add ingredient'))
+            expect(screen.getByText(ERROR_NAME)).toBeInTheDocument()
+        })
+
+        test('displays an error when the ingredient does not have an amount', () => {
+            userEvent.clear(screen.getByTestId("newAmountField"))
+            fireEvent.click(screen.getByText('Add ingredient'))
+            expect(screen.getByText(ERROR_AMOUNT)).toBeInTheDocument()
+        })
+
+        test('displays an error when the amount is not a number' , () => {
+            userEvent.clear(screen.getByTestId("newAmountField"))
+            userEvent.type(screen.getByTestId("newAmountField"), "Hello")
+            fireEvent.click(screen.getByText('Add ingredient'))
+            expect(screen.getByText(ERROR_AMOUNT)).toBeInTheDocument()
+        })
+
+        test('displays an error when the amount is infinity' , () => {
+            userEvent.clear(screen.getByTestId("newAmountField"))
+            userEvent.type(screen.getByTestId("newAmountField"), "Infinity")
+            fireEvent.click(screen.getByText('Add ingredient'))
+            expect(screen.getByText(ERROR_AMOUNT)).toBeInTheDocument()
+        })
+
+
+
     })
 
     test('allows ingredients to be deleted', async () => {
