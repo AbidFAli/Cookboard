@@ -6,7 +6,6 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 
-import RecipeErrorService from '../../services/recipeErrorService'
 
 //Error Types
 const ERROR_NUM_SERVED = "errorKeyNumServed"
@@ -17,71 +16,74 @@ const ERROR_SERVING_SIZE = "errorKeyServingSize"
 const ERROR_MSG_NUM_SERVED_NAN = "No. Served must be a number"
 const ERROR_MSG_YIELD_NAN = "Yield must be a number"
 const ERROR_MSG_SERVING_SIZE_NAN = "Serving Size must be a number"
+const ERROR_MSG_SERVING_SIZE_MISSING = "Serving Size missing"
 
 
 const FIELD_NUM_SERVED = "fieldNumServed"
 const FIELD_YIELD = "fieldYield"
 const FIELD_SERVING_SIZE = "fieldServingSize"
 
-const ServingInfoList = ({servingInfo, setServingInfo, editable, updateHasErrors}) => {
-  const errorService = useRef(new RecipeErrorService())
-  const [numServedErrorMessage, setNumServedErrorMessage] = useState(null)
-  const [yieldErrorMessage, setYieldErrorMessage] = useState(null)
-  const [servingSizeErrorMessage, setServingSizeErrorMessage] = useState(null)
 
-  // useEffect(()=> {
 
-  //   const updateErrors = (errorMessageVariable) => {
-  //     if(errorMessageVariable == null){
 
-  //     }
-  //   }
+const ServingInfoList = ({servingInfo, setServingInfo, editable, errors, dispatchErrors}) => {
 
-  // }, [servingSizeErrorMessage, yieldErrorMessage, numServedErrorMessage])
 
   const handleChangeNumServed = (numServedText) => {
     let numServed = Number(numServedText)
-    if(Number.isFinite(numServed) && numServedText.trim() !== ''){
-      let newServingInfo = {...servingInfo}
+    let newServingInfo = {...servingInfo}
+
+    if(numServedText.trim() == ''){
+      newServingInfo.numServed = undefined
+      setServingInfo(newServingInfo)
+      dispatchErrors({type: 'remove', errorKey: ERROR_NUM_SERVED})
+    }
+    else if(Number.isFinite(numServed)){
       newServingInfo.numServed = numServed
       setServingInfo(newServingInfo)
-      setNumServedErrorMessage(null)
-      errorService.current.removeError(ERROR_NUM_SERVED)
+      dispatchErrors({type: 'remove', errorKey: ERROR_NUM_SERVED})
     }
     else if(!Number.isFinite(numServed)){
-      setNumServedErrorMessage(ERROR_MSG_NUM_SERVED_NAN)
-      errorService.current.addError(ERROR_NUM_SERVED)
+      dispatchErrors({type: 'add', errorKey: ERROR_NUM_SERVED, errorMessage: ERROR_MSG_NUM_SERVED_NAN })
     }
 
 
   }
   const handleChangeYield = (servingYieldText) => {
     let servingYield = Number(servingYieldText)
-    if(Number.isFinite(servingYield) && servingYieldText.trim() !== ''){
-      let newServingInfo = {...servingInfo}
+    let newServingInfo = {...servingInfo}
+
+    if(servingYieldText.trim() == ''){
+      newServingInfo.yield = undefined
+      dispatchErrors({type: 'remove', errorKey: ERROR_YIELD})
+    }
+    else if(Number.isFinite(servingYield) ){
       newServingInfo.yield = servingYield
       setServingInfo(newServingInfo)
-      setYieldErrorMessage(null)
-      errorService.current.removeError(ERROR_YIELD)
+      dispatchErrors({type: 'remove', errorKey: ERROR_YIELD})
     } 
     else if(!Number.isFinite(servingYield)){
-      setYieldErrorMessage(ERROR_MSG_YIELD_NAN)
-      errorService.current.addError(ERROR_YIELD)
+      dispatchErrors({type: 'add', errorKey: ERROR_YIELD, errorMessage: ERROR_MSG_YIELD_NAN })
     }
 
   }
+
   const handleChangeServingSize = (servingSizeText) => {
     let servingSize = Number(servingSizeText)
-    if(Number.isFinite(servingSize) && servingSizeText.trim() !== ''){
-      let newServingInfo = {...servingInfo}
+    let newServingInfo = {...servingInfo}
+
+    if(servingSizeText.trim() == ''){
+      newServingInfo.servingSize = undefined
+      dispatchErrors({type: 'remove', errorKey: ERROR_SERVING_SIZE})
+    }
+    else if(Number.isFinite(servingSize) ){
+      
       newServingInfo.servingSize = servingSize
       setServingInfo(newServingInfo)
-      setServingSizeErrorMessage(null)
-      errorService.current.removeError(ERROR_SERVING_SIZE)
+      dispatchErrors({type: 'remove', errorKey: ERROR_SERVING_SIZE})
     }
     else if(!Number.isFinite(servingSize)){
-      setServingSizeErrorMessage(ERROR_MSG_SERVING_SIZE_NAN)
-      errorService.current.addError(ERROR_SERVING_SIZE)
+      dispatchErrors({type: 'add', errorKey: ERROR_SERVING_SIZE, errorMessage: ERROR_MSG_SERVING_SIZE_NAN })
     }
   }
 
@@ -89,6 +91,14 @@ const ServingInfoList = ({servingInfo, setServingInfo, editable, updateHasErrors
     let newServingInfo = {...servingInfo}
     newServingInfo.unit = unit.trim() !== '' ? unit : undefined
     setServingInfo(newServingInfo)
+    if(newServingInfo.servingSize == undefined && newServingInfo.unit !== undefined){
+        dispatchErrors({type: 'add', errorKey: ERROR_SERVING_SIZE, errorMessage: ERROR_MSG_SERVING_SIZE_MISSING})
+    }
+    else if(errors.getErrorMessage(ERROR_SERVING_SIZE) === ERROR_MSG_SERVING_SIZE_MISSING){
+        dispatchErrors({type: 'remove', errorKey: ERROR_SERVING_SIZE})
+    }
+    
+  
   }
 
   let content;
@@ -100,8 +110,8 @@ const ServingInfoList = ({servingInfo, setServingInfo, editable, updateHasErrors
             name = {FIELD_NUM_SERVED}
             inputProps = {{'data-testid': FIELD_NUM_SERVED}}
             defaultValue= {servingInfo != null && servingInfo.numServed != null ? servingInfo.numServed : ''}
-            error = {numServedErrorMessage != null}
-            helperText = {numServedErrorMessage}
+            error = {errors.hasError(ERROR_NUM_SERVED)}
+            helperText = {errors.getErrorMessage(ERROR_NUM_SERVED)}
             label = "Number Served"
             onChange = {(event) => handleChangeNumServed(event.target.value)}
           />
@@ -111,8 +121,8 @@ const ServingInfoList = ({servingInfo, setServingInfo, editable, updateHasErrors
             name = {FIELD_YIELD}
             inputProps = {{'data-testid': FIELD_YIELD}}
             defaultValue= {servingInfo != null && servingInfo.yield != null ? servingInfo.yield : ''}
-            error = {yieldErrorMessage != null}
-            helperText = {yieldErrorMessage}
+            error = {errors.hasError(ERROR_YIELD)}
+            helperText = {errors.getErrorMessage(ERROR_YIELD)}
             label = "Yield"
             onChange = {(event) => handleChangeYield(event.target.value)}
             />
@@ -122,8 +132,8 @@ const ServingInfoList = ({servingInfo, setServingInfo, editable, updateHasErrors
             name = {FIELD_SERVING_SIZE}
             inputProps = {{'data-testid' : FIELD_SERVING_SIZE}}
             defaultValue= {servingInfo != null && servingInfo.servingSize != null ? servingInfo.servingSize : ''}
-            error = {servingSizeErrorMessage != null}
-            helperText = {servingSizeErrorMessage}
+            error = {errors.hasError(ERROR_SERVING_SIZE)}
+            helperText = {errors.getErrorMessage(ERROR_SERVING_SIZE)}
             label = "Serving Size"
             onChange = {(event) => handleChangeServingSize(event.target.value)}
             />
@@ -140,15 +150,27 @@ const ServingInfoList = ({servingInfo, setServingInfo, editable, updateHasErrors
   else if(!editable && servingInfo != null){
     content = (
       <List component = "ul">
-      <ListItem>
-          <ListItemText primary={`Serves: ${servingInfo.numServed}`} />
-      </ListItem>
-      <ListItem>
-          <ListItemText primary={`Yield: ${servingInfo.yield} servings`} />
-      </ListItem>
-      <ListItem>
-          <ListItemText primary={`Serving size: ${servingInfo.servingSize} ${servingInfo.unit ? servingInfo.unit : ''}`} />
-      </ListItem>
+        {
+          servingInfo.numServed !== undefined && (
+          <ListItem>
+              <ListItemText primary={`Serves: ${servingInfo.numServed}`} />
+          </ListItem>
+          )
+        }
+        {
+          servingInfo.yield !== undefined && (
+            <ListItem>
+              <ListItemText primary={`Yield: ${servingInfo.yield} servings`} />
+            </ListItem>
+          )
+        }
+        {
+          servingInfo.servingSize !== undefined && (
+            <ListItem>
+              <ListItemText primary={`Serving size: ${servingInfo.servingSize} ${servingInfo.unit ? servingInfo.unit : ''}`} />
+            </ListItem>
+          )
+        }
       </List>
     );
   }

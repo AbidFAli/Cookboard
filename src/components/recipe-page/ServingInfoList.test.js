@@ -46,7 +46,15 @@ describe('ServingInfoList', () => {
       }
   });
 
-  
+  test('cannot save if there is an error in the textboxes', () => {
+    renderRecipe(recipe)
+    fireEvent.click(screen.getByTestId('editButton'))
+    let textbox = screen.getByTestId(FIELD_NUM_SERVED)
+    userEvent.clear(textbox)
+    userEvent.type(textbox, "letters")
+    expect(screen.getByTestId("saveButton")).toBeDisabled()
+  })
+
   describe('when editing numServed', () => {
     test('displays an error message when non-numerical text is typed' , () => {
       testNonNumericalText(FIELD_NUM_SERVED, ERROR_MSG_NUM_SERVED_NAN)

@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useReducer} from 'react';
 import Button from '@material-ui/core/Button'
 import CancelIcon from '@material-ui/icons/Cancel'
 import EditIcon from '@material-ui/icons/Edit';
@@ -13,23 +13,35 @@ import TextField from '@material-ui/core/TextField';
 import { useHistory} from 'react-router';
 
 import DescriptionRating from './DescriptionRating'
+import ErrorManager from '../../Model/errorManager'
 import recipeService from '../../services/recipeService'
-import RecipeErrorService from '../../services/recipeErrorService'
-import RecipeName from './RecipeName'
+import { RecipeName } from './RecipeName'
 import { ServingInfoList } from './ServingInfoList'
-import TimingInfo from './TimingInfo'
+import { TimingInfo } from './TimingInfo'
 import { InstructionList } from './InstructionList'
 import Instruction from '../../Model/instruction'
 import { IngredientList } from './IngredientList'
 
 
+//errors is an instance of the ErrorManager class
+function reduceErrors(errors, action){
+  const newErrors = new ErrorManager(errors)
+  switch(action.type) {
+    case 'add':
+      return newErrors.addError(action.errorKey, action.errorMessage);
+    case 'remove':
+      return newErrors.removeError(action.errorKey);
+    case 'reset':
+      return new ErrorManager();
+  }
+}
 
 /*
  *@prop recipe: the Recipe object containing info about the recipe to display.
  */
 const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => {
     const history = useHistory();
-    const errorService = useRef(new RecipeErrorService())
+    const [errors, dispatchErrors] = useReducer(reduceErrors, new ErrorManager())
 
     //recipe state
     const [id, setId] = useState(recipe != null ? recipe.id : null)
@@ -42,7 +54,7 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
     const [servingInfo, setServingInfo] = useState(recipe != null ? recipe.servingInfo : null)
     const [editable, setEditable] = useState(false)
     const [created, setCreated] = useState(recipe != null)
-    const [hasErrors, setHasErrors] = useState(false)
+    
     
     useEffect(() => {
       let instr;
@@ -57,12 +69,9 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
       setInstructions(newInstructions)
     }, [recipe])
 
-    const updateHasErrors = () => {
-      setHasErrors(errorService.current.numErrors() == 0)
-    }
 
     const handleSave = async () => {
-      if(!hasErrors){
+      if(errors.size() == 0){
         setEditable(false);
         let newRecipe = {...recipe}
         newRecipe.name = name
@@ -99,6 +108,7 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
       setTimeToMake(recipe != null ? recipe.timeToMake : null)
       setServingInfo(recipe != null ? recipe.servingInfo : null)
       setId(recipe != null ? recipe.id : null)
+      dispatchErrors({type: 'reset'})
     }
 
     const changeEditable = () => {
@@ -152,7 +162,8 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
           variant = "outlined" 
           color = "primary" 
           onClick = {() => handleSave()}
-          disabled = {hasErrors}
+          disabled = {errors.size() != 0}
+          data-testid = "saveButton"
         >
           {text}
         </Button>
@@ -163,10 +174,22 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
       <Grid container spacing={4}>
           <Grid container item xs={12} spacing={3} justify='space-between' alignItems='flex-end'>
               <Grid item>
-                  <RecipeName recipeName = {name} setRecipeName = {setName} editable = {editable} />
+                <RecipeName 
+                  recipeName = {name} 
+                  setRecipeName = {setName} 
+                  editable = {editable} 
+                  errors = {errors}
+                  dispatchErrors = {dispatchErrors}
+                />
               </Grid>
               <Grid item >
-                  <TimingInfo timeToMake = {timeToMake} setTimeToMake = {setTimeToMake} editable = {editable} />
+                <TimingInfo 
+                  timeToMake = {timeToMake} 
+                  setTimeToMake = {setTimeToMake} 
+                  editable = {editable} 
+                  errors = {errors}
+                  dispatchErrors = {dispatchErrors}
+                />
               </Grid>
           </Grid>
           <Grid item xs={12}>
@@ -198,7 +221,8 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
               servingInfo = {servingInfo} 
               setServingInfo = {setServingInfo} 
               editable = {editable}
-              updateHasErrors = {updateHasErrors} />
+              errors = {errors}
+              dispatchErrors = {dispatchErrors} />
           </Grid>
           <Grid item xs={12} >
             <Paper>
