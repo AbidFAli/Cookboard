@@ -13,6 +13,8 @@ const ID_FIELD_TTM_VALUE = "fieldTimeToMakeValue"
 const ID_FIELD_TTM_UNIT = "fieldTimeToMakeUnit"
 
 const TimingInfo = ({timeToMake, setTimeToMake, editable, errors, dispatchErrors}) => {
+  
+  
   const handleChangeTTMValue = (newValueText) => {
       let newTimeToMake = {...timeToMake}
       let newValue = newValueText
@@ -46,7 +48,7 @@ const TimingInfo = ({timeToMake, setTimeToMake, editable, errors, dispatchErrors
       dispatchErrors({type: 'remove', errorKey:KEY_ERROR_TTM_VALUE })
       dispatchErrors({type: 'remove', errorKey: KEY_ERROR_TTM_UNIT })
       if(newTimeToMake.unit != undefined && newTimeToMake.value == undefined){
-        dispatchErrors({type: 'add', errorKey: KEY_ERROR_TTM_VALUE, errorMessage: ERROR_MESSAGE_TTM_VALUE_MISSING})
+        dispatchErrors({type: 'add', errorKey: KEY_ERROR_TTM_VALUE, errorMessage: ERROR_MESSAGE_TTM_UNIT_MISSING})
       }
       else if(newTimeToMake.unit == undefined && newTimeToMake.value != undefined){
         dispatchErrors({type: 'add', errorKey: KEY_ERROR_TTM_UNIT, errorMessage: ERROR_MESSAGE_TTM_UNIT_MISSING})

@@ -6,27 +6,22 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 
-import {UnitedValue, ERROR_UNIT, ERROR_VALUE } from './UnitedValue'
-
 
 //Error Types
 const ERROR_NUM_SERVED = "errorKeyNumServed"
 const ERROR_YIELD = "errorKeyYield"
 const ERROR_SERVING_SIZE = "errorKeyServingSize"
-const ERROR_SERVING_SIZE_UNIT = "errorKeyServingSizeUnit"
 
 //Error Messages
 const ERROR_MSG_NUM_SERVED_NAN = "No. Served must be a number"
 const ERROR_MSG_YIELD_NAN = "Yield must be a number"
 const ERROR_MSG_SERVING_SIZE_NAN = "Serving Size must be a number"
 const ERROR_MSG_SERVING_SIZE_MISSING = "Serving Size missing"
-const ERROR_MSG_SERVING_SIZE_UNIT_MISSING = "Unit missing"
 
 
 const FIELD_NUM_SERVED = "fieldNumServed"
 const FIELD_YIELD = "fieldYield"
 const FIELD_SERVING_SIZE = "fieldServingSize"
-const FIELD_SERVING_SIZE_UNIT = "fieldServingSizeUnit"
 
 
 
@@ -73,49 +68,38 @@ const ServingInfoList = ({servingInfo, setServingInfo, editable, errors, dispatc
 
   }
 
-  const updateServingSize = (servingSize) => {
+  const handleChangeServingSize = (servingSizeText) => {
+    let servingSize = Number(servingSizeText)
     let newServingInfo = {...servingInfo}
-    newServingInfo.servingSize = servingSize
-    setServingInfo(newServingInfo)
+
+    if(servingSizeText.trim() == ''){
+      newServingInfo.servingSize = undefined
+      dispatchErrors({type: 'remove', errorKey: ERROR_SERVING_SIZE})
+    }
+    else if(Number.isFinite(servingSize) ){
+      
+      newServingInfo.servingSize = servingSize
+      setServingInfo(newServingInfo)
+      dispatchErrors({type: 'remove', errorKey: ERROR_SERVING_SIZE})
+    }
+    else if(!Number.isFinite(servingSize)){
+      dispatchErrors({type: 'add', errorKey: ERROR_SERVING_SIZE, errorMessage: ERROR_MSG_SERVING_SIZE_NAN })
+    }
   }
 
-  const updateServingSizeUnit = (servingSizeUnit) => {
+  const handleChangeServingSizeUnit = (unit) => {
     let newServingInfo = {...servingInfo}
-    newServingInfo.unit = servingSizeUnit
+    newServingInfo.unit = unit.trim() !== '' ? unit : undefined
     setServingInfo(newServingInfo)
-  }
-
-  const handleServingSizeErrors = (servingSize, servingSizeUnit) => {
-    dispatchErrors({type: 'remove', errorKey: ERROR_SERVING_SIZE})
-    dispatchErrors({type: 'remove', errorKey: ERROR_SERVING_SIZE_UNIT})
-    let errorKey = null, errorMessage = null, errorType = null;
-
-    if(servingSize != undefined  && !Number.isFinite(servingSize)){
-      errorKey = ERROR_SERVING_SIZE
-      errorMessage = ERROR_MSG_SERVING_SIZE_NAN
-      errorType = ERROR_VALUE
+    if(newServingInfo.servingSize == undefined && newServingInfo.unit !== undefined){
+        dispatchErrors({type: 'add', errorKey: ERROR_SERVING_SIZE, errorMessage: ERROR_MSG_SERVING_SIZE_MISSING})
     }
-    else if(servingSize != undefined && servingSizeUnit == undefined){
-      errorKey = ERROR_SERVING_SIZE_UNIT
-      errorMessage = ERROR_MSG_SERVING_SIZE_UNIT_MISSING
-      errorType = ERROR_UNIT
+    else if(errors.getErrorMessage(ERROR_SERVING_SIZE) === ERROR_MSG_SERVING_SIZE_MISSING){
+        dispatchErrors({type: 'remove', errorKey: ERROR_SERVING_SIZE})
     }
-    else if(servingSize == undefined && servingSizeUnit != undefined){
-      errorKey = ERROR_SERVING_SIZE
-      errorMessage = ERROR_MSG_SERVING_SIZE_MISSING
-      errorType = ERROR_VALUE
-    }
-
-    if(errorKey != null){
-      dispatchErrors({type : 'add', errorKey : errorKey, errorMessage : errorMessage})
-    }
-
-    return [errorType, errorMessage]
-
-  }
-
+    
   
-  
+  }
 
   let content;
   if(editable){
@@ -144,18 +128,21 @@ const ServingInfoList = ({servingInfo, setServingInfo, editable, errors, dispatc
             />
         </ListItem>
         <ListItem>
-          <UnitedValue
-            value = {servingInfo != null && servingInfo.servingSize != null ? servingInfo.servingSize : undefined}
-            valueName = "Serving Size"
-            unit = {servingInfo != null && servingInfo.unit != null  ? servingInfo.unit : undefined }
-            setValue = {updateServingSize}
-            setUnit = {updateServingSizeUnit}
-            handleError = {handleServingSizeErrors}
-            testIdValue = {FIELD_SERVING_SIZE}
-            testIdUnit = {FIELD_SERVING_SIZE_UNIT}
-            defaultValue = {servingInfo != null && servingInfo.servingSize != null ? servingInfo.servingSize : ''}
-            defaultUnit = {servingInfo != null && servingInfo.unit != null  ? servingInfo.unit : ''}
-          />
+          <TextField
+            name = {FIELD_SERVING_SIZE}
+            inputProps = {{'data-testid' : FIELD_SERVING_SIZE}}
+            defaultValue= {servingInfo != null && servingInfo.servingSize != null ? servingInfo.servingSize : ''}
+            error = {errors.hasError(ERROR_SERVING_SIZE)}
+            helperText = {errors.getErrorMessage(ERROR_SERVING_SIZE)}
+            label = "Serving Size"
+            onChange = {(event) => handleChangeServingSize(event.target.value)}
+            />
+          <TextField
+            name = "fieldServingSizeUnit"
+            defaultValue= {servingInfo != null && servingInfo.unit != null  ? servingInfo.unit : ''}
+            label = "Unit"
+            onChange = {(event) => handleChangeServingSizeUnit(event.target.value)}
+            />
         </ListItem>
       </List>
     )
@@ -166,7 +153,7 @@ const ServingInfoList = ({servingInfo, setServingInfo, editable, errors, dispatc
         {
           servingInfo.numServed !== undefined && (
           <ListItem>
-              <ListItemText primary={`Serves: ${servingInfo.numServed} ${servingInfo.numServed == 1 ? 'person': 'people'}`} />
+              <ListItemText primary={`Serves: ${servingInfo.numServed}`} />
           </ListItem>
           )
         }
