@@ -29,9 +29,6 @@ const IngredientList = ({ingredients, editable, handleAdd, handleEdit, handleRem
   const [amountErrorMessage, setAmountErrorMessage] = useState(null)
   const [nameErrorMessage, setNameErrorMessage] = useState(null)
 
-  const handleErrors = () => {
-    
-  }
 
   const addIngredient = () => {
     let amount = Number(newAmount)

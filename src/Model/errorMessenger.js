@@ -3,7 +3,7 @@
 
 import {cloneDeep} from 'lodash'
 
-class ErrorManager {
+class ErrorMessenger {
   constructor(otherService){
       if(otherService === undefined){
         this._errors = new Map()
@@ -13,16 +13,16 @@ class ErrorManager {
       }
   }
 
-  //adds the [errorKey,errorMessage] pair, returning a new ErrorManager
+  //adds the [errorKey,errorMessage] pair, returning a new ErrorMessenger
   addError(errorKey, errorMessage){
-    let newManager = new ErrorManager(this)
+    let newManager = new ErrorMessenger(this)
     newManager._errors.set(errorKey, errorMessage)
     return newManager
   }
 
-  //removes the [errorKey,errorMessage] pair, returning a new ErrorManager
+  //removes the [errorKey,errorMessage] pair, returning a new ErrorMessenger
   removeError(errorKey){
-    let newManager = new ErrorManager(this)
+    let newManager = new ErrorMessenger(this)
     newManager._errors.delete(errorKey)
     return newManager
   }
@@ -41,4 +41,4 @@ class ErrorManager {
 }
 
 
-export default ErrorManager
+export default ErrorMessenger

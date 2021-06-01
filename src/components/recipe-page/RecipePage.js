@@ -13,7 +13,7 @@ import TextField from '@material-ui/core/TextField';
 import { useHistory} from 'react-router';
 
 import DescriptionRating from './DescriptionRating'
-import ErrorManager from '../../Model/errorManager'
+import ErrorMessenger from '../../Model/errorMessenger'
 import recipeService from '../../services/recipeService'
 import { RecipeName } from './RecipeName'
 import { ServingInfoList } from './ServingInfoList'
@@ -41,7 +41,7 @@ function reduceErrors(errors, action){
  */
 const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => {
     const history = useHistory();
-    const [errors, dispatchErrors] = useReducer(reduceErrors, new ErrorManager())
+    const [errors, dispatchErrors] = useReducer(reduceErrors, new ErrorMessenger())
 
     //recipe state
     const [id, setId] = useState(recipe != null ? recipe.id : null)
@@ -70,6 +70,33 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
     }, [recipe])
 
 
+    const checkRecipeForErrors = (recipe) => {
+      let errorList = []
+      if(recipe.name == undefined || recipe.name.trim() == ''){
+        errorList.push('Recipe name is missing')
+      }
+
+      if(recipe.instructions.some((instruction) => instruction.trim() == '')){
+        errorList.push('Blank instruction')
+      }
+
+      if(recipe.ingredients.some(ingredient => ingredient.name == undefined || ingredient.name.trim() == '')){
+        errorList.push('An ingredient is missing a name')
+      }
+
+      if(recipe.ingredients.some(ingredient => ingredient.amount == undefined || ingredient.amount == 0)){
+        errorList.push('An ingredient is missing an amount')
+      }
+
+      return errorList
+    }
+
+    const displayErrors = (errorList) => {
+      let errorText = errorList.reduce((text, error, index) => { return text + `${error}\n` }, '');
+      window.alert("Errors: \n" + errorText)
+    }
+
+
     const handleSave = async () => {
       if(errors.size() == 0){
         setEditable(false);
@@ -81,7 +108,12 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
         newRecipe.rating = rating
         newRecipe.timeToMake = timeToMake
         newRecipe.servingInfo = servingInfo
-        if(created){
+        let errorList = checkRecipeForErrors(newRecipe)
+
+        if(errorList.length != 0){
+          displayErrors(errorList)
+        }
+        else if(created){
           newRecipe = await recipeService.update(newRecipe)
           handleUpdateRecipe(newRecipe)
         }else{
@@ -147,7 +179,7 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
       setInstructions(newInstructions)
     }
   
-    //needs changing
+    
     const editInstruction = function(index, newInstructionText){
       let newInstructions = Array.from(instructions)
       newInstructions[index].text = newInstructionText

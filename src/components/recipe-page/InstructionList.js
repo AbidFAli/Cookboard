@@ -91,9 +91,12 @@ const InstructionList = ({instructions, editable, handleAdd, handleRemove, handl
 
 const InstructionView = ({instr, pos, editable, handleEdit, handleRemove}) => {
   const [instrText, setInstrText] = useState(instr != null ? instr.text : '')
+  const [errorMessage, setErrorMessage] = useState(null)
+
   const handleEditWrapper = (newText) => {
     setInstrText(newText)
     handleEdit(pos, newText)
+    setErrorMessage(newText.trim() != '' ? null : ERROR_BLANK_INSTRUCTION)
   }
 
   if(editable){
@@ -103,6 +106,8 @@ const InstructionView = ({instr, pos, editable, handleEdit, handleRemove}) => {
         <TextField 
           value = {instrText}
           onChange = {(event) => handleEditWrapper(event.target.value)}
+          error = {errorMessage != null}
+          helperText = {errorMessage}
         />
         <IconButton size = "small" onClick = {() => handleRemove(pos)}>
           <DeleteIcon />
