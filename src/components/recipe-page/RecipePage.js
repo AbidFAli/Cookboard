@@ -213,6 +213,7 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
                     handleRemove = {removeIngredient}
                     handleAdd = {addIngredient}
                     handleEdit = {editIngredient}
+                    dispatchErrors = {dispatchErrors}
                   />
               </Paper>
           </Grid>

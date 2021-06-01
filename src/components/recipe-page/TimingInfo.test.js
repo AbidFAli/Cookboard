@@ -7,7 +7,8 @@ import {
   ID_FIELD_TTM_UNIT,
   ID_FIELD_TTM_VALUE,
   ERROR_MESSAGE_TTM_UNIT_MISSING,
-  ERROR_MESSAGE_TTM_VALUE_MISSING
+  ERROR_MESSAGE_TTM_VALUE_MISSING,
+  ERROR_MESSAGE_TTM_VALUE_NAN
 } from './TimingInfo'
 import { RecipePage} from './RecipePage';
 
@@ -28,14 +29,13 @@ describe('RecipeName', () => {
       updateHandler = jest.fn()
       recipe = {
         name: "waffles",
-        timeToMake : { value: "10", unit: "minutes"}
+        timeToMake : { value: 10, unit: "minutes"}
       }
       renderRecipe(recipe)
       fireEvent.click(screen.getByTestId('editButton'))
   });
 
   test('an error is displayed if the prep time value is present but the prep time unit is missing', () => {
-  
     let textbox = screen.getByTestId(ID_FIELD_TTM_UNIT)
     userEvent.clear(textbox)
     expect(screen.getByText(ERROR_MESSAGE_TTM_UNIT_MISSING)).toBeInTheDocument()
@@ -45,6 +45,13 @@ describe('RecipeName', () => {
     let textbox = screen.getByTestId(ID_FIELD_TTM_VALUE)
     userEvent.clear(textbox)
     expect(screen.getByText(ERROR_MESSAGE_TTM_VALUE_MISSING)).toBeInTheDocument()
+  })
+
+  test('an error is displayed if letters are typed into the textbox for prep time value', () => {
+    let textbox = screen.getByTestId(ID_FIELD_TTM_VALUE)
+    userEvent.clear(textbox)
+    userEvent.type(textbox, "letters")
+    expect(screen.getByText(ERROR_MESSAGE_TTM_VALUE_NAN)).toBeInTheDocument()
   })
 
 

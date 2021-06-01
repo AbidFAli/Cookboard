@@ -3,8 +3,12 @@ import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import PropTypes from 'prop-types'
 
-const ERROR_UNIT = "UnitError"
-const ERROR_VALUE = "ValueError"
+
+
+
+const ERROR_TYPE_UNIT = "UnitError"
+const ERROR_TYPE_VALUE = "ValueError"
+
 
 //see PropTypes for info on props
 const UnitedValue = (props) => {
@@ -13,12 +17,14 @@ const UnitedValue = (props) => {
   let inputPropsValue = props.testIdValue != null ? {'data-testid' : props.testIdValue} : null ;
   let inputPropsUnit = props.testIdUnit != null ? {'data-testid': props.testIdUnit} : null ;
 
+
+
   const setErrorMessages = (errorInfo) => {
-    if(errorInfo[0] === ERROR_UNIT ){
+    if(errorInfo[0] === ERROR_TYPE_UNIT ){
       setValueErrorMessage(null)
       setUnitErrorMessage(errorInfo[1])
     }
-    else if(errorInfo[0] === ERROR_VALUE){
+    else if(errorInfo[0] === ERROR_TYPE_VALUE){
       setUnitErrorMessage(null)
       setValueErrorMessage(errorInfo[1])
     }
@@ -76,15 +82,15 @@ const handleChangeUnit = (newUnitText) => {
 
 UnitedValue.propTypes = {
   value: PropTypes.number.isRequired,
-  valueName: PropTypes.string,
+  valueName: PropTypes.string.isRequired, //must be unique
   unit: PropTypes.string.isRequired,
   setValue: PropTypes.func.isRequired, //setValue(newValue : Number | undefined)
   setUnit: PropTypes.func.isRequired, //setUnit(newUnit : String | undefined)
-  handleError: PropTypes.func.isRequired, // handleError(value, unit) -> [ERROR_UNIT || ERROR_VALUE || null, errorMessage || null]
-  testIdValue: PropTypes.string,
+  handleError : PropTypes.func.isRequired, // handleError(value, unit) -> [ERROR_UNIT || ERROR_VALUE || null, errorMessage || null]
   testIdUnit: PropTypes.string,
+  testIdValue: PropTypes.string,
   defaultValue: PropTypes.number,
-  defaultUnit: PropTypes.string,
+  defaultUnit: PropTypes.string
 }
 
-export { UnitedValue, ERROR_UNIT, ERROR_VALUE};
+export { UnitedValue, ERROR_TYPE_UNIT, ERROR_TYPE_VALUE};

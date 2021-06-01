@@ -74,8 +74,15 @@ describe('ServingInfoList', () => {
 
   })
 
-  describe('when editing serving size unit', ()=> {
-
-  })
+  // describe('when editing serving size unit', ()=> {
+  //   test('TO DO', () => {
+  //     recipe.servingInfo = {
+  //       numServed : 1,
+  //       yield : 24,
+  //       servingSize: 100,
+  //       unit: 'grams'
+  //     }
+  //   })
+  // })
 
 });

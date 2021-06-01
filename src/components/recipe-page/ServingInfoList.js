@@ -6,10 +6,10 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 
-import {UnitedValue, ERROR_UNIT, ERROR_VALUE } from './UnitedValue'
+import {UnitedValue, ERROR_TYPE_UNIT, ERROR_TYPE_VALUE} from './UnitedValue'
 
 
-//Error Types
+//Error Ids
 const ERROR_NUM_SERVED = "errorKeyNumServed"
 const ERROR_YIELD = "errorKeyYield"
 const ERROR_SERVING_SIZE = "errorKeyServingSize"
@@ -27,8 +27,6 @@ const FIELD_NUM_SERVED = "fieldNumServed"
 const FIELD_YIELD = "fieldYield"
 const FIELD_SERVING_SIZE = "fieldServingSize"
 const FIELD_SERVING_SIZE_UNIT = "fieldServingSizeUnit"
-
-
 
 
 const ServingInfoList = ({servingInfo, setServingInfo, editable, errors, dispatchErrors}) => {
@@ -93,17 +91,17 @@ const ServingInfoList = ({servingInfo, setServingInfo, editable, errors, dispatc
     if(servingSize != undefined  && !Number.isFinite(servingSize)){
       errorKey = ERROR_SERVING_SIZE
       errorMessage = ERROR_MSG_SERVING_SIZE_NAN
-      errorType = ERROR_VALUE
+      errorType = ERROR_TYPE_VALUE
     }
     else if(servingSize != undefined && servingSizeUnit == undefined){
       errorKey = ERROR_SERVING_SIZE_UNIT
       errorMessage = ERROR_MSG_SERVING_SIZE_UNIT_MISSING
-      errorType = ERROR_UNIT
+      errorType = ERROR_TYPE_UNIT
     }
     else if(servingSize == undefined && servingSizeUnit != undefined){
       errorKey = ERROR_SERVING_SIZE
       errorMessage = ERROR_MSG_SERVING_SIZE_MISSING
-      errorType = ERROR_VALUE
+      errorType = ERROR_TYPE_VALUE
     }
 
     if(errorKey != null){
@@ -111,11 +109,7 @@ const ServingInfoList = ({servingInfo, setServingInfo, editable, errors, dispatc
     }
 
     return [errorType, errorMessage]
-
   }
-
-  
-  
 
   let content;
   if(editable){

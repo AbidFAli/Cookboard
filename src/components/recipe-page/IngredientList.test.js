@@ -4,7 +4,7 @@ import {within} from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 
 import { Ingredient } from '../../Model/ingredient.js'
-import { IngredientList, ERROR_AMOUNT, ERROR_NAME } from './IngredientList.js';
+import { IngredientList, ERROR_MESSAGE_AMOUNT_MISSING, ERROR_MESSAGE_NAME_MISSING } from './IngredientList.js';
 import { RecipePage} from './RecipePage';
 
 
@@ -116,27 +116,27 @@ describe('IngredientList', () => {
             userEvent.clear(screen.getByTestId("newAmountField"))
             userEvent.type(screen.getByTestId("newAmountField"), "1")
             fireEvent.click(screen.getByText('Add ingredient'))
-            expect(screen.getByText(ERROR_NAME)).toBeInTheDocument()
+            expect(screen.getByText(ERROR_MESSAGE_NAME_MISSING)).toBeInTheDocument()
         })
 
         test('displays an error when the ingredient does not have an amount', () => {
             userEvent.clear(screen.getByTestId("newAmountField"))
             fireEvent.click(screen.getByText('Add ingredient'))
-            expect(screen.getByText(ERROR_AMOUNT)).toBeInTheDocument()
+            expect(screen.getByText(ERROR_MESSAGE_AMOUNT_MISSING)).toBeInTheDocument()
         })
 
         test('displays an error when the amount is not a number' , () => {
             userEvent.clear(screen.getByTestId("newAmountField"))
             userEvent.type(screen.getByTestId("newAmountField"), "Hello")
             fireEvent.click(screen.getByText('Add ingredient'))
-            expect(screen.getByText(ERROR_AMOUNT)).toBeInTheDocument()
+            expect(screen.getByText(ERROR_MESSAGE_AMOUNT_MISSING)).toBeInTheDocument()
         })
 
         test('displays an error when the amount is infinity' , () => {
             userEvent.clear(screen.getByTestId("newAmountField"))
             userEvent.type(screen.getByTestId("newAmountField"), "Infinity")
             fireEvent.click(screen.getByText('Add ingredient'))
-            expect(screen.getByText(ERROR_AMOUNT)).toBeInTheDocument()
+            expect(screen.getByText(ERROR_MESSAGE_AMOUNT_MISSING)).toBeInTheDocument()
         })
 
 

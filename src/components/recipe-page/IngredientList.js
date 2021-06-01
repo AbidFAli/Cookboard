@@ -10,10 +10,18 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import TextField from '@material-ui/core/TextField';
 
-const ERROR_AMOUNT = "Amount must be a number"
-const ERROR_NAME = "Name is required"
+import {UnitedValue, ERROR_TYPE_UNIT, ERROR_TYPE_VALUE} from './UnitedValue'
 
-const IngredientList = ({ingredients, editable, handleAdd, handleEdit, handleRemove}) => {
+//Error Ids
+const ERROR_ID_AMOUNT = "errorIdAmount"
+const ERROR_ID_NAME = "errorIdName"
+
+//Error Messsages
+const ERROR_MESSAGE_AMOUNT_NAN = "Amount must be a number"
+const ERROR_MESSAGE_AMOUNT_MISSING = "Amount required"
+const ERROR_MESSAGE_NAME_MISSING = "Name required"
+
+const IngredientList = ({ingredients, editable, handleAdd, handleEdit, handleRemove, dispatchErrors}) => {
   const [adding, setAdding] = useState(false)
   const [newName, setNewName] = useState('')
   const [newAmount, setNewAmount] = useState(1)
@@ -21,12 +29,15 @@ const IngredientList = ({ingredients, editable, handleAdd, handleEdit, handleRem
   const [amountErrorMessage, setAmountErrorMessage] = useState(null)
   const [nameErrorMessage, setNameErrorMessage] = useState(null)
 
+  const handleErrors = () => {
+    
+  }
 
   const addIngredient = () => {
     let amount = Number(newAmount)
     let hasError = false;
     if(amount == 0 || !Number.isFinite(amount)){
-      setAmountErrorMessage(ERROR_AMOUNT)
+      setAmountErrorMessage(ERROR_MESSAGE_AMOUNT_MISSING)
       hasError = true;
     }
     else{
@@ -34,7 +45,7 @@ const IngredientList = ({ingredients, editable, handleAdd, handleEdit, handleRem
     }
 
     if(newName.trim() === ''){
-      setNameErrorMessage(ERROR_NAME)
+      setNameErrorMessage(ERROR_MESSAGE_NAME_MISSING)
       hasError = true;
     }
     else{
@@ -89,7 +100,7 @@ const IngredientList = ({ingredients, editable, handleAdd, handleEdit, handleRem
           label = "Unit"
           value = {newUnit}
           onChange = {(event) => setNewUnit(event.target.value)}/>
-        <Button onClick = {addIngredient}>
+        <Button onClick = {addIngredient} disabled = {amountErrorMessage != null || nameErrorMessage != null}>
           Add ingredient
         </Button>
         <IconButton onClick = {() => setAdding(false)}>
@@ -179,4 +190,9 @@ const Ingredient = ({ingr, pos, editable, handleEdit, handleRemove}) => {
 
 
 
-export {IngredientList, ERROR_AMOUNT, ERROR_NAME};
+export {
+  IngredientList, 
+  ERROR_MESSAGE_AMOUNT_MISSING, 
+  ERROR_MESSAGE_NAME_MISSING, 
+  ERROR_MESSAGE_AMOUNT_NAN
+};
