@@ -23,16 +23,16 @@ import Instruction from '../../Model/instruction'
 import { IngredientList } from './IngredientList'
 
 
-//errors is an instance of the ErrorManager class
+//errors is an instance of the ErrorMessenger class
 function reduceErrors(errors, action){
-  const newErrors = new ErrorManager(errors)
+  const newErrors = new ErrorMessenger(errors)
   switch(action.type) {
     case 'add':
       return newErrors.addError(action.errorKey, action.errorMessage);
     case 'remove':
       return newErrors.removeError(action.errorKey);
     case 'reset':
-      return new ErrorManager();
+      return new ErrorMessenger();
   }
 }
 
@@ -114,10 +114,21 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
           displayErrors(errorList)
         }
         else if(created){
-          newRecipe = await recipeService.update(newRecipe)
+          try{
+            newRecipe = await recipeService.update(newRecipe)
+          }catch(error){
+            console.log(error)
+          }
+          
           handleUpdateRecipe(newRecipe)
         }else{
-          newRecipe = await recipeService.create(newRecipe)
+          try{
+            newRecipe = await recipeService.create(newRecipe)
+          }
+          catch(error){
+            console.log(error)
+          }
+          
           handleAddRecipe(newRecipe)
           history.replace(`${prevPath}/${newRecipe.id}`)
         }

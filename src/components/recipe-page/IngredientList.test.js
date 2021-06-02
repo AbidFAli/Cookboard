@@ -15,16 +15,14 @@ jest.mock('../../services/recipeService')
 describe('IngredientList', () => {
     afterEach(cleanup);
     let recipe = null;
-    let addHandler, updateHandler;
+    
 
     function renderRecipe(recipe) {
+        let addHandler = jest.fn();
+        let updateHandler = jest.fn();
         render(<RecipePage recipe = {recipe} prevPath = "" handleAddRecipe = {addHandler} handleUpdateRecipe = {updateHandler} />);
     }
 
-    beforeEach(() => {
-        addHandler = jest.fn()
-        updateHandler = jest.fn()
-    });
 
     describe('displays', () => {
         beforeEach(() => {
@@ -150,8 +148,7 @@ describe('IngredientList', () => {
             name : "waffles",
             ingredients: [batter, water]
         }
-        addHandler = jest.fn()
-        render(<RecipePage recipe = {recipe} prevPath = "" handleAddRecipe = {addHandler} />);
+        renderRecipe(recipe);
         fireEvent.click(screen.getByTestId('editButton'))
         const deleteButton = within(screen.getByTestId(water.id)).getByTestId('deleteIngredientButton')
         fireEvent.click(deleteButton)

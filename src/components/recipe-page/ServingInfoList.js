@@ -139,16 +139,14 @@ const ServingInfoList = ({servingInfo, setServingInfo, editable, errors, dispatc
         </ListItem>
         <ListItem>
           <UnitedValue
-            value = {servingInfo != null && servingInfo.servingSize != null ? servingInfo.servingSize : undefined}
+            value = {servingInfo != null && servingInfo.servingSize != null ? servingInfo.servingSize : 0}
             valueName = "Serving Size"
-            unit = {servingInfo != null && servingInfo.unit != null  ? servingInfo.unit : undefined }
+            unit = {servingInfo != null && servingInfo.unit != null  ? servingInfo.unit : '' }
             setValue = {updateServingSize}
             setUnit = {updateServingSizeUnit}
             handleError = {handleServingSizeErrors}
             testIdValue = {FIELD_SERVING_SIZE}
             testIdUnit = {FIELD_SERVING_SIZE_UNIT}
-            defaultValue = {servingInfo != null && servingInfo.servingSize != null ? servingInfo.servingSize : ''}
-            defaultUnit = {servingInfo != null && servingInfo.unit != null  ? servingInfo.unit : ''}
           />
         </ListItem>
       </List>

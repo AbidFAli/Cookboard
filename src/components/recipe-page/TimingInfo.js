@@ -63,16 +63,14 @@ const TimingInfo = ({timeToMake, setTimeToMake, editable, errors, dispatchErrors
       return(
           <React.Fragment>
               <UnitedValue
-                value = {timeToMake != null && timeToMake.value != null ? timeToMake.value : undefined}
-                unit = {timeToMake != null && timeToMake.unit != null ? timeToMake.unit : undefined }
+                value = {timeToMake != null && timeToMake.value != null ? timeToMake.value : 0}
+                unit = {timeToMake != null && timeToMake.unit != null ? timeToMake.unit : '' }
                 valueName = "Prep Time"
                 setValue = {updateTTMValue}
                 setUnit = {updateTTMUnit}
                 handleError = {handleTimeToMakeErrors}
                 testIdValue = {ID_FIELD_TTM_VALUE}
                 testIdUnit = {ID_FIELD_TTM_UNIT}
-                defaultValue= {timeToMake != null ? timeToMake.value : ''}
-                defaultUnit = {timeToMake != null ? timeToMake.unit : ''}
               />
           </React.Fragment>
       )
