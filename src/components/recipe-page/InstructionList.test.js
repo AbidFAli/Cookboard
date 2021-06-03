@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event'
 
 import { Recipe } from '../../Model/recipe.js';
 import { ERROR_BLANK_INSTRUCTION } from './InstructionList';
-import { RecipePage} from './RecipePage';
+import { RecipePage, ID_EDIT_BUTTON} from './RecipePage';
 
 //Integration tests with RecipePage and InstructionList
 
@@ -13,14 +13,11 @@ jest.mock('../../services/recipeService')
 
 describe('InstructionList', () => {
   afterEach(cleanup);
-  let addHandler, updateHandler;
-
-  beforeEach(() => {
-    addHandler = jest.fn();
-    updateHandler = jest.fn()
-  })
 
   function renderRecipe(recipe) {
+    let addHandler, updateHandler;
+    addHandler = jest.fn();
+    updateHandler = jest.fn();
     render(<RecipePage recipe = {recipe} prevPath = "" handleAddRecipe = {addHandler} handleUpdateRecipe = {updateHandler} />);
   }
 
@@ -47,7 +44,7 @@ describe('InstructionList', () => {
 
    test('adding succeeds for a recipe with no instructions', async () => {
      renderRecipe(recipe)
-     fireEvent.click(screen.getByTestId('editButton'))
+     fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
      fireEvent.click(screen.getByTestId('addingInstructionButton'))
      userEvent.type(screen.getByTestId("newInstructionField"), "turn on stove")
      fireEvent.click(screen.getByText(/Add instruction/i))
@@ -58,7 +55,7 @@ describe('InstructionList', () => {
    test('adding succeeds for a recipe with some instructions', async () => {
     recipe.instructions = ['step one', 'step two']
     renderRecipe(recipe)
-    fireEvent.click(screen.getByTestId('editButton'))
+    fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
     fireEvent.click(screen.getByTestId('addingInstructionButton'))
     let newInstruction = "step three"
     userEvent.type(screen.getByTestId("newInstructionField"), newInstruction)
@@ -67,9 +64,9 @@ describe('InstructionList', () => {
     expect(await screen.findByText(`3. ${newInstruction}`)).toBeInTheDocument();
    })
 
-   test.only('does not allow blank instructions to be added' , () => {
+   test('does not allow blank instructions to be added' , () => {
      renderRecipe(recipe)
-     fireEvent.click(screen.getByTestId('editButton'))
+     fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
      fireEvent.click(screen.getByTestId('addingInstructionButton'))
      userEvent.clear(screen.getByTestId("newInstructionField"))
      fireEvent.click(screen.getByText(/Add instruction/i))
@@ -86,7 +83,7 @@ describe('InstructionList', () => {
      instructions: ['step one', 'step two', 'step three']
    }
    renderRecipe(recipe)
-   fireEvent.click(screen.getByTestId('editButton'))
+   fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
   });
 
    test('one instruction can be edited', async () => {
@@ -109,6 +106,12 @@ describe('InstructionList', () => {
     expect(await screen.findByText(/step 2/i)).toBeInTheDocument();
     expect(await screen.findByText(/step 3/i)).toBeInTheDocument();
    })
+
+   test('an error message is displayed if an instructions name is cleared', () => {
+    let editedField = screen.getByDisplayValue(/step two/i)
+    userEvent.clear(editedField)
+    expect(screen.getByText(ERROR_BLANK_INSTRUCTION)).toBeInTheDocument()
+   })
  })
 
  describe('instructions can be removed', () => {
@@ -118,8 +121,8 @@ describe('InstructionList', () => {
      name: "waffles",
      instructions: ['step one', 'step two', 'step three']
    }
-   render(<RecipePage recipe = {recipe} prevPath = "" handleAddRecipe = {addHandler} handleUpdateRecipe = {updateHandler} />);
-   fireEvent.click(screen.getByTestId('editButton'))
+   renderRecipe(recipe)
+   fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
   });
 
   function removeInstruction(instruction){
@@ -134,14 +137,12 @@ describe('InstructionList', () => {
   test('the first instruction can be removed', ()=> {
     let listItems = getInstructions()
     removeInstruction(listItems[0])
-    fireEvent.click(screen.getByText("Save Changes"))
     expect(screen.queryByText(/step one/i)).toBeNull()
    })
   
   test('the third instruction can be removed' , () => {
     let listItems = getInstructions()
     removeInstruction(listItems[2])
-    fireEvent.click(screen.getByText("Save Changes"))
     expect(screen.queryByText(/step three/i)).toBeNull()
     expect(getInstructions()).toHaveLength(2)
   });
@@ -151,7 +152,6 @@ describe('InstructionList', () => {
       let listItems = getInstructions()
       removeInstruction(listItems[0])
     }
-    fireEvent.click(screen.getByText("Save Changes"))
     expect(getInstructions()).toHaveLength(0)
   })
 

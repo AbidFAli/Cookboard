@@ -137,7 +137,7 @@ const Ingredient = ({ingr, pos, editable, handleEdit, handleRemove}) => {
     handleEdit(editedIngredient)
   }
 
-  const handleAmountChange = (amount) => {
+  const handleAmountChange = (amountText) => {
     setAmount(amount)
     let editedIngredient = {...ingr}
     editedIngredient.amount = amount
@@ -157,17 +157,17 @@ const Ingredient = ({ingr, pos, editable, handleEdit, handleRemove}) => {
         <TextField 
           label = "Name"
           value = {name}
-          onChange = {(event) => handleNameChange(event.target.value)}
+          onChange = {(event) => handleNameChange(event.target.value.trim())}
           />
         <TextField 
           label = "Amount"
           value = {amount}
-          onChange = {(event) => handleAmountChange(event.target.value)}
+          onChange = {(event) => handleAmountChange(event.target.value.trim())}
         />
         <TextField 
           label = "Unit"
           value = {unit}
-          onChange = {(event) => handleUnitChange(event.target.value)}
+          onChange = {(event) => handleUnitChange(event.target.value.trim())}
         />
         <IconButton size = "small" data-testid = "deleteIngredientButton" onClick = {() => handleRemove(ingr)}>
           <DeleteIcon />

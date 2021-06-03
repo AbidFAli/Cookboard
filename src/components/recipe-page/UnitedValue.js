@@ -6,10 +6,6 @@ import PropTypes from 'prop-types'
 
 
 
-const ERROR_TYPE_UNIT = "UnitError"
-const ERROR_TYPE_VALUE = "ValueError"
-
-
 //see PropTypes for info on props
 const UnitedValue = (props) => {
   const [valueErrorMessage, setValueErrorMessage] = useState(null)
@@ -20,27 +16,18 @@ const UnitedValue = (props) => {
 
 
   const setErrorMessages = (errorInfo) => {
-    if(errorInfo[0] === ERROR_TYPE_UNIT ){
-      setValueErrorMessage(null)
-      setUnitErrorMessage(errorInfo[1])
-    }
-    else if(errorInfo[0] === ERROR_TYPE_VALUE){
-      setUnitErrorMessage(null)
-      setValueErrorMessage(errorInfo[1])
-    }
-    else{
-      setUnitErrorMessage(null)
-      setValueErrorMessage(null)
-    }
+      setUnitErrorMessage(errorInfo.errorMessageUnit !== undefined ? errorInfo.errorMessageUnit : null)
+      setValueErrorMessage(errorInfo.errorMessageValue !== undefined ? errorInfo.errorMessageValue : null)
+    
   }
 
   const handleChangeValue = (newValueText) => {
     let newValue = newValueText
-    if(newValueText.trim() != '' && Number.isFinite(Number(newValueText))){
+    if(newValueText.trim() !== '' && Number.isFinite(Number(newValueText))){
       newValue = Number(newValueText)
     }
-    else if(newValueText.trim() == ''){
-      newValue = undefined
+    else if(newValueText.trim() === ''){
+      newValue = null
     }
 
     props.setValue(newValue)
@@ -50,7 +37,7 @@ const UnitedValue = (props) => {
 }
 
 const handleChangeUnit = (newUnitText) => {
-    let newUnit = newUnitText.trim() != '' ? newUnitText.trim() : undefined ;
+    let newUnit = newUnitText.trim() !== '' ? newUnitText.trim() : null ;
     props.setUnit(newUnit)
 
     let errorInfo = props.handleError(props.value, newUnit)
@@ -81,16 +68,22 @@ const handleChangeUnit = (newUnitText) => {
 }
 
 UnitedValue.propTypes = {
-  value: PropTypes.number.isRequired,
-  valueName: PropTypes.string.isRequired, //must be unique
-  unit: PropTypes.string.isRequired,
-  setValue: PropTypes.func.isRequired, //setValue(newValue : Number | undefined)
-  setUnit: PropTypes.func.isRequired, //setUnit(newUnit : String | undefined)
-  handleError : PropTypes.func.isRequired, // handleError(value, unit) -> [ERROR_UNIT || ERROR_VALUE || null, errorMessage || null]
+  value: PropTypes.number,
+  valueName: PropTypes.string.isRequired,
+  unit: PropTypes.string,
+
+  //setValue(newValue : Number | null)
+  setValue: PropTypes.func.isRequired,
+
+  //setUnit(newUnit : String | null)
+  setUnit: PropTypes.func.isRequired, 
+
+  // handleError(value, unit) -> {errorMessageUnit: String , errorMessageValue: String}
+  //returns an object optionally containing error messages for unit and value
+  handleError : PropTypes.func.isRequired, 
+
   testIdUnit: PropTypes.string,
   testIdValue: PropTypes.string,
-  defaultValue: PropTypes.number,
-  defaultUnit: PropTypes.string
 }
 
-export { UnitedValue, ERROR_TYPE_UNIT, ERROR_TYPE_VALUE};
+export { UnitedValue};

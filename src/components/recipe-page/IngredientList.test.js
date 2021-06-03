@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event'
 
 import { Ingredient } from '../../Model/ingredient.js'
 import { IngredientList, ERROR_MESSAGE_AMOUNT_MISSING, ERROR_MESSAGE_NAME_MISSING } from './IngredientList.js';
-import { RecipePage} from './RecipePage';
+import { RecipePage, ID_EDIT_BUTTON} from './RecipePage';
 
 
 //Integration tests with RecipePage and IngredientList
@@ -63,21 +63,34 @@ describe('IngredientList', () => {
         });
     })
 
-    test('allows ingredients to be edited', () => {
-        recipe = {
-            name: "waffles",
-            ingredients: [ {name: "egg", amount: 1, id: "2001"}]
-        }
-        
-        renderRecipe(recipe)
-        fireEvent.click(screen.getByTestId('editButton'))
-        const eggTextField = screen.getByDisplayValue("egg")
-        userEvent.clear(eggTextField)
-        userEvent.type(eggTextField, "Butter")
-        fireEvent.click(screen.getByText("Save Changes"))
-        expect(screen.getByText("Butter, 1")).toBeInTheDocument()
+    describe('when editing ingredients', () => {
+        beforeEach(()=> {
+            recipe = {
+                name: "waffles",
+                ingredients: [ {name: "egg", amount: 1, id: "2001"}]
+            }
 
-    })
+            renderRecipe(recipe)
+            fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
+        })
+
+        
+        test('allows one ingredient to be edited', async () => {
+            
+            const eggTextField = screen.getByDisplayValue("egg")
+            userEvent.clear(eggTextField)
+            userEvent.type(eggTextField, "Butter")
+            fireEvent.click(screen.getByText("Save Changes"))
+            expect( await screen.findByText("Butter, 1")).toBeInTheDocument()
+        })
+
+        // test('shows an error message if an ingredients name is blank', () => {
+        //     const eggTextField = screen.getByDisplayValue("egg")
+        //     userEvent.clear(eggTextField)
+        //     expect()
+        // })
+    });
+
 
     describe('when adding ingredients', () => {
         beforeEach(() => {
@@ -86,7 +99,7 @@ describe('IngredientList', () => {
                 ingredients: []
             }
             renderRecipe(recipe)
-            fireEvent.click(screen.getByTestId('editButton'))
+            fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
             fireEvent.click(screen.getByTestId('startAddButton'))
         })
 
@@ -149,10 +162,9 @@ describe('IngredientList', () => {
             ingredients: [batter, water]
         }
         renderRecipe(recipe);
-        fireEvent.click(screen.getByTestId('editButton'))
+        fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
         const deleteButton = within(screen.getByTestId(water.id)).getByTestId('deleteIngredientButton')
         fireEvent.click(deleteButton)
-        fireEvent.click(screen.getByText("Save Changes"))
         expect(screen.queryByText(/water/)).not.toBeInTheDocument()
     });
 

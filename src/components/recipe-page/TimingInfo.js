@@ -2,7 +2,7 @@ import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 
-import {UnitedValue, ERROR_TYPE_UNIT, ERROR_TYPE_VALUE } from './UnitedValue'
+import {UnitedValue } from './UnitedValue'
 
 const ERROR_MESSAGE_TTM_VALUE_MISSING = "Prep Time(value) missing"
 const ERROR_MESSAGE_TTM_UNIT_MISSING = "Prep Time(unit) missing"
@@ -20,29 +20,29 @@ const TimingInfo = ({timeToMake, setTimeToMake, editable, errors, dispatchErrors
   const handleTimeToMakeErrors = (ttmValue, ttmUnit) => {
     dispatchErrors({type: 'remove', errorKey: ERROR_TTM_VALUE})
     dispatchErrors({type: 'remove', errorKey: ERROR_TTM_UNIT})
-    let errorKey = null, errorMessage = null, errorType = null;
+    let errorKey = null, errorMessage = null, errorInfo = {};
 
-    if(ttmValue != undefined  && !Number.isFinite(ttmValue)){
+    if(ttmValue != null  && !Number.isFinite(ttmValue)){
       errorKey = ERROR_TTM_VALUE
       errorMessage = ERROR_MESSAGE_TTM_VALUE_NAN
-      errorType = ERROR_TYPE_VALUE
+      errorInfo = {errorMessageValue : ERROR_MESSAGE_TTM_VALUE_NAN }
     }
-    else if(ttmValue != undefined && ttmUnit == undefined){
+    else if(ttmValue != null && ttmUnit == null){
       errorKey = ERROR_TTM_UNIT
       errorMessage = ERROR_MESSAGE_TTM_UNIT_MISSING
-      errorType = ERROR_TYPE_UNIT
+      errorInfo = {errorMessageUnit : ERROR_MESSAGE_TTM_UNIT_MISSING }
     }
-    else if(ttmValue == undefined && ttmUnit != undefined){
+    else if(ttmValue == null && ttmUnit != null){
       errorKey = ERROR_TTM_VALUE
       errorMessage = ERROR_MESSAGE_TTM_VALUE_MISSING
-      errorType = ERROR_TYPE_VALUE
+      errorInfo = {errorMessageValue : ERROR_MESSAGE_TTM_VALUE_MISSING }
     }
 
     if(errorKey != null){
       dispatchErrors({type : 'add', errorKey : errorKey, errorMessage : errorMessage})
     }
 
-    return [errorType, errorMessage]
+    return errorInfo;
   }
 
 

@@ -22,6 +22,7 @@ import { InstructionList } from './InstructionList'
 import Instruction from '../../Model/instruction'
 import { IngredientList } from './IngredientList'
 
+const ID_EDIT_BUTTON = "editButton"
 
 //errors is an instance of the ErrorMessenger class
 function reduceErrors(errors, action){
@@ -99,7 +100,7 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
 
     const handleSave = async () => {
       if(errors.size() == 0){
-        setEditable(false);
+        
         let newRecipe = {...recipe}
         newRecipe.name = name
         newRecipe.description = description
@@ -116,21 +117,21 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
         else if(created){
           try{
             newRecipe = await recipeService.update(newRecipe)
+            handleUpdateRecipe(newRecipe)
+            setEditable(false);
           }catch(error){
             console.log(error)
           }
-          
-          handleUpdateRecipe(newRecipe)
         }else{
           try{
             newRecipe = await recipeService.create(newRecipe)
+            handleAddRecipe(newRecipe)
+            history.replace(`${prevPath}/${newRecipe.id}`)
+            setEditable(false);
           }
           catch(error){
             console.log(error)
           }
-          
-          handleAddRecipe(newRecipe)
-          history.replace(`${prevPath}/${newRecipe.id}`)
         }
       }
     }
@@ -284,7 +285,7 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
           <Grid item xs = {12} >
             {saveButton}
             <Fab 
-              data-testid = "editButton" 
+              data-testid = {ID_EDIT_BUTTON} 
               alt ="Edit recipe" 
               color = {editable === false ? "primary" : "secondary" } 
               onClick = {() => changeEditable()}
@@ -301,4 +302,4 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
     
 }
 
-export { RecipePage};
+export { RecipePage, ID_EDIT_BUTTON};

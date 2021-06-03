@@ -6,7 +6,7 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 
-import {UnitedValue, ERROR_TYPE_UNIT, ERROR_TYPE_VALUE} from './UnitedValue'
+import {UnitedValue} from './UnitedValue'
 
 
 //Error Ids
@@ -86,29 +86,30 @@ const ServingInfoList = ({servingInfo, setServingInfo, editable, errors, dispatc
   const handleServingSizeErrors = (servingSize, servingSizeUnit) => {
     dispatchErrors({type: 'remove', errorKey: ERROR_SERVING_SIZE})
     dispatchErrors({type: 'remove', errorKey: ERROR_SERVING_SIZE_UNIT})
-    let errorKey = null, errorMessage = null, errorType = null;
+    let errorKey = null, errorMessage = null, errorInfo = {};
 
-    if(servingSize != undefined  && !Number.isFinite(servingSize)){
+    if(servingSize != null  && !Number.isFinite(servingSize)){
       errorKey = ERROR_SERVING_SIZE
       errorMessage = ERROR_MSG_SERVING_SIZE_NAN
-      errorType = ERROR_TYPE_VALUE
+      errorInfo = {errorMessageValue: ERROR_MSG_SERVING_SIZE_NAN}
     }
-    else if(servingSize != undefined && servingSizeUnit == undefined){
+    else if(servingSize != null && servingSizeUnit == null){
       errorKey = ERROR_SERVING_SIZE_UNIT
       errorMessage = ERROR_MSG_SERVING_SIZE_UNIT_MISSING
-      errorType = ERROR_TYPE_UNIT
+      errorInfo = {errorMessageUnit : ERROR_MSG_SERVING_SIZE_UNIT_MISSING}
     }
-    else if(servingSize == undefined && servingSizeUnit != undefined){
+    else if(servingSize == null && servingSizeUnit != null){
       errorKey = ERROR_SERVING_SIZE
       errorMessage = ERROR_MSG_SERVING_SIZE_MISSING
-      errorType = ERROR_TYPE_VALUE
+      errorInfo = {errorMessageValue: ERROR_MSG_SERVING_SIZE_MISSING}
     }
 
     if(errorKey != null){
+      //to prevent the save button from being pressed
       dispatchErrors({type : 'add', errorKey : errorKey, errorMessage : errorMessage})
     }
 
-    return [errorType, errorMessage]
+    return errorInfo;
   }
 
   let content;
