@@ -13,7 +13,15 @@ import TextField from '@material-ui/core/TextField';
 //import {UnitedValue, ERROR_TYPE_UNIT, ERROR_TYPE_VALUE} from './UnitedValue'
 import {Ingredient} from '../../Model/ingredient'
 
+//Non-unique testids
 const ID_DELETE_INGREDIENT_BUTTON = "deleteIngredientButton"
+const ID_FIELD_INGREDIENT_AMOUNT ="ingredientAmountField"
+const ID_FIELD_INGREDIENT_NAME = "ingredientNameField"
+const ID_FIELD_INGREDIENT_UNIT = "ingredientUnitField"
+
+//Unique testIds
+
+const ID_BUTTON_ADD_INGREDIENT = "startAddButton"
 
 //Error Ids
 const ERROR_ID_AMOUNT = "errorIdAmount"
@@ -25,40 +33,9 @@ const ERROR_MESSAGE_AMOUNT_MISSING = "Amount required"
 const ERROR_MESSAGE_NAME_MISSING = "Name required"
 
 const IngredientList = ({ingredients, editable, handleAdd, handleEdit, handleRemove, dispatchErrors}) => {
-  const [adding, setAdding] = useState(false)
-  const [newName, setNewName] = useState('')
-  const [newAmount, setNewAmount] = useState(1)
-  const [newUnit, setNewUnit] = useState('')
-  const [amountErrorMessage, setAmountErrorMessage] = useState(null)
-  const [nameErrorMessage, setNameErrorMessage] = useState(null)
 
-
-  const addIngredient =  () => {
-    let amount = Number(newAmount)
-    let hasError = false;
-    if(amount === 0 || !Number.isFinite(amount)){
-      setAmountErrorMessage(ERROR_MESSAGE_AMOUNT_MISSING)
-      hasError = true;
-    }
-    else{
-      setAmountErrorMessage(null)
-    }
-
-    if(newName.trim() === ''){
-      setNameErrorMessage(ERROR_MESSAGE_NAME_MISSING)
-      hasError = true;
-    }
-    else{
-      setNameErrorMessage(null)
-    }
-
-    if(!hasError){
-      let newIngredient = new Ingredient(newName, amount, newUnit, null)
-      handleAdd(newIngredient)
-      setNewName('')
-      setNewAmount(1)
-      setNewUnit('')
-    }
+  const addBlankIngredient =  () => {
+    handleAdd(new Ingredient())
   }
 
   let content = ingredients.map((ingr, index) => {
@@ -75,40 +52,9 @@ const IngredientList = ({ingredients, editable, handleAdd, handleEdit, handleRem
   });
 
   let buttons = null;
-  if(adding && editable){
-    buttons = (
-      <React.Fragment>
-        <TextField 
-          inputProps = {{ 'data-testid' : 'newNameField' }}
-          label = "Name"
-          value = {newName}
-          error = {nameErrorMessage != null}
-          helperText = {nameErrorMessage}
-          onChange = {(event) => setNewName(event.target.value)} />
-        <TextField
-          inputProps = {{ 'data-testid' : 'newAmountField' }} 
-          label = "Amount"
-          value = {newAmount}
-          error = {amountErrorMessage != null}
-          helperText = {amountErrorMessage}
-          onChange = {(event) => setNewAmount(event.target.value)}/>
-        <TextField 
-          inputProps = {{ 'data-testid' : 'newUnitField' }}
-          label = "Unit"
-          value = {newUnit}
-          onChange = {(event) => setNewUnit(event.target.value)}/>
-        <Button onClick = {addIngredient} disabled = {amountErrorMessage != null || nameErrorMessage != null}>
-          Add ingredient
-        </Button>
-        <IconButton onClick = {() => setAdding(false)}>
-          <CloseIcon />
-        </IconButton>
-      </React.Fragment>
-    )
-  }
-  else if(editable){
+  if(editable){
    buttons = (
-    <IconButton data-testid = "startAddButton" onClick = {() => setAdding(true)}>
+    <IconButton data-testid = {ID_BUTTON_ADD_INGREDIENT} onClick = {() => addBlankIngredient()}>
       <AddIcon />
     </IconButton>
    )
@@ -125,54 +71,82 @@ const IngredientList = ({ingredients, editable, handleAdd, handleEdit, handleRem
 
 }
 
-const IngredientListItem = ({ingr, pos, editable, handleEdit, handleRemove}) => {
+//ensures that if amountText is a valid number, then ingredient's amount is a number.
+const IngredientListItem = ({ingr, editable,  handleEdit, handleRemove}) => {
   const [amountErrorMessage, setAmountErrorMessage] = useState(null)
+  const [nameErrorMessage, setNameErrorMessage] = useState(null)
 
+
+  const checkForErrors = (ingr) => {
+    let amount = Number(ingr.amount)
+    if(amount === 0){
+      setAmountErrorMessage(ERROR_MESSAGE_AMOUNT_MISSING)
+    }
+    else if(!Number.isFinite(amount)){
+      setAmountErrorMessage(ERROR_MESSAGE_AMOUNT_NAN)
+    }
+    else{
+      setAmountErrorMessage(null)
+    }
+
+    if(!ingr.name){
+      setNameErrorMessage(ERROR_MESSAGE_NAME_MISSING)
+    }
+    else{
+      setNameErrorMessage(null)
+    }
+  }
 
   const handleNameChange = (name) => {
     let editedIngredient = {...ingr}
     editedIngredient.name = name
+    checkForErrors(editedIngredient)
     handleEdit(editedIngredient)
   }
 
   const handleAmountChange = (amountText) => {
     let amount = Number(amountText)
-    if(amountText !== '' && Number.isFinite(amount)){
-      let editedIngredient = {...ingr}
-      editedIngredient.amount = amount;
-      handleEdit(editedIngredient)
-      setAmountErrorMessage(null)
-    }
-    else if(amountText === ''){
-      setAmountErrorMessage(ERROR_MESSAGE_AMOUNT_MISSING)
-    }
-    else{
-      setAmountErrorMessage(ERROR_MESSAGE_AMOUNT_NAN)
-    }
+    let editedIngredient = {...ingr}
+    editedIngredient.amount = amountText;
 
+    if(amountText !== '' && Number.isFinite(amount)){
+      editedIngredient.amount = amount
+    }
+    checkForErrors(editedIngredient)
+    handleEdit(editedIngredient)
   }
 
   const handleUnitChange = (unit) => {
     let editedIngredient = {...ingr}
     editedIngredient.unit = unit
+    checkForErrors(editedIngredient)
     handleEdit(editedIngredient)
   }
   
   if(editable){
     return (
       <ListItem data-testid = {ingr.id}>
-        <TextField 
+        <TextField
           label = "Name"
+          id = {"INGR_NAME_"+ingr.id}
           value = {ingr != null && ingr.name != null ? ingr.name : ''}
           onChange = {(event) => handleNameChange(event.target.value.trim())}
+          error = {nameErrorMessage != null}
+          helperText = {nameErrorMessage}
           />
         <TextField 
           label = "Amount"
+          id = {"INGR_AMOUNT_"+ingr.id}
+          inputProps = {{ 'data-testid' :  ID_FIELD_INGREDIENT_AMOUNT }}
           value = {ingr != null && ingr.amount != null ? ingr.amount : ''}
           onChange = {(event) => handleAmountChange(event.target.value.trim())}
+          error = {amountErrorMessage != null}
+          helperText = {amountErrorMessage}
         />
         <TextField 
           label = "Unit"
+          id = {"INGR_UNIT_"+ingr.id}
+          inputProps = {{'data-testid' : ID_FIELD_INGREDIENT_UNIT}}
           value = {ingr != null && ingr.unit != null ? ingr.unit : ''}
           onChange = {(event) => handleUnitChange(event.target.value.trim())}
         />
@@ -199,5 +173,9 @@ export {
   ERROR_MESSAGE_AMOUNT_MISSING, 
   ERROR_MESSAGE_NAME_MISSING, 
   ERROR_MESSAGE_AMOUNT_NAN,
-  ID_DELETE_INGREDIENT_BUTTON
+  ID_DELETE_INGREDIENT_BUTTON,
+  ID_FIELD_INGREDIENT_AMOUNT,
+  ID_FIELD_INGREDIENT_UNIT,
+  ID_FIELD_INGREDIENT_NAME,
+  ID_BUTTON_ADD_INGREDIENT
 };

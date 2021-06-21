@@ -6,9 +6,11 @@ import userEvent from '@testing-library/user-event'
 import { Ingredient } from '../../Model/ingredient.js'
 import { 
     IngredientList, 
-    ERROR_MESSAGE_AMOUNT_MISSING, 
-    ERROR_MESSAGE_NAME_MISSING, 
-    ID_DELETE_INGREDIENT_BUTTON 
+    ERROR_MESSAGE_AMOUNT_MISSING,
+    ERROR_MESSAGE_AMOUNT_NAN, 
+    ERROR_MESSAGE_NAME_MISSING,
+    ID_DELETE_INGREDIENT_BUTTON,
+    ID_BUTTON_ADD_INGREDIENT
 } from './IngredientList.js';
 import { RecipePage, ID_EDIT_BUTTON} from './RecipePage';
 
@@ -28,19 +30,27 @@ describe('IngredientList', () => {
         render(<RecipePage recipe = {recipe} prevPath = "" handleAddRecipe = {addHandler} handleUpdateRecipe = {updateHandler} />);
     }
 
+    const getNthIngredientField = (labelText, n) => {
+        let fields = screen.queryAllByLabelText(labelText)
+        return fields[n]
+    }
     /*
      *name: str,
      *amount: str,
      *unit: str
      */
     const performAdd = (name, amount, unit) => {
-        userEvent.type(screen.getByTestId("newNameField"), name)
-        userEvent.clear(screen.getByTestId("newAmountField"))
-        userEvent.type(screen.getByTestId("newAmountField"), amount)
+        fireEvent.click(screen.getByTestId(ID_BUTTON_ADD_INGREDIENT))
+        let nameFields = screen.queryAllByLabelText("Name")
+        let amountFields = screen.queryAllByLabelText("Amount")
+        let unitFields = screen.queryAllByLabelText("Unit")
+        //fields[field.length - 1] is the last aka newly added field
+        userEvent.type(nameFields[nameFields.length - 1], name)
+        userEvent.clear(amountFields[amountFields.length - 1])
+        userEvent.type(amountFields[amountFields.length - 1], amount)
         if(unit){
-            userEvent.type(screen.getByTestId("newUnitField"), unit)
+            userEvent.type(unitFields[unitFields.length - 1], unit)
         }
-        fireEvent.click(screen.getByText('Add ingredient'))
     }
 
 
@@ -104,11 +114,32 @@ describe('IngredientList', () => {
             expect( await screen.findByText("Butter, 1")).toBeInTheDocument()
         })
 
-        // test('shows an error message if an ingredients name is blank', () => {
-        //     const eggTextField = screen.getByDisplayValue("egg")
-        //     userEvent.clear(eggTextField)
-        //     expect()
-        // })
+        test('shows an error message if an ingredients name is blank', () => {
+            const eggTextField = screen.getByDisplayValue("egg")
+            userEvent.clear(eggTextField)
+            expect(screen.getByText(ERROR_MESSAGE_NAME_MISSING)).toBeInTheDocument()
+        })
+
+
+        test('shows an error message if an ingredients amount is empty' ,() => {
+            let amountField = screen.getByLabelText("Amount")
+            userEvent.clear(amountField)
+            expect(screen.getByText(ERROR_MESSAGE_AMOUNT_MISSING)).toBeInTheDocument()
+        })
+
+        test('shows an error message if an ingredients amount is 0', () => {
+            let amountField = screen.getByLabelText("Amount")
+            userEvent.clear(amountField)
+            userEvent.type(amountField, 0)
+            expect(screen.getByText(ERROR_MESSAGE_AMOUNT_MISSING)).toBeInTheDocument()
+        })
+
+        test('shows an error message if an ingredients amount is not a number', () => {
+            let amountField = screen.getByLabelText("Amount")
+            userEvent.type(amountField, 'something')
+            expect(screen.getByText(ERROR_MESSAGE_AMOUNT_NAN)).toBeInTheDocument()
+        })
+
     });
 
 
@@ -120,7 +151,6 @@ describe('IngredientList', () => {
             }
             renderRecipe(recipe)
             fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
-            fireEvent.click(screen.getByTestId('startAddButton'))
         })
 
 
@@ -138,31 +168,32 @@ describe('IngredientList', () => {
         })
 
         test('displays an error when the ingredient does not have a name', () => {
-            userEvent.clear(screen.getByTestId("newNameField"))
-            userEvent.clear(screen.getByTestId("newAmountField"))
-            userEvent.type(screen.getByTestId("newAmountField"), "1")
-            fireEvent.click(screen.getByText('Add ingredient'))
+            fireEvent.click(screen.getByTestId(ID_BUTTON_ADD_INGREDIENT))
+            userEvent.clear(getNthIngredientField("Name", 0))
+            let newAmountField = getNthIngredientField("Amount", 0)
+            userEvent.clear(newAmountField)
+            userEvent.type(newAmountField, "1")
             expect(screen.getByText(ERROR_MESSAGE_NAME_MISSING)).toBeInTheDocument()
         })
 
         test('displays an error when the ingredient does not have an amount', () => {
-            userEvent.clear(screen.getByTestId("newAmountField"))
-            fireEvent.click(screen.getByText('Add ingredient'))
+            fireEvent.click(screen.getByTestId(ID_BUTTON_ADD_INGREDIENT))
+            userEvent.clear(getNthIngredientField("Amount", 0))
             expect(screen.getByText(ERROR_MESSAGE_AMOUNT_MISSING)).toBeInTheDocument()
         })
 
         test('displays an error when the amount is not a number' , () => {
-            userEvent.clear(screen.getByTestId("newAmountField"))
-            userEvent.type(screen.getByTestId("newAmountField"), "Hello")
-            fireEvent.click(screen.getByText('Add ingredient'))
-            expect(screen.getByText(ERROR_MESSAGE_AMOUNT_MISSING)).toBeInTheDocument()
+            fireEvent.click(screen.getByTestId(ID_BUTTON_ADD_INGREDIENT))
+            userEvent.clear(getNthIngredientField("Amount", 0))
+            userEvent.type(getNthIngredientField("Amount", 0), "Hello")
+            expect(screen.getByText(ERROR_MESSAGE_AMOUNT_NAN)).toBeInTheDocument()
         })
 
         test('displays an error when the amount is infinity' , () => {
-            userEvent.clear(screen.getByTestId("newAmountField"))
-            userEvent.type(screen.getByTestId("newAmountField"), "Infinity")
-            fireEvent.click(screen.getByText('Add ingredient'))
-            expect(screen.getByText(ERROR_MESSAGE_AMOUNT_MISSING)).toBeInTheDocument()
+            fireEvent.click(screen.getByTestId(ID_BUTTON_ADD_INGREDIENT))
+            userEvent.clear(getNthIngredientField("Amount", 0))
+            userEvent.type(getNthIngredientField("Amount", 0), "Infinity")
+            expect(screen.getByText(ERROR_MESSAGE_AMOUNT_NAN)).toBeInTheDocument()
         })
 
         test('after adding two ingredients, clicking delete on the first only deletes that ingredient', () => {

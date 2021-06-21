@@ -10,8 +10,8 @@ class Measurable {
      * @param unit: unit of measurement; string
      */
     constructor(name, amount, unit) {
-        this.mName = name;
-        this.mAmount = amount;
+        this.mName = name ?? '';
+        this.mAmount = amount ?? 1;
 
         if(unit != null && unit.trim() !== ''){
             this.mUnit = unit.trim();
