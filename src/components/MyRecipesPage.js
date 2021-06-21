@@ -83,7 +83,6 @@ const ButtonBar = (props) => {
 export function MyRecipesPage(props){
     const history = useHistory();
     let { path } = useRouteMatch();
-    let [selected, setSelected] = useState(null);
     let [recipes, setRecipes] = useState([])
 
     useEffect(() => {
@@ -104,13 +103,13 @@ export function MyRecipesPage(props){
     }
 
     const updateRecipe = (editedRecipe) => {
-        let newRecipes = recipes.filter(recipe => recipe.id != editedRecipe.id)
+        let newRecipes = recipes.filter(recipe => recipe.id !== editedRecipe.id)
         newRecipes.push(editedRecipe)
         setRecipes(newRecipes)
     }
 
     const removeRecipe = (recipeToRemove) => {
-        let newRecipes = recipes.filter(recipe => recipe.id != recipeToRemove.id)
+        let newRecipes = recipes.filter(recipe => recipe.id !== recipeToRemove.id)
         setRecipes(newRecipes)
     }
 

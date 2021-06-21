@@ -36,7 +36,7 @@ const ServingInfoList = ({servingInfo, setServingInfo, editable, errors, dispatc
     let numServed = Number(numServedText)
     let newServingInfo = {...servingInfo}
 
-    if(numServedText.trim() == ''){
+    if(numServedText.trim() === ''){
       newServingInfo.numServed = undefined
       setServingInfo(newServingInfo)
       dispatchErrors({type: 'remove', errorKey: ERROR_NUM_SERVED})
@@ -56,7 +56,7 @@ const ServingInfoList = ({servingInfo, setServingInfo, editable, errors, dispatc
     let servingYield = Number(servingYieldText)
     let newServingInfo = {...servingInfo}
 
-    if(servingYieldText.trim() == ''){
+    if(servingYieldText.trim() === ''){
       newServingInfo.yield = undefined
       dispatchErrors({type: 'remove', errorKey: ERROR_YIELD})
     }
@@ -159,7 +159,7 @@ const ServingInfoList = ({servingInfo, setServingInfo, editable, errors, dispatc
         {
           servingInfo.numServed !== undefined && (
           <ListItem>
-              <ListItemText primary={`Serves: ${servingInfo.numServed} ${servingInfo.numServed == 1 ? 'person': 'people'}`} />
+              <ListItemText primary={`Serves: ${servingInfo.numServed} ${servingInfo.numServed === 1 ? 'person': 'people'}`} />
           </ListItem>
           )
         }

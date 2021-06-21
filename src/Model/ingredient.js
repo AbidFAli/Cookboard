@@ -1,3 +1,8 @@
+
+import uniqueId from 'lodash/uniqueId'
+
+const TEMP_ID_FLAG = "TEMP"
+
 class Measurable {
     /*
      * @param name: the ingredient name; string
@@ -7,11 +12,9 @@ class Measurable {
     constructor(name, amount, unit) {
         this.mName = name;
         this.mAmount = amount;
-        if (unit == null) {
-            this.mUnit = "";
-        }
-        else {
-            this.mUnit = unit;
+
+        if(unit != null && unit.trim() !== ''){
+            this.mUnit = unit.trim();
         }
     }
     get name() {
@@ -52,32 +55,38 @@ class Ingredient extends Measurable {
      * @param name: the ingredient name; string
      * @param amount: amount of ingredient; number
      * @param unit: unit of measurement; string
-     * @param nutrients: the nutrients in the ingredient; array of Nutrient
-     * @param fdcInfo: info about ingredient in fdc database; object
+     * @param id: id of the ingredient; string
+ 
      */
-    constructor(name, amount, unit, nutrients, fdcInfo) {
+    constructor(name, amount, unit, id) {
         super(name, amount, unit);
-        this.mNutrients = nutrients;
-        this.mFdcInfo = fdcInfo;
+        this.id = id ?? uniqueId(TEMP_ID_FLAG)
+    }
 
+    static hasTempId(ingredient){    
+        if(ingredient.id){
+            return ingredient.id.startsWith(TEMP_ID_FLAG);
+        }
+        else{
+            return false
+        }    
     }
-    get nutrients() {
-        return this.mNutrients;
-    }
-    set nutrients(newNutrients) {
-        this.mNutrients = newNutrients;
-    }
-    get fdcInfo() {
-        return this.mFdcInfo;
-    }
-    set fdcInfo(newInfo) {
-        this.mFdcInfo = newInfo;
-    }
+
+    // get nutrients() {
+    //     return this.mNutrients;
+    // }
+    // set nutrients(newNutrients) {
+    //     this.mNutrients = newNutrients;
+    // }
+    // get fdcInfo() {
+    //     return this.mFdcInfo;
+    // }
+    // set fdcInfo(newInfo) {
+    //     this.mFdcInfo = newInfo;
+    // }
 }
 
 
-class Nutrient extends Measurable {
 
-}
 
-export { Nutrient, Ingredient, Measurable };
+export { Ingredient, Measurable };

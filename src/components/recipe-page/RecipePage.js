@@ -1,18 +1,15 @@
 import React, {useState, useEffect, useRef, useReducer} from 'react';
 import Button from '@material-ui/core/Button'
 import CancelIcon from '@material-ui/icons/Cancel'
+import {cloneDeep} from 'lodash'
 import EditIcon from '@material-ui/icons/Edit';
 import Fab from '@material-ui/core/Fab'
 import Grid from '@material-ui/core/Grid';
-// import List from '@material-ui/core/List';
-// import ListItem from '@material-ui/core/ListItem';
-// import ListItemText from '@material-ui/core/ListItemText';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
-import TextField from '@material-ui/core/TextField';
 import { useHistory} from 'react-router';
 
-import DescriptionRating from './DescriptionRating'
+import { DescriptionRating } from './DescriptionRating'
 import ErrorMessenger from '../../Model/errorMessenger'
 import recipeService from '../../services/recipeService'
 import { RecipeName } from './RecipeName'
@@ -21,8 +18,11 @@ import { TimingInfo } from './TimingInfo'
 import { InstructionList } from './InstructionList'
 import Instruction from '../../Model/instruction'
 import { IngredientList } from './IngredientList'
+import { Ingredient} from '../../Model/ingredient'
 
 const ID_EDIT_BUTTON = "editButton"
+
+const KEY_RECIPE_BEFORE_EDITS = "keyRecipeBeforeEdits"
 
 //errors is an instance of the ErrorMessenger class
 function reduceErrors(errors, action){
@@ -61,31 +61,31 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
       let instr;
       if(recipe != null && recipe.instructions != null){
         instr = Array.from(recipe.instructions)
+        instr = instr.map((text) =>  new Instruction(text));
       }
       else{
         instr = []
       }
 
-      let newInstructions = instr.map((text) =>  new Instruction(text));
-      setInstructions(newInstructions)
+      setInstructions(instr)
     }, [recipe])
 
 
     const checkRecipeForErrors = (recipe) => {
       let errorList = []
-      if(recipe.name == undefined || recipe.name.trim() == ''){
+      if(recipe.name == null || recipe.name.trim() === ''){
         errorList.push('Recipe name is missing')
       }
 
-      if(recipe.instructions.some((instruction) => instruction.trim() == '')){
+      if(recipe.instructions.some((instruction) => instruction.trim() === '')){
         errorList.push('Blank instruction')
       }
 
-      if(recipe.ingredients.some(ingredient => ingredient.name == undefined || ingredient.name.trim() == '')){
+      if(recipe.ingredients.some(ingredient => ingredient.name == null || ingredient.name.trim() === '')){
         errorList.push('An ingredient is missing a name')
       }
 
-      if(recipe.ingredients.some(ingredient => ingredient.amount == undefined || ingredient.amount == 0)){
+      if(recipe.ingredients.some(ingredient => ingredient.amount == null || ingredient.amount === 0)){
         errorList.push('An ingredient is missing an amount')
       }
 
@@ -99,19 +99,24 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
 
 
     const handleSave = async () => {
-      if(errors.size() == 0){
+      if(errors.size() === 0){
         
         let newRecipe = {...recipe}
         newRecipe.name = name
         newRecipe.description = description
         newRecipe.instructions = instructions.map(instr => instr.text)
-        newRecipe.ingredients = ingredients
+        newRecipe.ingredients = cloneDeep(ingredients)
+        newRecipe.ingredients.forEach((ingredient) => {
+          if(Ingredient.hasTempId(ingredient)){
+            delete ingredient.id
+          }
+        })
         newRecipe.rating = rating
         newRecipe.timeToMake = timeToMake
         newRecipe.servingInfo = servingInfo
         let errorList = checkRecipeForErrors(newRecipe)
 
-        if(errorList.length != 0){
+        if(errorList.length !== 0){
           displayErrors(errorList)
         }
         else if(created){
@@ -135,38 +140,60 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
         }
       }
     }
-    
-    const restoreDefaultState = () => {
+
+    const setPageState = (recipe) => {
       setName(recipe != null && recipe.name != null ? recipe.name : '')
       setDescription(recipe != null && recipe.description != null ? recipe.description : '')
       let newInstructions = []
       if(recipe != null && recipe.instructions != null){
         newInstructions = recipe.instructions.map((text) =>  new Instruction(text))
       }
-      else{
-        setInstructions(newInstructions)
-      }
     
+      setInstructions(newInstructions)
       setIngredients(recipe != null && recipe.ingredients != null ? recipe.ingredients : [])
       setRating(recipe != null && recipe.rating != null ? recipe.rating : 0)
       setTimeToMake(recipe != null ? recipe.timeToMake : null)
       setServingInfo(recipe != null ? recipe.servingInfo : null)
       setId(recipe != null ? recipe.id : null)
-      dispatchErrors({type: 'reset'})
+    }
+    
+    const restoreRecipeBeforeEdits = async () => {
+      let recipeBeforeEdits = window.sessionStorage.getItem(KEY_RECIPE_BEFORE_EDITS)
+      recipeBeforeEdits = JSON.parse(recipeBeforeEdits)
+      recipeBeforeEdits = await recipeService.update(recipeBeforeEdits)
+      handleUpdateRecipe(recipeBeforeEdits)
+      setPageState(recipeBeforeEdits)
     }
 
-    const changeEditable = () => {
-      if(editable){
-        restoreDefaultState()
+    const changeEditable = async () => {
+      dispatchErrors({type: 'reset'})
+      if(created && editable){
+        await restoreRecipeBeforeEdits()
+      }
+      else if(created){
+        saveRecipeLocally()
       }
       setEditable(!editable)
     }
 
-    const addIngredient = function(newIngredient){
+    const saveRecipeLocally = () => {
+      let recipeToSave = {...recipe}
+      recipeToSave.name = name
+      recipeToSave.description = description
+      recipeToSave.instructions = instructions.map(instr => instr.text)
+      recipeToSave.ingredients = ingredients
+      recipeToSave.rating = rating
+      recipeToSave.timeToMake = timeToMake
+      recipeToSave.servingInfo = servingInfo
+
+      let recipeData = JSON.stringify(recipeToSave)
+      window.sessionStorage.setItem(KEY_RECIPE_BEFORE_EDITS, recipeData)
+    }
+
+    const addIngredient =  async function(newIngredient){
       let newIngredients = Array.from(ingredients)
       newIngredients.push(newIngredient)
       setIngredients(newIngredients)
-      
     }
 
     const removeIngredient = function(ingredientToRemove){
@@ -206,7 +233,7 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
           variant = "outlined" 
           color = "primary" 
           onClick = {() => handleSave()}
-          disabled = {errors.size() != 0}
+          disabled = {errors.size() !== 0}
           data-testid = "saveButton"
         >
           {text}
@@ -286,7 +313,7 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
             {saveButton}
             <Fab 
               data-testid = {ID_EDIT_BUTTON} 
-              alt ="Edit recipe" 
+              alt = {editable ? "Cancel edit" : "Edit recipe" }
               color = {editable === false ? "primary" : "secondary" } 
               onClick = {() => changeEditable()}
               >

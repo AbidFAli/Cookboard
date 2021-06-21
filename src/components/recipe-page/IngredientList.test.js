@@ -4,7 +4,12 @@ import {within} from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 
 import { Ingredient } from '../../Model/ingredient.js'
-import { IngredientList, ERROR_MESSAGE_AMOUNT_MISSING, ERROR_MESSAGE_NAME_MISSING } from './IngredientList.js';
+import { 
+    IngredientList, 
+    ERROR_MESSAGE_AMOUNT_MISSING, 
+    ERROR_MESSAGE_NAME_MISSING, 
+    ID_DELETE_INGREDIENT_BUTTON 
+} from './IngredientList.js';
 import { RecipePage, ID_EDIT_BUTTON} from './RecipePage';
 
 
@@ -21,6 +26,21 @@ describe('IngredientList', () => {
         let addHandler = jest.fn();
         let updateHandler = jest.fn();
         render(<RecipePage recipe = {recipe} prevPath = "" handleAddRecipe = {addHandler} handleUpdateRecipe = {updateHandler} />);
+    }
+
+    /*
+     *name: str,
+     *amount: str,
+     *unit: str
+     */
+    const performAdd = (name, amount, unit) => {
+        userEvent.type(screen.getByTestId("newNameField"), name)
+        userEvent.clear(screen.getByTestId("newAmountField"))
+        userEvent.type(screen.getByTestId("newAmountField"), amount)
+        if(unit){
+            userEvent.type(screen.getByTestId("newUnitField"), unit)
+        }
+        fireEvent.click(screen.getByText('Add ingredient'))
     }
 
 
@@ -57,9 +77,9 @@ describe('IngredientList', () => {
                 ];
 
             renderRecipe(recipe)
-            expect(screen.getByText("flour, 1.5 cups")).toBeInTheDocument;
-            expect(screen.getByText("baking powder, 3.5 tsp")).toBeInTheDocument;
-            expect(screen.getByText("salt, 1 tsp")).toBeinTheDocument;
+            expect(screen.getByText("flour, 1.5 cups")).toBeInTheDocument();
+            expect(screen.getByText("baking powder, 3.5 tsp")).toBeInTheDocument();
+            expect(screen.getByText("salt, 1 tsp")).toBeInTheDocument();
         });
     })
 
@@ -103,21 +123,16 @@ describe('IngredientList', () => {
             fireEvent.click(screen.getByTestId('startAddButton'))
         })
 
+
+
         test('succeeds for an ingredient with a name, unit, and amount', async () => {
-            userEvent.type(screen.getByTestId("newNameField"), "batter")
-            userEvent.clear(screen.getByTestId("newAmountField"))
-            userEvent.type(screen.getByTestId("newAmountField"), "1")
-            userEvent.type(screen.getByTestId("newUnitField"), "scoop")
-            fireEvent.click(screen.getByText('Add ingredient'))
+            performAdd("batter", "1", "scoop")
             fireEvent.click(screen.getByText("Save Changes"))
             expect(await screen.findByText("batter, 1 scoop")).toBeInTheDocument()
         })
 
         test('succeeds for an ingredient missing a unit', async () => {
-            userEvent.type(screen.getByTestId("newNameField"), "batter")
-            userEvent.clear(screen.getByTestId("newAmountField"))
-            userEvent.type(screen.getByTestId("newAmountField"), "1")
-            fireEvent.click(screen.getByText('Add ingredient'))
+            performAdd("batter", "1")
             fireEvent.click(screen.getByText("Save Changes"))
             expect(await screen.findByText("batter, 1")).toBeInTheDocument()
         })
@@ -150,11 +165,16 @@ describe('IngredientList', () => {
             expect(screen.getByText(ERROR_MESSAGE_AMOUNT_MISSING)).toBeInTheDocument()
         })
 
-
+        test('after adding two ingredients, clicking delete on the first only deletes that ingredient', () => {
+            performAdd("batter", "1", "scoop")
+            performAdd("mix", ".5", "cups")
+            userEvent.click(screen.getAllByTestId(ID_DELETE_INGREDIENT_BUTTON)[0])
+            expect(screen.queryByText("batter")).not.toBeInTheDocument()
+        })
 
     })
 
-    test('allows ingredients to be deleted', async () => {
+    test('allows ingredients to be deleted', () => {
         let water = {name: "water", amount: 1, unit: "cup", id: "2002"}
         let batter = {name: "batter", amount: 1, unit: "cup", id: "2001"}
         recipe = {
@@ -163,9 +183,11 @@ describe('IngredientList', () => {
         }
         renderRecipe(recipe);
         fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
-        const deleteButton = within(screen.getByTestId(water.id)).getByTestId('deleteIngredientButton')
+        const deleteButton = within(screen.getByTestId(water.id)).getByTestId(ID_DELETE_INGREDIENT_BUTTON)
         fireEvent.click(deleteButton)
         expect(screen.queryByText(/water/)).not.toBeInTheDocument()
     });
+
+    
 
 });

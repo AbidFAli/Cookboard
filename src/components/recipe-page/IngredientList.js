@@ -10,7 +10,10 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import TextField from '@material-ui/core/TextField';
 
-import {UnitedValue, ERROR_TYPE_UNIT, ERROR_TYPE_VALUE} from './UnitedValue'
+//import {UnitedValue, ERROR_TYPE_UNIT, ERROR_TYPE_VALUE} from './UnitedValue'
+import {Ingredient} from '../../Model/ingredient'
+
+const ID_DELETE_INGREDIENT_BUTTON = "deleteIngredientButton"
 
 //Error Ids
 const ERROR_ID_AMOUNT = "errorIdAmount"
@@ -30,10 +33,10 @@ const IngredientList = ({ingredients, editable, handleAdd, handleEdit, handleRem
   const [nameErrorMessage, setNameErrorMessage] = useState(null)
 
 
-  const addIngredient = () => {
+  const addIngredient =  () => {
     let amount = Number(newAmount)
     let hasError = false;
-    if(amount == 0 || !Number.isFinite(amount)){
+    if(amount === 0 || !Number.isFinite(amount)){
       setAmountErrorMessage(ERROR_MESSAGE_AMOUNT_MISSING)
       hasError = true;
     }
@@ -50,11 +53,8 @@ const IngredientList = ({ingredients, editable, handleAdd, handleEdit, handleRem
     }
 
     if(!hasError){
-      handleAdd({
-        name : newName, 
-        amount: amount, 
-        unit: newUnit.trim() === '' ? undefined : newUnit
-      });
+      let newIngredient = new Ingredient(newName, amount, newUnit, null)
+      handleAdd(newIngredient)
       setNewName('')
       setNewAmount(1)
       setNewUnit('')
@@ -63,7 +63,7 @@ const IngredientList = ({ingredients, editable, handleAdd, handleEdit, handleRem
 
   let content = ingredients.map((ingr, index) => {
     return (
-      <Ingredient
+      <IngredientListItem
         key = {ingr.id}
         ingr = {ingr}
         pos = {index}
@@ -125,27 +125,34 @@ const IngredientList = ({ingredients, editable, handleAdd, handleEdit, handleRem
 
 }
 
-const Ingredient = ({ingr, pos, editable, handleEdit, handleRemove}) => {
-  const [name, setName] = useState(ingr != null ? ingr.name : '');
-  const [amount, setAmount] = useState(ingr != null ? ingr.amount : '');
-  const [unit, setUnit] = useState(ingr != null ? ingr.unit : '');
+const IngredientListItem = ({ingr, pos, editable, handleEdit, handleRemove}) => {
+  const [amountErrorMessage, setAmountErrorMessage] = useState(null)
+
 
   const handleNameChange = (name) => {
-    setName(name)
     let editedIngredient = {...ingr}
     editedIngredient.name = name
     handleEdit(editedIngredient)
   }
 
   const handleAmountChange = (amountText) => {
-    setAmount(amount)
-    let editedIngredient = {...ingr}
-    editedIngredient.amount = amount
-    handleEdit(editedIngredient)
+    let amount = Number(amountText)
+    if(amountText !== '' && Number.isFinite(amount)){
+      let editedIngredient = {...ingr}
+      editedIngredient.amount = amount;
+      handleEdit(editedIngredient)
+      setAmountErrorMessage(null)
+    }
+    else if(amountText === ''){
+      setAmountErrorMessage(ERROR_MESSAGE_AMOUNT_MISSING)
+    }
+    else{
+      setAmountErrorMessage(ERROR_MESSAGE_AMOUNT_NAN)
+    }
+
   }
 
   const handleUnitChange = (unit) => {
-    setUnit(unit)
     let editedIngredient = {...ingr}
     editedIngredient.unit = unit
     handleEdit(editedIngredient)
@@ -156,20 +163,20 @@ const Ingredient = ({ingr, pos, editable, handleEdit, handleRemove}) => {
       <ListItem data-testid = {ingr.id}>
         <TextField 
           label = "Name"
-          value = {name}
+          value = {ingr != null && ingr.name != null ? ingr.name : ''}
           onChange = {(event) => handleNameChange(event.target.value.trim())}
           />
         <TextField 
           label = "Amount"
-          value = {amount}
+          value = {ingr != null && ingr.amount != null ? ingr.amount : ''}
           onChange = {(event) => handleAmountChange(event.target.value.trim())}
         />
         <TextField 
           label = "Unit"
-          value = {unit}
+          value = {ingr != null && ingr.unit != null ? ingr.unit : ''}
           onChange = {(event) => handleUnitChange(event.target.value.trim())}
         />
-        <IconButton size = "small" data-testid = "deleteIngredientButton" onClick = {() => handleRemove(ingr)}>
+        <IconButton size = "small" data-testid = {ID_DELETE_INGREDIENT_BUTTON} onClick = {() => handleRemove(ingr)}>
           <DeleteIcon />
         </IconButton>
       </ListItem>
@@ -191,5 +198,6 @@ export {
   IngredientList, 
   ERROR_MESSAGE_AMOUNT_MISSING, 
   ERROR_MESSAGE_NAME_MISSING, 
-  ERROR_MESSAGE_AMOUNT_NAN
+  ERROR_MESSAGE_AMOUNT_NAN,
+  ID_DELETE_INGREDIENT_BUTTON
 };

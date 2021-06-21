@@ -6,6 +6,7 @@ import TextField from '@material-ui/core/TextField';
 
 
 
+const ID_FIELD_DESCRIPTION = "fieldDescription"
 /*
  *@param props = {
  *  desc: recipe description; string
@@ -21,6 +22,7 @@ const DescriptionRating = ({editable, desc, setDesc, rating, setRating}) => {
     if(editable){
         viewDescription = (
             <TextField
+                inputProps = {{'data-testid' : ID_FIELD_DESCRIPTION}}
                 name = "fieldDescription"
                 label = "Description"
                 defaultValue= {desc} 
@@ -29,7 +31,7 @@ const DescriptionRating = ({editable, desc, setDesc, rating, setRating}) => {
     }
     else{
         viewDescription = (
-            <Typography variant = "body1">
+            <Typography data-testid = {ID_FIELD_DESCRIPTION} variant = "body1">
                 {desc}
             </Typography>
         )
@@ -63,4 +65,7 @@ const DescriptionRating = ({editable, desc, setDesc, rating, setRating}) => {
     )
 }
 
-export default DescriptionRating;
+export { 
+    DescriptionRating,
+    ID_FIELD_DESCRIPTION
+}

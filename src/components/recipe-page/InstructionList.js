@@ -32,7 +32,7 @@ const InstructionList = ({instructions, editable, handleAdd, handleRemove, handl
 
 
   let content = null
-  if(instructions != null){
+  if(instructions){
     content = instructions.map((instr,index) => {
       return(
         <InstructionView
@@ -96,7 +96,7 @@ const InstructionView = ({instr, pos, editable, handleEdit, handleRemove}) => {
   const handleEditWrapper = (newText) => {
     setInstrText(newText)
     handleEdit(pos, newText)
-    setErrorMessage(newText.trim() != '' ? null : ERROR_BLANK_INSTRUCTION)
+    setErrorMessage(newText.trim() !== '' ? null : ERROR_BLANK_INSTRUCTION)
   }
 
   if(editable){

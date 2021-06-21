@@ -75,7 +75,7 @@ const TimingInfo = ({timeToMake, setTimeToMake, editable, errors, dispatchErrors
           </React.Fragment>
       )
   }
-  else if(timeToMake != null && timeToMake.value != undefined && timeToMake.unit != undefined){
+  else if(timeToMake != null && timeToMake.value != null && timeToMake.unit != null){
       return(
         <Typography variant="h4">
           {timeToMake.value + ' ' + timeToMake.unit}
