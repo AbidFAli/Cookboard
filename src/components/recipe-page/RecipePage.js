@@ -1,26 +1,27 @@
-import React, {useState, useEffect, useRef, useReducer} from 'react';
-import Button from '@material-ui/core/Button'
-import CancelIcon from '@material-ui/icons/Cancel'
-import {cloneDeep} from 'lodash'
-import EditIcon from '@material-ui/icons/Edit';
-import Fab from '@material-ui/core/Fab'
+import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
-import { useHistory} from 'react-router';
+import CancelIcon from '@material-ui/icons/Cancel';
+import EditIcon from '@material-ui/icons/Edit';
+import { cloneDeep } from 'lodash';
+import React, { useReducer, useState } from 'react';
+import { useHistory } from 'react-router';
+import ErrorMessenger from '../../Model/errorMessenger';
+import { Ingredient } from '../../Model/ingredient';
+import Instruction from '../../Model/instruction';
+import recipeService from '../../services/recipeService';
+import { DescriptionRating } from './DescriptionRating';
+import { IngredientList } from './IngredientList';
+import { InstructionList } from './InstructionList';
+import { RecipeName } from './RecipeName';
+import { ServingInfoList } from './ServingInfoList';
+import { TimingInfo } from './TimingInfo';
 
-import { DescriptionRating } from './DescriptionRating'
-import ErrorMessenger from '../../Model/errorMessenger'
-import recipeService from '../../services/recipeService'
-import { RecipeName } from './RecipeName'
-import { ServingInfoList } from './ServingInfoList'
-import { TimingInfo } from './TimingInfo'
-import { InstructionList } from './InstructionList'
-import Instruction from '../../Model/instruction'
-import { IngredientList } from './IngredientList'
-import { Ingredient} from '../../Model/ingredient'
 
 const ID_EDIT_BUTTON = "editButton"
+const ID_SAVE_BUTTON = "saveButton"
 
 const KEY_RECIPE_BEFORE_EDITS = "keyRecipeBeforeEdits"
 
@@ -57,8 +58,9 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
     const [rating, setRating] = useState(recipe != null && recipe.rating != null ? recipe.rating : 0)
     const [timeToMake, setTimeToMake] = useState(recipe != null ? recipe.timeToMake : null)
     const [servingInfo, setServingInfo] = useState(recipe != null ? recipe.servingInfo : null)
-    const [editable, setEditable] = useState(false)
     const [created, setCreated] = useState(recipe != null)
+    const [editable, setEditable] = useState(recipe == null)
+    
     
     
     const checkRecipeForErrors = (recipe) => {
@@ -224,7 +226,7 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
           color = "primary" 
           onClick = {() => handleSave()}
           disabled = {errors.size() !== 0}
-          data-testid = "saveButton"
+          data-testid = {ID_SAVE_BUTTON}
         >
           {text}
         </Button>
@@ -319,4 +321,9 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
     
 }
 
-export { RecipePage, ID_EDIT_BUTTON};
+export {
+  RecipePage,
+  ID_EDIT_BUTTON,
+  ID_SAVE_BUTTON
+};
+

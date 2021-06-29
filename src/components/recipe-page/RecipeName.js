@@ -1,6 +1,6 @@
-import React from 'react';
-import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
+import React from 'react';
 
 const ERROR_RECIPE_NAME = "errorKeyRecipeName"
 const ERROR_MSG_RECIPE_NAME_MISSING = "Recipe name is required"
@@ -26,6 +26,7 @@ const RecipeName = ({recipeName, setRecipeName, editable, errors, dispatchErrors
               helperText = {errors.getErrorMessage(ERROR_RECIPE_NAME)}
               label = "Recipe Name"
               onChange = {(event) => handleChangeRecipeName(event.target.value)}
+              required = {true}
           />
       )
   }
@@ -39,7 +40,7 @@ const RecipeName = ({recipeName, setRecipeName, editable, errors, dispatchErrors
 }
 
 export {
-    RecipeName, 
+    RecipeName,
     ERROR_RECIPE_NAME,
     ERROR_MSG_RECIPE_NAME_MISSING,
     ID_FIELD_RECIPE_NAME

@@ -1,27 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import AddIcon from '@material-ui/icons/Add';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import Fab from '@material-ui/core/Fab';
 import Grid from '@material-ui/core/Grid';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import ListItemText from '@material-ui/core/ListItemText';
 import Paper from '@material-ui/core/Paper';
-import RestaurantRoundedIcon from '@material-ui/icons/RestaurantRounded';
-import Radio from '@material-ui/core/Radio'
+import Radio from '@material-ui/core/Radio';
 import Typography from '@material-ui/core/Typography';
-
-import {
-    useRouteMatch, useHistory,
-    Switch, Route
-} from "react-router-dom"
-
+import AddIcon from '@material-ui/icons/Add';
+import RestaurantRoundedIcon from '@material-ui/icons/RestaurantRounded';
+import React, { useEffect, useState } from 'react';
+import { Route, Switch, useHistory, useRouteMatch } from "react-router-dom";
+import recipeService from '../services/recipeService';
 import { RecipePage } from './recipe-page/RecipePage';
-import recipeService from '../services/recipeService'
 
+
+
+const ID_BUTTON_ADD_RECIPE = "MyRecipesPage_addRecipeButton"
 
 //onClick={() => <Redirect to={`${props.path}/${index}`} 
 
@@ -31,7 +29,7 @@ import recipeService from '../services/recipeService'
  * path: current path of the MyRecipesPage housing the RecipeList
  * }
  */
-export function RecipeList(props){
+function RecipeList(props){
     let content = null;
     const history = useHistory();
     const [selectedRecipe, setSelectedRecipe] = useState(null); //id of the selected recipe
@@ -80,7 +78,7 @@ const ButtonBar = (props) => {
  * recipes : a list of recipes; array of Recipe
  * }
  */
-export function MyRecipesPage(props){
+function MyRecipesPage(props){
     const history = useHistory();
     let { path } = useRouteMatch();
     let [recipes, setRecipes] = useState([])
@@ -133,7 +131,7 @@ export function MyRecipesPage(props){
                 </Paper>
             </Grid>
             <Grid item>
-                <Fab color="primary" aria-label="add" onClick = {goToNew}>
+                <Fab color="primary" aria-label="add" onClick = {goToNew} data-testid={ID_BUTTON_ADD_RECIPE}>
                     <AddIcon />
                 </Fab>
             </Grid>
@@ -163,3 +161,10 @@ export function MyRecipesPage(props){
         );
     
 }
+
+export {
+    MyRecipesPage,
+    RecipeList,
+    ID_BUTTON_ADD_RECIPE,
+};
+
