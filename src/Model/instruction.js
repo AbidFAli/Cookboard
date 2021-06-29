@@ -4,7 +4,7 @@ class Instruction{
 
   constructor(text){
     this.mText = text;
-    this.mId = uniqueId()
+    this.mId = uniqueId("INSTR_")
   }
   get text() {
     return this.mText;

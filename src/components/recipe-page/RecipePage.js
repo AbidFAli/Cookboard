@@ -48,7 +48,11 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
     const [id, setId] = useState(recipe != null ? recipe.id : null)
     const [name, setName] = useState(recipe != null && recipe.name != null ? recipe.name : '')
     const [description, setDescription] = useState(recipe != null && recipe.description != null ? recipe.description : '')
-    const [instructions, setInstructions] = useState(recipe != null && recipe.instructions != null ? recipe.instructions : [])
+    const [instructions, setInstructions] = 
+      useState( recipe != null 
+        && recipe.instructions != null 
+        ? recipe.instructions.map((text) =>  new Instruction(text)) : []
+        )
     const [ingredients, setIngredients] = useState(recipe != null && recipe.ingredients != null ? recipe.ingredients : [])
     const [rating, setRating] = useState(recipe != null && recipe.rating != null ? recipe.rating : 0)
     const [timeToMake, setTimeToMake] = useState(recipe != null ? recipe.timeToMake : null)
@@ -57,20 +61,6 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
     const [created, setCreated] = useState(recipe != null)
     
     
-    useEffect(() => {
-      let instr;
-      if(recipe != null && recipe.instructions != null){
-        instr = Array.from(recipe.instructions)
-        instr = instr.map((text) =>  new Instruction(text));
-      }
-      else{
-        instr = []
-      }
-
-      setInstructions(instr)
-    }, [recipe])
-
-
     const checkRecipeForErrors = (recipe) => {
       let errorList = []
       if(recipe.name == null || recipe.name.trim() === ''){
