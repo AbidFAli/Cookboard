@@ -1,8 +1,7 @@
-import React from 'react';
 import Typography from '@material-ui/core/Typography';
-import TextField from '@material-ui/core/TextField';
+import React from 'react';
+import { UnitedValue } from './UnitedValue';
 
-import {UnitedValue } from './UnitedValue'
 
 const ERROR_MESSAGE_TTM_VALUE_MISSING = "Prep Time(value) missing"
 const ERROR_MESSAGE_TTM_UNIT_MISSING = "Prep Time(unit) missing"
@@ -88,10 +87,10 @@ const TimingInfo = ({timeToMake, setTimeToMake, editable, errors, dispatchErrors
 }
 
 export {
-    TimingInfo,
-    ID_FIELD_TTM_UNIT,
-    ID_FIELD_TTM_VALUE,
-    ERROR_MESSAGE_TTM_UNIT_MISSING,
-    ERROR_MESSAGE_TTM_VALUE_MISSING,
-    ERROR_MESSAGE_TTM_VALUE_NAN
+  TimingInfo,
+  ID_FIELD_TTM_UNIT,
+  ID_FIELD_TTM_VALUE,
+  ERROR_MESSAGE_TTM_UNIT_MISSING,
+  ERROR_MESSAGE_TTM_VALUE_MISSING,
+  ERROR_MESSAGE_TTM_VALUE_NAN
 };

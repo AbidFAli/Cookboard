@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import CancelIcon from '@material-ui/icons/Cancel';
 import EditIcon from '@material-ui/icons/Edit';
 import { cloneDeep } from 'lodash';
-import React, { useReducer, useState } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import { useHistory } from 'react-router';
 import ErrorMessenger from '../../Model/errorMessenger';
 import { Ingredient } from '../../Model/ingredient';
@@ -35,33 +35,49 @@ function reduceErrors(errors, action){
       return newErrors.removeError(action.errorKey);
     case 'reset':
       return new ErrorMessenger();
+    default:
+      return newErrors
   }
 }
 
 /*
- *@prop recipe: the Recipe object containing info about the recipe to display.
+ *@prop id: the id of the recipe to display;
+ *  @type null || string
+ *@prop name: the name of the recipe to display;
+ *  @type null || string
+ *@prop prevPath: the path to the previous page
+ *@prop user: the logged in user
+ *  @type User || null
+ *@prop handleAddRecipe
+ *  @type function handleAddRecipe(recipe: Recipe)
+ *@prop handleUpdateRecipe
+ *  @type function handleUpdateRecipe(recipe: Recipe) 
  */
-const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => {
+const RecipePage = (props) => {
     const history = useHistory();
     const [errors, dispatchErrors] = useReducer(reduceErrors, new ErrorMessenger())
 
+    
     //recipe state
-    const [id, setId] = useState(recipe != null ? recipe.id : null)
-    const [name, setName] = useState(recipe != null && recipe.name != null ? recipe.name : '')
-    const [description, setDescription] = useState(recipe != null && recipe.description != null ? recipe.description : '')
-    const [instructions, setInstructions] = 
-      useState( recipe != null 
-        && recipe.instructions != null 
-        ? recipe.instructions.map((text) =>  new Instruction(text)) : []
-        )
-    const [ingredients, setIngredients] = useState(recipe != null && recipe.ingredients != null ? recipe.ingredients : [])
-    const [rating, setRating] = useState(recipe != null && recipe.rating != null ? recipe.rating : 0)
-    const [timeToMake, setTimeToMake] = useState(recipe != null ? recipe.timeToMake : null)
-    const [servingInfo, setServingInfo] = useState(recipe != null ? recipe.servingInfo : null)
-    const [created, setCreated] = useState(recipe != null)
-    const [editable, setEditable] = useState(recipe == null)
+    const [name, setName] = useState(props.name ?? '')
+    const [description, setDescription] = useState('')
+    const [instructions, setInstructions] = useState([])
+    const [ingredients, setIngredients] = useState([])
+    const [rating, setRating] = useState(0)
+    const [timeToMake, setTimeToMake] = useState(null)
+    const [servingInfo, setServingInfo] = useState(null)
+    const [editable, setEditable] = useState(props.id == null)
+    const [created, setCreated] = useState(props.id != null)
     
-    
+
+    useEffect(() => { 
+      if(props.id){
+        recipeService.getById(props.id).then((recipe) => {
+          setPageState(recipe)
+        })
+      }
+    }, [props.id] );
+
     
     const checkRecipeForErrors = (recipe) => {
       let errorList = []
@@ -93,19 +109,24 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
     const handleSave = async () => {
       if(errors.size() === 0){
         
-        let newRecipe = {...recipe}
-        newRecipe.name = name
-        newRecipe.description = description
-        newRecipe.instructions = instructions.map(instr => instr.text)
-        newRecipe.ingredients = cloneDeep(ingredients)
+        let newRecipe = {
+          name: name.trim(), 
+          description,
+          rating,
+          timeToMake,
+          servingInfo,
+          instructions: instructions.map(instr => instr.text),
+          ingredients: cloneDeep(ingredients),
+        }
+        if(props.id){
+          newRecipe.id = props.id
+        }
+
         newRecipe.ingredients.forEach((ingredient) => {
           if(Ingredient.hasTempId(ingredient)){
             delete ingredient.id
           }
         })
-        newRecipe.rating = rating
-        newRecipe.timeToMake = timeToMake
-        newRecipe.servingInfo = servingInfo
         let errorList = checkRecipeForErrors(newRecipe)
 
         if(errorList.length !== 0){
@@ -113,17 +134,17 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
         }
         else if(created){
           try{
-            newRecipe = await recipeService.update(newRecipe)
-            handleUpdateRecipe(newRecipe)
+            newRecipe = await recipeService.update(newRecipe, props.user)
+            props.handleUpdateRecipe(newRecipe)
             setEditable(false);
           }catch(error){
             console.log(error)
           }
         }else{
           try{
-            newRecipe = await recipeService.create(newRecipe)
-            handleAddRecipe(newRecipe)
-            history.replace(`${prevPath}/${newRecipe.id}`)
+            newRecipe = await recipeService.create(newRecipe, props.user)
+            props.handleAddRecipe(newRecipe)
+            history.push(`${props.prevPath}/${newRecipe.id}`)
             setEditable(false);
           }
           catch(error){
@@ -146,14 +167,11 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
       setRating(recipe != null && recipe.rating != null ? recipe.rating : 0)
       setTimeToMake(recipe != null ? recipe.timeToMake : null)
       setServingInfo(recipe != null ? recipe.servingInfo : null)
-      setId(recipe != null ? recipe.id : null)
     }
     
     const restoreRecipeBeforeEdits = async () => {
       let recipeBeforeEdits = window.sessionStorage.getItem(KEY_RECIPE_BEFORE_EDITS)
       recipeBeforeEdits = JSON.parse(recipeBeforeEdits)
-      recipeBeforeEdits = await recipeService.update(recipeBeforeEdits)
-      handleUpdateRecipe(recipeBeforeEdits)
       setPageState(recipeBeforeEdits)
     }
 
@@ -169,20 +187,21 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
     }
 
     const saveRecipeLocally = () => {
-      let recipeToSave = {...recipe}
-      recipeToSave.name = name
-      recipeToSave.description = description
-      recipeToSave.instructions = instructions.map(instr => instr.text)
-      recipeToSave.ingredients = ingredients
-      recipeToSave.rating = rating
-      recipeToSave.timeToMake = timeToMake
-      recipeToSave.servingInfo = servingInfo
-
+      let recipeToSave = {
+        id: props.id,
+        name, 
+        description, 
+        instructions : instructions.map(instr => instr.text),
+        ingredients,
+        rating,
+        timeToMake,
+        servingInfo
+      }
       let recipeData = JSON.stringify(recipeToSave)
       window.sessionStorage.setItem(KEY_RECIPE_BEFORE_EDITS, recipeData)
     }
 
-    const addIngredient =  async function(newIngredient){
+    const addIngredient =  function(newIngredient){
       let newIngredients = Array.from(ingredients)
       newIngredients.push(newIngredient)
       setIngredients(newIngredients)
@@ -210,7 +229,6 @@ const RecipePage = ({recipe, prevPath, handleAddRecipe, handleUpdateRecipe}) => 
       setInstructions(newInstructions)
     }
   
-    
     const editInstruction = function(index, newInstructionText){
       let newInstructions = Array.from(instructions)
       newInstructions[index].text = newInstructionText

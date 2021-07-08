@@ -1,5 +1,3 @@
-import Button from '@material-ui/core/Button';
-import ButtonGroup from '@material-ui/core/ButtonGroup';
 import Fab from '@material-ui/core/Fab';
 import Grid from '@material-ui/core/Grid';
 import List from '@material-ui/core/List';
@@ -21,7 +19,6 @@ import { RecipePage } from './recipe-page/RecipePage';
 
 const ID_BUTTON_ADD_RECIPE = "MyRecipesPage_addRecipeButton"
 
-//onClick={() => <Redirect to={`${props.path}/${index}`} 
 
 /*
  * @param props = {
@@ -63,31 +60,26 @@ function RecipeList(props){
     return (<List component="ul">{content}</List>);
 }
 
-const ButtonBar = (props) => {
-    return (
-        <ButtonGroup>
-            <Button>Edit</Button>
-            <Button>Delete</Button>
-        </ButtonGroup>
-    );
-}
 
 
-/*
- * @param props = {
- * recipes : a list of recipes; array of Recipe
- * }
- */
-function MyRecipesPage(props){
+function MyRecipesPage({user}){
     const history = useHistory();
     let { path } = useRouteMatch();
     let [recipes, setRecipes] = useState([])
 
+
+
     useEffect(() => {
-        recipeService.getAll().then((fetchedRecipes) => {
-            setRecipes(fetchedRecipes)
-        })
-    }, []);
+        if(user == null){
+            recipeService.getAll().then((fetchedRecipes) => {
+                setRecipes(fetchedRecipes)
+            })
+        }
+        else{
+            setRecipes(user.recipes)
+        }
+
+    }, [user]);
 
     const goToNew = () => {
         history.push(`${path}/new`)
@@ -111,6 +103,8 @@ function MyRecipesPage(props){
         setRecipes(newRecipes)
     }
 
+
+
     let page = (
         <Grid container spacing={4}>
             <Grid container item xs={12} spacing={3} justify='center' alignItems='flex-end'>
@@ -118,11 +112,6 @@ function MyRecipesPage(props){
                     <Typography variant="h2">
                         My Recipes
                     </Typography>
-                </Grid>
-            </Grid>
-            <Grid container item xs={12} spacing={3} justify='center'>
-                <Grid item>
-                    <ButtonBar />
                 </Grid>
             </Grid>
             <Grid item xs={12}>
@@ -138,25 +127,33 @@ function MyRecipesPage(props){
         </Grid>
     );
 
-
+    
     return (
             <Switch>
-                <Route path = '/new'>
-                    <RecipePage prevPath = {path} handleAddRecipe = {addRecipe} handleUpdateRecipe = {updateRecipe} />
+                <Route exact path={path}>
+                    {page}
+                </Route>
+                <Route path = {`${path}/new`}>
+                    <RecipePage 
+                        prevPath = {path} 
+                        handleAddRecipe = {addRecipe} 
+                        handleUpdateRecipe = {updateRecipe}
+                        user = {user}
+                        />
                 </Route>
                 <Route path={`${path}/:recipeId`}
                     render={({ match }) => (
                         <RecipePage 
-                            recipe={recipes.find(recipe => recipe.id === match.params.recipeId)} 
+                            id={match.params.recipeId}
+                            name = {recipes.find(recipe => recipe.id === match.params.recipeId).name}
                             prevPath = {path}
                             handleAddRecipe = {addRecipe}
                             handleUpdateRecipe = {updateRecipe}
+                            user = {user}
                             />
                     )}
                 />
-                <Route exact path={path}>
-                    {page}
-                </Route>
+
             </Switch>
         );
     

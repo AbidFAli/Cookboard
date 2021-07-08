@@ -1,17 +1,15 @@
-import React, {useState} from 'react';
-
-import AddIcon from '@material-ui/icons/Add';
-import Button from '@material-ui/core/Button';
-import CloseIcon from '@material-ui/icons/Close'
-import DeleteIcon from '@material-ui/icons/Delete';
 import IconButton from '@material-ui/core/IconButton';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import TextField from '@material-ui/core/TextField';
-
+import AddIcon from '@material-ui/icons/Add';
+import DeleteIcon from '@material-ui/icons/Delete';
+import React, { useState } from 'react';
 //import {UnitedValue, ERROR_TYPE_UNIT, ERROR_TYPE_VALUE} from './UnitedValue'
-import {Ingredient} from '../../Model/ingredient'
+import { Ingredient } from '../../Model/ingredient';
+
+
 
 //Non-unique testids
 const ID_DELETE_INGREDIENT_BUTTON = "deleteIngredientButton"
@@ -130,7 +128,7 @@ const IngredientListItem = ({ingr, editable,  handleEdit, handleRemove}) => {
           label = "Name"
           id = {"INGR_NAME_"+ingr.id}
           value = {ingr != null && ingr.name != null ? ingr.name : ''}
-          onChange = {(event) => handleNameChange(event.target.value.trim())}
+          onChange = {(event) => handleNameChange(event.target.value)}
           error = {nameErrorMessage != null}
           helperText = {nameErrorMessage}
           />
@@ -169,9 +167,9 @@ const IngredientListItem = ({ingr, editable,  handleEdit, handleRemove}) => {
 
 
 export {
-  IngredientList, 
-  ERROR_MESSAGE_AMOUNT_MISSING, 
-  ERROR_MESSAGE_NAME_MISSING, 
+  IngredientList,
+  ERROR_MESSAGE_AMOUNT_MISSING,
+  ERROR_MESSAGE_NAME_MISSING,
   ERROR_MESSAGE_AMOUNT_NAN,
   ID_DELETE_INGREDIENT_BUTTON,
   ID_FIELD_INGREDIENT_AMOUNT,
@@ -179,3 +177,4 @@ export {
   ID_FIELD_INGREDIENT_NAME,
   ID_BUTTON_ADD_INGREDIENT
 };
+

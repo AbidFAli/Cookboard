@@ -1,12 +1,12 @@
-import React, {useState, useEffect, useRef } from 'react';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
+import React from 'react';
+import { UnitedValue } from './UnitedValue';
 
-import {UnitedValue} from './UnitedValue'
 
 
 //Error Ids
@@ -191,11 +191,11 @@ const ServingInfoList = ({servingInfo, setServingInfo, editable, errors, dispatc
 }
 
 export {
-  ServingInfoList,  
-  ERROR_MSG_NUM_SERVED_NAN,  
-  ERROR_MSG_SERVING_SIZE_NAN, 
+  ServingInfoList,
+  ERROR_MSG_NUM_SERVED_NAN,
+  ERROR_MSG_SERVING_SIZE_NAN,
   ERROR_MSG_YIELD_NAN,
   FIELD_NUM_SERVED,
   FIELD_SERVING_SIZE,
   FIELD_YIELD
-}
+};

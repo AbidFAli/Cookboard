@@ -5,9 +5,6 @@ import { ID_EDIT_BUTTON, ID_SAVE_BUTTON } from '../../src/components/recipe-page
 import recipeService from '../../src/services/recipeService';
 
 
-function isValidPageUrl() {
-  cy.url().should('match', /myrecipes\/[\da-f]+/)
-}
 
 describe('RecipePage', function () {
   let recipePromise;
@@ -52,7 +49,7 @@ describe('RecipePage', function () {
       //expect that recipe name appears
       cy.contains(newRecipeName)
       
-      isValidPageUrl()
+      cy.isMyRecipesPageUrl()
       //expect that the recipe exists in the database
       //TODO: make this more reusable with command?
       cy.url().then((url) => {
