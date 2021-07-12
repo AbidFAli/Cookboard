@@ -1,71 +1,116 @@
+import { fireEvent, within } from '@testing-library/dom';
+import { cleanup, prettyDOM, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { cleanup, screen, render, prettyDOM } from '@testing-library/react';
-import {fireEvent, within} from '@testing-library/dom'
-import userEvent from '@testing-library/user-event'
-
+import Instruction from '../../Model/instruction.js';
 import { Recipe } from '../../Model/recipe.js';
-import { ERROR_BLANK_INSTRUCTION } from './InstructionList';
-import { RecipePage, ID_EDIT_BUTTON} from './RecipePage';
+import userFixture from '../../test/fixtures/user/userNoRecipes';
+import testHelper from '../../test/util/recipePageTestHelper';
+import { ERROR_BLANK_INSTRUCTION, ID_INSTRUCTION_LIST, InstructionList } from './InstructionList';
+import { ID_EDIT_BUTTON } from './RecipePage';
+
 
 //Integration tests with RecipePage and InstructionList
 
-jest.mock('../../services/recipeService')
+jest.mock('axios')
 
-describe('InstructionList', () => {
+
+
+const removeInstruction = (instruction) => {
+  let deleteButton = within(instruction).getByRole('button')
+  fireEvent.click(deleteButton)
+}
+
+const getInstructions = () => {
+  return within(screen.getByTestId(ID_INSTRUCTION_LIST)).queryAllByRole("listitem")
+}
+
+const printToConsole = () => {
+  console.log(prettyDOM(screen.getByTestId(ID_INSTRUCTION_LIST)))
+}
+
+
+describe('InstructionList Unit Tests', () => {
   afterEach(cleanup);
 
-  function renderRecipe(recipe) {
-    let addHandler, updateHandler;
-    addHandler = jest.fn();
-    updateHandler = jest.fn();
-    render(<RecipePage recipe = {recipe} prevPath = "" handleAddRecipe = {addHandler} handleUpdateRecipe = {updateHandler} />);
+  const renderInstructionList = (instructions, editable) => {
+    render(
+      <InstructionList
+        instructions = {instructions}
+        editable = {editable}
+        handleAdd = {jest.fn()}
+        handleRemove = {jest.fn()}
+        handleEdit = {jest.fn()}
+      />
+    )
   }
+  
 
-  test('displays a list of instructions', () => {
-      let testInstr = ["heat stove", "cover pan in oil", "add batter"];
-      
-      let recipe = {
-        name: "something",
-        instructions: testInstr
-      }
-      renderRecipe(recipe)
-      testInstr.forEach((value, index) => {
-          expect(screen.getByText(Recipe.printInstruction(value,index))).toBeInTheDocument();
+  test('displays a list of Instructions', () => {
+      let testInstr = [
+        new Instruction("heat stove"),
+        new Instruction("cover pan in oil"),
+        new Instruction("add batter")
+      ];
+
+      renderInstructionList(testInstr, false)
+
+      testInstr.forEach((instr, index) => {
+          expect(screen.getByText(Recipe.printInstruction(instr.text,index))).toBeInTheDocument();
       });
   });
+
+});
+ 
+describe('Tests for InstructionList integration with RecipePage', () => {
+  beforeEach(() => {
+    jest.useFakeTimers()
+    jest.clearAllMocks()
+  })
+
+  afterAll(() => {
+    jest.useRealTimers()
+  })
+
+
 
  describe('when adding instructions,', () => {
    let recipe
    beforeEach(() => {
     recipe = {
-      name: "waffles"
+      name: "waffles",
+      id : "1234",
+      instructions: [],
+      description: 'hacky'
     }
    });
 
    test('adding succeeds for a recipe with no instructions', async () => {
-     renderRecipe(recipe)
+     await testHelper.setupAndRenderRecipe(recipe, userFixture())
      fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
      fireEvent.click(screen.getByTestId('addingInstructionButton'))
      userEvent.type(screen.getByTestId("newInstructionField"), "turn on stove")
      fireEvent.click(screen.getByText(/Add instruction/i))
-     fireEvent.click(screen.getByText("Save Changes"))
-     expect(await screen.findByText("1. turn on stove")).toBeInTheDocument();
+
+     let result = await screen.findByDisplayValue("turn on stove")
+     expect(result).toBeInTheDocument();
    })
 
+   
    test('adding succeeds for a recipe with some instructions', async () => {
     recipe.instructions = ['step one', 'step two']
-    renderRecipe(recipe)
+    await testHelper.setupAndRenderRecipe(recipe, userFixture())
+
     fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
     fireEvent.click(screen.getByTestId('addingInstructionButton'))
     let newInstruction = "step three"
     userEvent.type(screen.getByTestId("newInstructionField"), newInstruction)
     fireEvent.click(screen.getByText(/Add instruction/i))
-    fireEvent.click(screen.getByText("Save Changes"))
-    expect(await screen.findByText(`3. ${newInstruction}`)).toBeInTheDocument();
+    expect(await screen.findByDisplayValue(newInstruction)).toBeInTheDocument();
    })
 
-   test('does not allow blank instructions to be added' , () => {
-     renderRecipe(recipe)
+   test('does not allow blank instructions to be added' , async () => {
+     await testHelper.setupAndRenderRecipe(recipe, userFixture())
      fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
      fireEvent.click(screen.getByTestId('addingInstructionButton'))
      userEvent.clear(screen.getByTestId("newInstructionField"))
@@ -77,34 +122,33 @@ describe('InstructionList', () => {
  
  describe('instructions can be edited', () => {
   let recipe
-  beforeEach(() => {
+  beforeEach( async () => {
    recipe = {
      name: "waffles",
-     instructions: ['step one', 'step two', 'step three']
+     instructions: ['step one', 'step two', 'step three'],
+     id : "12345"
    }
-   renderRecipe(recipe)
+   await testHelper.setupAndRenderRecipe(recipe, userFixture())
    fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
   });
 
    test('one instruction can be edited', async () => {
-
-    let editedField = screen.getByDisplayValue(/step two/i)
+    let editedField =  await screen.findByDisplayValue(/step two/i)
     userEvent.clear(editedField)
     userEvent.type(editedField, 'step 2')
-    fireEvent.click(screen.getByText("Save Changes"))
-    expect(await screen.findByText(/step 2/i)).toBeInTheDocument();
+    
+    expect(screen.getByDisplayValue(/step 2/i)).toBeInTheDocument();
    })
 
-   test('multiple instructions can be edited', async () => {
+   test('multiple instructions can be edited',() => {
     let editedField = screen.getByDisplayValue(/step two/i)
     userEvent.clear(editedField)
-    userEvent.type(editedField, 'step 2')
+    userEvent.type(editedField, 'step 2 changed')
     editedField = screen.getByDisplayValue(/step three/i)
     userEvent.clear(editedField)
-    userEvent.type(editedField, 'step 3')
-    fireEvent.click(screen.getByText("Save Changes"))
-    expect(await screen.findByText(/step 2/i)).toBeInTheDocument();
-    expect(await screen.findByText(/step 3/i)).toBeInTheDocument();
+    userEvent.type(editedField, 'step 3 changed')
+    expect(screen.getByDisplayValue(/step 2 changed/i)).toBeInTheDocument();
+    expect(screen.getByDisplayValue(/step 3 changed/i)).toBeInTheDocument();
    })
 
    test('an error message is displayed if an instructions name is cleared', () => {
@@ -116,23 +160,17 @@ describe('InstructionList', () => {
 
  describe('instructions can be removed', () => {
   let recipe
-  beforeEach(() => {
+  beforeEach(async () => {
    recipe = {
      name: "waffles",
-     instructions: ['step one', 'step two', 'step three']
+     instructions: ['step one', 'step two', 'step three'],
+     id: "1234"
    }
-   renderRecipe(recipe)
+   await testHelper.setupAndRenderRecipe(recipe, userFixture())
    fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
   });
 
-  function removeInstruction(instruction){
-    let deleteButton = within(instruction).getByRole('button')
-    fireEvent.click(deleteButton)
-  }
 
-  function getInstructions(){
-    return within(screen.getByTestId("instructionList")).queryAllByRole("listitem")
-  }
 
   test('the first instruction can be removed', ()=> {
     let listItems = getInstructions()

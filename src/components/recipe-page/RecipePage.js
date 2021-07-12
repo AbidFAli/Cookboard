@@ -12,6 +12,7 @@ import ErrorMessenger from '../../Model/errorMessenger';
 import { Ingredient } from '../../Model/ingredient';
 import Instruction from '../../Model/instruction';
 import recipeService from '../../services/recipeService';
+import { PageLoadedSnackbar } from '../PageLoadedSnackbar';
 import { DescriptionRating } from './DescriptionRating';
 import { IngredientList } from './IngredientList';
 import { InstructionList } from './InstructionList';
@@ -24,6 +25,7 @@ const ID_EDIT_BUTTON = "editButton"
 const ID_SAVE_BUTTON = "saveButton"
 
 const KEY_RECIPE_BEFORE_EDITS = "keyRecipeBeforeEdits"
+const MESSAGE_RECIPE_LOADED = "Recipe loaded."
 
 //errors is an instance of the ErrorMessenger class
 function reduceErrors(errors, action){
@@ -66,13 +68,16 @@ const RecipePage = (props) => {
     const [rating, setRating] = useState(0)
     const [timeToMake, setTimeToMake] = useState(null)
     const [servingInfo, setServingInfo] = useState(null)
+    //page state
     const [editable, setEditable] = useState(props.id == null)
     const [created, setCreated] = useState(props.id != null)
+    const [snackbarVisible, setSnackbarVisible] = useState(false)
     
 
     useEffect(() => { 
       if(props.id){
         recipeService.getById(props.id).then((recipe) => {
+          setSnackbarVisible(true)
           setPageState(recipe)
         })
       }
@@ -252,6 +257,9 @@ const RecipePage = (props) => {
     } 
 
     return (
+      <React.Fragment>
+
+      
       <Grid container spacing={4}>
           <Grid container item xs={12} spacing={3} justify='space-between' alignItems='flex-end'>
               <Grid item>
@@ -311,7 +319,8 @@ const RecipePage = (props) => {
               <Typography variant="h5" gutterBottom>
                   Instructions
               </Typography>
-              <InstructionList 
+              <InstructionList
+                data-testid = 'ilist' 
                 instructions={instructions}
                 editable = {editable}
                 handleAdd = {addInstruction}
@@ -335,6 +344,13 @@ const RecipePage = (props) => {
             </Fab>
           </Grid>
       </Grid>
+      <PageLoadedSnackbar
+        message = {MESSAGE_RECIPE_LOADED}
+        open = {snackbarVisible}
+        onClose = {() => setSnackbarVisible(false)}
+       />
+      </React.Fragment>
+      
     );
     
 }
@@ -342,6 +358,7 @@ const RecipePage = (props) => {
 export {
   RecipePage,
   ID_EDIT_BUTTON,
-  ID_SAVE_BUTTON
+  ID_SAVE_BUTTON,
+  MESSAGE_RECIPE_LOADED
 };
 

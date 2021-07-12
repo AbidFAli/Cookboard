@@ -26,7 +26,6 @@ const LoginWindow = ({updateUser}) => {
   const [errorUsername, setErrorUsername] = useState('')
   const [errorPassword, setErrorPassword] = useState('')
   
-
   const handleUsernameChange = (text) => {
     setUsername(text)
     setErrorUsername('')
@@ -53,7 +52,7 @@ const LoginWindow = ({updateUser}) => {
             inputProps = {{'data-testid' : ID_INPUT_USERNAME}}
             />
         </Grid>
-        <Grid item justify = "center"> 
+        <Grid item> 
             <TextField 
               label = "Password" 
               helperText = {errorPassword}
@@ -68,7 +67,8 @@ const LoginWindow = ({updateUser}) => {
               username = {username} 
               password = {password} 
               updateUser = {updateUser}
-              setErrorPassword = {setErrorPassword}/>
+              setErrorPassword = {setErrorPassword}
+              setErrorUsername = {setErrorUsername} />
           </Grid>
           <Grid item>
             <Button variant = "contained" color = "primary" data-testid = {ID_BUTTON_SIGN_UP}>Sign Up</Button>
@@ -79,18 +79,36 @@ const LoginWindow = ({updateUser}) => {
   )
 }
 
-const LoginButton = ({username, password, updateUser, setErrorPassword}) => {
+const LoginButton = ({username, password, updateUser, setErrorPassword, setErrorUsername}) => {
   const history = useHistory()
 
+  const checkForErrors = () => {
+    let hasError = false;
+    if(username.trim() === ''){
+      setErrorUsername(MESSAGE_USERNAME_MISSING)
+      hasError = true;
+    }
+
+    if(password.trim() === ''){
+      setErrorPassword(MESSAGE_PASSWORD_MISSING)
+      hasError = true;
+    }
+    return hasError;
+  }
+
   const handleLogin = async () => {
-    let user = await userService.login(username, password)
-    if(user !== ERROR_INVALID_PASSWORD && user !== ERROR_OTHER){
-      updateUser(user)
-      history.push(`/myrecipes`)
-    }
-    else if(user === ERROR_INVALID_PASSWORD){
-      setErrorPassword(MESSAGE_INVALID_PASSWORD)
-    }
+    let hasInitialError = checkForErrors();
+
+    if(!hasInitialError){
+      let user = await userService.login(username, password)
+      if(user !== ERROR_INVALID_PASSWORD && user !== ERROR_OTHER){
+        updateUser(user)
+        history.push(`/myrecipes`)
+      }
+      else if(user === ERROR_INVALID_PASSWORD){
+        setErrorPassword(MESSAGE_INVALID_PASSWORD)
+      }
+    } 
   }
 
   return (

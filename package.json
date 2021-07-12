@@ -23,6 +23,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:debug": "react-scripts test --runInBand --no-cache --watchAll=false",
     "eject": "react-scripts eject",
     "cypress:open": "cypress open"
   },

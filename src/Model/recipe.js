@@ -1,4 +1,5 @@
 //import { Nutrient, Ingredient, Measurable } from './ingredient.js';
+import { uniqueId } from "lodash";
 
 //A class describing a cooking recipe
 export class Recipe {
@@ -11,7 +12,7 @@ export class Recipe {
     constructor(name,id,desc,instr, ingredients) {
         this.mName = name;
         this.mDesc = desc;
-        this.mId = id;
+        this.mId = id ? id : uniqueId();
 
         if (instr != null) {
             this.mInstructions = [].concat(instr);
@@ -119,6 +120,7 @@ export class Recipe {
             return ingredientName.toUpperCase() === elem.name.toUpperCase();
         });
     }
+
     /*
      * Helper function to print a formatted instruction
      * @param instr: the instruction; string

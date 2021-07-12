@@ -1,4 +1,4 @@
-import uniqueId from 'lodash/uniqueId'
+import uniqueId from 'lodash/uniqueId';
 
 class Instruction{
 
@@ -15,6 +15,7 @@ class Instruction{
   get id(){
     return this.mId;
   }
+  
   static copy(otherInstruction){
     let instr = new Instruction(otherInstruction.text)
     instr.mId = uniqueId()
