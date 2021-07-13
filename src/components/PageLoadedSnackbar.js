@@ -11,7 +11,6 @@ import React from 'react';
 *@prop open
 *@prop onClose
 *@prop message
-*@prop handleClose
 */
 const PageLoadedSnackbar = (props) => {
   return (

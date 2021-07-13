@@ -5,6 +5,7 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import CancelIcon from '@material-ui/icons/Cancel';
 import EditIcon from '@material-ui/icons/Edit';
+import Rating from '@material-ui/lab/Rating';
 import { cloneDeep } from 'lodash';
 import React, { useEffect, useReducer, useState } from 'react';
 import { useHistory } from 'react-router';
@@ -13,7 +14,7 @@ import { Ingredient } from '../../Model/ingredient';
 import Instruction from '../../Model/instruction';
 import recipeService from '../../services/recipeService';
 import { PageLoadedSnackbar } from '../PageLoadedSnackbar';
-import { DescriptionRating } from './DescriptionRating';
+import { Description } from './Description';
 import { IngredientList } from './IngredientList';
 import { InstructionList } from './InstructionList';
 import { RecipeName } from './RecipeName';
@@ -256,6 +257,41 @@ const RecipePage = (props) => {
         );
     } 
 
+    
+    let descriptionLayout = (  
+      <Grid container item xs = {6} direction = "column">
+        <Grid item >
+          <Typography variant="h5" gutterBottom>
+              Description
+          </Typography>
+        </Grid>
+        <Grid item >
+          <Description 
+            desc={description} 
+            setDesc = {setDescription}
+            editable = {editable} />
+        </Grid>
+      </Grid>
+    )
+
+    let ratingLayout = (
+      <Grid container item xs = {6} direction = "column">
+        <Grid item>
+          <Typography variant="h5" gutterBottom>
+              Rating
+          </Typography>
+        </Grid>
+        <Grid item>
+          <Rating 
+            value = {rating}
+            readOnly = {!editable}
+            preciscion = {0.5}
+            onChange = {(event, newRating) => setRating(newRating) }
+          />
+        </Grid>
+      </Grid>
+    )
+
     return (
       <React.Fragment>
 
@@ -281,30 +317,28 @@ const RecipePage = (props) => {
                 />
               </Grid>
           </Grid>
-          <Grid item xs={12}>
+          <Grid item xs = {12}>
             <Paper>
-              <DescriptionRating 
-                desc={description} 
-                setDesc = {setDescription}
-                rating={rating}
-                setRating = {setRating} 
-                editable = {editable}/>
+            <Grid container item xs = {12} direction = "row">
+              {descriptionLayout}
+              {ratingLayout}
+            </Grid >
             </Paper>
           </Grid>
           <Grid item  xs={12}>
-              <Paper>
-                  <Typography variant="h5" gutterBottom>
-                      Ingredients
-                  </Typography>
-                  <IngredientList 
-                    ingredients={ingredients} 
-                    editable = {editable} 
-                    handleRemove = {removeIngredient}
-                    handleAdd = {addIngredient}
-                    handleEdit = {editIngredient}
-                    dispatchErrors = {dispatchErrors}
-                  />
-              </Paper>
+            <Paper>
+              <Typography variant="h5" gutterBottom>
+                  Ingredients
+              </Typography>
+              <IngredientList 
+                ingredients={ingredients} 
+                editable = {editable} 
+                handleRemove = {removeIngredient}
+                handleAdd = {addIngredient}
+                handleEdit = {editIngredient}
+                dispatchErrors = {dispatchErrors}
+              />
+            </Paper>
           </Grid>
           <Grid item  xs={12} >                    
               <ServingInfoList 
