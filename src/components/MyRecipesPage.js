@@ -17,6 +17,7 @@ import { RecipePage } from './recipe-page/RecipePage';
 
 
 
+
 const ID_BUTTON_ADD_RECIPE = "MyRecipesPage_addRecipeButton"
 const MESSAGE_NO_RECIPES = "You have no recipes. Click on the button below to create one."
 

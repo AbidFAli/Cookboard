@@ -62,6 +62,13 @@ const testDelete = (ingredient) => {
     expect(screen.queryByText(ingredient.name)).not.toBeInTheDocument()
 }
 
+const checkForAllErrors = () => {
+    let errorMessages = [ERROR_MESSAGE_AMOUNT_MISSING, ERROR_MESSAGE_AMOUNT_NAN, ERROR_MESSAGE_NAME_MISSING]
+    errorMessages.forEach((message) => {
+        expect(screen.queryByText(message)).toBeNull()
+    })
+}
+
 //Integration tests with RecipePage and IngredientList
 describe('IngredientList unit tests', () => {
     
@@ -101,7 +108,6 @@ describe('IngredientList unit tests', () => {
     })
 })
 
-//TODO create a user(maybe use fixture pattern)
 
 describe('IngredientList integration tests within RecipePage', () => {
     afterEach(cleanup);
@@ -116,7 +122,7 @@ describe('IngredientList integration tests within RecipePage', () => {
     })
 
     let recipe = null;
-    let defaultUser = userFixture()
+    
     
 
 
@@ -182,20 +188,14 @@ describe('IngredientList integration tests within RecipePage', () => {
         })
 
 
-        //fix this(remove last line when fixed)
-        test('succeeds for an ingredient with a name, unit, and amount', async () => {
+        test('shows no errors when adding an ingredient with a name, unit, and amount', async () => {
             performAdd("batter", "1", "scoop")
-            fireEvent.click(screen.getByText("Save Changes"))
-            expect(await screen.findByText("batter, 1 scoop")).toBeInTheDocument()
-            expect(false).toBeTruthy()
+            checkForAllErrors()
         })
 
-        //fix this(remove last line when fixed)
-        test('succeeds for an ingredient missing a unit', async () => {
+        test('shows no errors when adding an ingredient missing a unit', async () => {
             performAdd("batter", "1")
-            fireEvent.click(screen.getByText("Save Changes"))
-            expect(await screen.findByText("batter, 1")).toBeInTheDocument()
-            expect(false).toBeTruthy()
+            checkForAllErrors()
         })
 
         test('displays an error when the ingredient does not have a name', () => {

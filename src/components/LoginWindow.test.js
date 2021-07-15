@@ -1,48 +1,118 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import axios from 'axios';
+import { createMemoryHistory } from "history";
 import React from 'react';
-import { ID_BUTTON_LOG_IN, ID_INPUT_PASSWORD, ID_INPUT_USERNAME, LoginWindow, MESSAGE_PASSWORD_MISSING, MESSAGE_USERNAME_MISSING } from './LoginWindow';
+import { MemoryRouter, Router } from "react-router";
+import { PATH_MYRECIPES } from '../paths';
+import {
+  ID_BUTTON_LOG_IN,
+  ID_INPUT_PASSWORD,
+  ID_INPUT_USERNAME, KEY_USER_STORAGE, LoginWindow,
+  MESSAGE_PASSWORD_MISSING,
+  MESSAGE_USERNAME_MISSING
+} from './LoginWindow';
 
 jest.mock('axios')
 
 
-describe("tests for LoginWindow", () => {
-  let testUserInfo = {
-    username: "AbidAli",
-    email: "test@test.com",
-    password : "password"
-  }
+
+const clickOnLoginButton = () => {
+  userEvent.click(screen.getByTestId(ID_BUTTON_LOG_IN))
+}
+
+const enterUsername = (username) => {
+  let textbox = screen.getByTestId(ID_INPUT_USERNAME)
+  userEvent.clear(textbox)
+  userEvent.type(textbox, username)
+}
+
+const enterPassword = (password) => {
+  let textbox = screen.getByTestId(ID_INPUT_PASSWORD)
+  userEvent.clear(textbox)
+  userEvent.type(textbox, password)
+}
+
+
+const testUserInfo = {
+  username: "AbidAli",
+  email: "test@test.com",
+  password : "password"
+}
+
+
+describe("tests for LoginWindow.", () => {
+
   beforeEach(() => {
-    render(<LoginWindow updateUser = {jest.fn()}/>)
-  });
-
-  const clickOnLoginButton = () => {
-    userEvent.click(screen.getByTestId(ID_BUTTON_LOG_IN))
-  }
-  test('user can enter their username', () => {
-    let textbox = screen.getByTestId(ID_INPUT_USERNAME)
-    userEvent.type(textbox, testUserInfo.username)
-    expect(textbox).toHaveDisplayValue(testUserInfo.username)
+    localStorage.clear()
+    jest.clearAllMocks()
   })
 
-  test('user can enter their password', () => {
-    let textbox = screen.getByTestId(ID_INPUT_PASSWORD)
-    userEvent.type(textbox, testUserInfo.password)
-    expect(textbox).toHaveDisplayValue(testUserInfo.password)
+  afterAll(() => {
+    localStorage.clear()
   })
+  
+  describe('render before test case', () => {
+    let updateUser;
+    beforeEach(() => {
+      updateUser = jest.fn()
+      render(
+      <MemoryRouter initialEntries = {['/login']}>
+        <LoginWindow updateUser = {updateUser}/>
+      </MemoryRouter>
+      )
+    });
 
-  test('if the username is empty an error message is displayed', () => {
-    let textbox = screen.getByTestId(ID_INPUT_USERNAME)
-    userEvent.clear(textbox)
-    clickOnLoginButton()
-    expect(screen.getByText(MESSAGE_USERNAME_MISSING)).toBeInTheDocument()
+    test('user can enter their username', () => {
+      let textbox = screen.getByTestId(ID_INPUT_USERNAME)
+      userEvent.type(textbox, testUserInfo.username)
+      expect(textbox).toHaveDisplayValue(testUserInfo.username)
+    })
+  
+    test('user can enter their password', () => {
+      let textbox = screen.getByTestId(ID_INPUT_PASSWORD)
+      userEvent.type(textbox, testUserInfo.password)
+      expect(textbox).toHaveDisplayValue(testUserInfo.password)
+    })
+  
+    test('if the username is empty an error message is displayed', () => {
+      let textbox = screen.getByTestId(ID_INPUT_USERNAME)
+      userEvent.clear(textbox)
+      clickOnLoginButton()
+      expect(screen.getByText(MESSAGE_USERNAME_MISSING)).toBeInTheDocument()
+    })
+  
+    test('if the password is empty an error message is displayed', () => {
+      let textbox = screen.getByTestId(ID_INPUT_PASSWORD)
+      userEvent.clear(textbox)
+      clickOnLoginButton()
+      expect(screen.getByText(MESSAGE_PASSWORD_MISSING)).toBeInTheDocument()
+    })
+  
+    test('after the user logs in successfully, their credentials are saved to local storage', async () => {
+      enterUsername(testUserInfo.username)
+      enterPassword(testUserInfo.password)
+      axios.post.mockResolvedValueOnce({data: testUserInfo})
+      clickOnLoginButton()
+      await waitFor(() => expect(localStorage.setItem).toHaveBeenCalledTimes(1))
+      expect(localStorage.__STORE__[KEY_USER_STORAGE]).toEqual(JSON.stringify(testUserInfo))
+    })
+
+
   })
-
-  test('if the password is empty an error message is displayed', () => {
-    let textbox = screen.getByTestId(ID_INPUT_PASSWORD)
-    userEvent.clear(textbox)
-    clickOnLoginButton()
-    expect(screen.getByText(MESSAGE_PASSWORD_MISSING)).toBeInTheDocument()
+  
+  describe('manually render', () => {
+    //fails
+    test("when viewing the login window, if there are user credentials in local storage, then redirect to /myrecipes", () => {
+      const history =  createMemoryHistory({initialEntries: ['/login']})
+      localStorage.__STORE__[KEY_USER_STORAGE] = JSON.stringify(testUserInfo)
+      render(
+        <Router history = {history}>
+          <LoginWindow updateUser = {jest.fn()} />
+        </Router>
+      )
+      expect(history.location.pathname).toEqual(PATH_MYRECIPES)
+    })
   })
 
 
