@@ -7,31 +7,30 @@ import recipeService from '../../src/services/recipeService';
 
 
 describe('RecipePage', function () {
-  let recipePromise;
   beforeEach( function () {
     cy.request('POST','http://localhost:3001/api/test/reset')
-    let recipeToSave = {
-      name : "waffles",
-      description : "yummy"
-    }
-    recipePromise = recipeService.create(recipeToSave)
-    cy.visit('http://localhost:3000')
+    cy.fixture('users/simple.json')
+      .as('userInfo')
+      .then((user) => { 
+        cy.createUser(user)
+      })
+    cy.get('@userInfo')
+      .then((user) => {
+        cy.fixture('recipes/waffles.json').then((recipe) => {
+          cy.createRecipe(recipe, user).as('testRecipe')
+        })
+        cy.login(user.username, user.password)
+    })
   })
 
+
+
   it('restores the original recipe after canceling edits', function () {
-    cy.contains("waffles").debug().click()
+    cy.contains("waffles").click()
     cy.get(`[data-testid=${ID_EDIT_BUTTON}]`).click()
     cy.get(`[data-testid=${ID_FIELD_DESCRIPTION}]`).clear().type("something")
     cy.get(`[data-testid=${ID_EDIT_BUTTON}]`).click() //click again to cancel
     cy.get(`[data-testid=${ID_FIELD_DESCRIPTION}]`).should('have.text', 'yummy')
-
-    recipePromise.then((originalRecipe) => {
-      return recipeService
-        .getById(originalRecipe.id)
-        .then((recipeAfterEdits) => {
-          expect(recipeAfterEdits.description).to.equal(originalRecipe.description)
-        })
-    })
   })
 
   describe('when creating a new recipe', function() {
@@ -70,11 +69,11 @@ describe('RecipePage', function () {
 
     it('does not allow a recipe to be created if the name is blank', function () {
       let numInitialRecipes = 0;
-      recipePromise.then(() => {
-        return recipeService.getAll()
-      }).then((recipes) => {
-        numInitialRecipes = recipes.length
-      })
+      recipeService
+        .getAll()
+        .then((recipes) => {
+          numInitialRecipes = recipes.length
+        })
 
       cy.get(`[data-testid=${ID_SAVE_BUTTON}]`).click()
       cy.url().should('match', /myrecipes\/new/)

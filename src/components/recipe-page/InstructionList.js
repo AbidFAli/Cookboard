@@ -1,17 +1,22 @@
-import React, {useState} from 'react';
-import AddIcon from '@material-ui/icons/Add';
 import Button from '@material-ui/core/Button';
-import CloseIcon from '@material-ui/icons/Close'
-import DeleteIcon from '@material-ui/icons/Delete';
+import IconButton from '@material-ui/core/IconButton';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
+import AddIcon from '@material-ui/icons/Add';
+import CloseIcon from '@material-ui/icons/Close';
+import DeleteIcon from '@material-ui/icons/Delete';
+import React, { useState } from 'react';
+import Instruction from '../../Model/instruction';
 
-import Instruction from '../../Model/instruction'
 
 const ERROR_BLANK_INSTRUCTION = "Enter an instruction"
+
+//ids
+const ID_FIELD_NEW_INSTRUCTION = "newInstructionField"
+const ID_BUTTON_ADD_INSTRUCTION = "addingInstructionButton"
+const ID_INSTRUCTION_LIST = "idInstructionList"
 
 const InstructionList = ({instructions, editable, handleAdd, handleRemove, handleEdit}) => {
   const [adding, setAdding] = useState(false)
@@ -52,7 +57,7 @@ const InstructionList = ({instructions, editable, handleAdd, handleRemove, handl
     buttons = (
       <React.Fragment>
         <TextField
-          inputProps = {{ "data-testid" : "newInstructionField" }}
+          inputProps = {{ "data-testid" : ID_FIELD_NEW_INSTRUCTION }}
           value = {newInstructionText}
           error = {errorMessage != null}
           helperText = {errorMessage}
@@ -69,7 +74,7 @@ const InstructionList = ({instructions, editable, handleAdd, handleRemove, handl
   }
   else if(editable){
     buttons = (
-      <IconButton onClick = {() => setAdding(true)} data-testid = "addingInstructionButton">
+      <IconButton onClick = {() => setAdding(true)} data-testid = {ID_BUTTON_ADD_INSTRUCTION}>
         <AddIcon />
       </IconButton>
     )
@@ -77,7 +82,7 @@ const InstructionList = ({instructions, editable, handleAdd, handleRemove, handl
 
 
   return (
-      <div data-testid = "instructionList">
+      <div data-testid = {ID_INSTRUCTION_LIST}>
         <List component = "ol">
           {content}
         </List>
@@ -124,4 +129,11 @@ const InstructionView = ({instr, pos, editable, handleEdit, handleRemove}) => {
   }
 }
 
-export {InstructionList, ERROR_BLANK_INSTRUCTION };
+export {
+  InstructionList,
+  ERROR_BLANK_INSTRUCTION,
+  ID_BUTTON_ADD_INSTRUCTION,
+  ID_FIELD_NEW_INSTRUCTION,
+  ID_INSTRUCTION_LIST
+};
+

@@ -2,11 +2,13 @@ import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useHistory } from "react-router-dom";
+import { PATH_MYRECIPES } from '../paths';
 import { ERROR_INVALID_PASSWORD, ERROR_OTHER, userService } from '../services/userService';
 
 
+const KEY_USER_STORAGE = "CookboardUserLocalStorage"
 
 const ID_BUTTON_LOG_IN = "buttonLogin"
 const ID_BUTTON_SIGN_UP = "buttonSignup"
@@ -18,14 +20,23 @@ const MESSAGE_PASSWORD_MISSING = "Enter a password"
 const MESSAGE_INVALID_PASSWORD = "The password you entered was incorrect"
 
 
-const LoginWindow = ({updateUser}) => {
-  
+
+
+const LoginWindow = ({user, updateUser}) => {
+  const history = useHistory()
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('') //maybe do this one uncontrolled for security?
   const [errorUsername, setErrorUsername] = useState('')
   const [errorPassword, setErrorPassword] = useState('')
   
+  useEffect(() => {
+    if(user === undefined && localStorage.getItem(KEY_USER_STORAGE)){
+      let storedUser = JSON.parse(localStorage.getItem(KEY_USER_STORAGE))
+      updateUser(storedUser)
+      history.push(PATH_MYRECIPES)
+    }
+  }, [history, user, updateUser])
 
   const handleUsernameChange = (text) => {
     setUsername(text)
@@ -53,7 +64,7 @@ const LoginWindow = ({updateUser}) => {
             inputProps = {{'data-testid' : ID_INPUT_USERNAME}}
             />
         </Grid>
-        <Grid item justify = "center"> 
+        <Grid item> 
             <TextField 
               label = "Password" 
               helperText = {errorPassword}
@@ -68,7 +79,8 @@ const LoginWindow = ({updateUser}) => {
               username = {username} 
               password = {password} 
               updateUser = {updateUser}
-              setErrorPassword = {setErrorPassword}/>
+              setErrorPassword = {setErrorPassword}
+              setErrorUsername = {setErrorUsername} />
           </Grid>
           <Grid item>
             <Button variant = "contained" color = "primary" data-testid = {ID_BUTTON_SIGN_UP}>Sign Up</Button>
@@ -79,18 +91,37 @@ const LoginWindow = ({updateUser}) => {
   )
 }
 
-const LoginButton = ({username, password, updateUser, setErrorPassword}) => {
+const LoginButton = ({username, password, updateUser, setErrorPassword, setErrorUsername}) => {
   const history = useHistory()
 
+  const checkForErrors = () => {
+    let hasError = false;
+    if(username.trim() === ''){
+      setErrorUsername(MESSAGE_USERNAME_MISSING)
+      hasError = true;
+    }
+
+    if(password.trim() === ''){
+      setErrorPassword(MESSAGE_PASSWORD_MISSING)
+      hasError = true;
+    }
+    return hasError;
+  }
+
   const handleLogin = async () => {
-    let user = await userService.login(username, password)
-    if(user !== ERROR_INVALID_PASSWORD && user !== ERROR_OTHER){
-      updateUser(user)
-      history.push(`/myrecipes`)
-    }
-    else if(user === ERROR_INVALID_PASSWORD){
-      setErrorPassword(MESSAGE_INVALID_PASSWORD)
-    }
+    let hasInitialError = checkForErrors();
+
+    if(!hasInitialError){
+      let user = await userService.login(username, password)
+      if(user !== ERROR_INVALID_PASSWORD && user !== ERROR_OTHER){
+        localStorage.setItem(KEY_USER_STORAGE, JSON.stringify(user))
+        updateUser(user)
+        history.push(`/myrecipes`)
+      }
+      else if(user === ERROR_INVALID_PASSWORD){
+        setErrorPassword(MESSAGE_INVALID_PASSWORD)
+      }
+    } 
   }
 
   return (
@@ -112,6 +143,7 @@ export {
   ID_BUTTON_LOG_IN,
   ID_BUTTON_SIGN_UP,
   ID_INPUT_USERNAME,
-  ID_INPUT_PASSWORD
+  ID_INPUT_PASSWORD,
+  KEY_USER_STORAGE
 };
 

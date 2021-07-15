@@ -7,7 +7,6 @@ describe('LoginWindow integration tests', () => {
     cy.request('POST','http://localhost:3001/api/test/reset')
     cy.fixture('users/simple.json').as('testUser').then((testUser) => {
       cy.request('POST', 'http://localhost:3001/api/users', testUser).as('userCreationRequest')
-      cy.request('POST', 'http://localhost:3001/api/login', testUser).as('userLoginRequest')
     })
     
     cy.visit('http://localhost:3000/login')

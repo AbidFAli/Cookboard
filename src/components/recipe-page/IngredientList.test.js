@@ -1,117 +1,150 @@
+import { within } from '@testing-library/dom';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { cleanup, screen, render, fireEvent } from '@testing-library/react';
-import {within} from '@testing-library/dom'
-import userEvent from '@testing-library/user-event'
-
-import { Ingredient } from '../../Model/ingredient.js'
-import { 
-    IngredientList, 
+import { Ingredient } from '../../Model/ingredient.js';
+import userFixture from '../../test/fixtures/user/userNoRecipes';
+import testHelper from '../../test/util/recipePageTestHelper';
+import {
     ERROR_MESSAGE_AMOUNT_MISSING,
-    ERROR_MESSAGE_AMOUNT_NAN, 
-    ERROR_MESSAGE_NAME_MISSING,
-    ID_DELETE_INGREDIENT_BUTTON,
-    ID_BUTTON_ADD_INGREDIENT
+    ERROR_MESSAGE_AMOUNT_NAN,
+    ERROR_MESSAGE_NAME_MISSING, ID_BUTTON_ADD_INGREDIENT, ID_DELETE_INGREDIENT_BUTTON, IngredientList
 } from './IngredientList.js';
-import { RecipePage, ID_EDIT_BUTTON} from './RecipePage';
+import { ID_EDIT_BUTTON } from './RecipePage';
+
+
 
 
 //Integration tests with RecipePage and IngredientList
 
-jest.mock('../../services/recipeService')
+jest.mock('axios')
 
-describe('IngredientList', () => {
-    afterEach(cleanup);
-    let recipe = null;
+/*
+*name: str,
+*amount: str,
+*unit: str
+*/
+const performAdd = (name, amount, unit) => {
+    fireEvent.click(screen.getByTestId(ID_BUTTON_ADD_INGREDIENT))
+    let nameFields = screen.queryAllByLabelText("Name")
+    let amountFields = screen.queryAllByLabelText("Amount")
+    let unitFields = screen.queryAllByLabelText("Unit")
+    //fields[field.length - 1] is the last aka newly added field
+    userEvent.type(nameFields[nameFields.length - 1], name)
+    userEvent.clear(amountFields[amountFields.length - 1])
+    userEvent.type(amountFields[amountFields.length - 1], amount)
+    if(unit){
+        userEvent.type(unitFields[unitFields.length - 1], unit)
+    }
+}
+
+const getNthIngredientField = (labelText, n) => {
+    let fields = screen.queryAllByLabelText(labelText)
+    return fields[n]
+}
+
+const renderIngredientList = (ingredients) => {
+    render(
+        <IngredientList
+            ingredients = {ingredients}
+            editable = {false}
+            handleAdd = {jest.fn()}
+            handleRemove = {jest.fn()}
+            handleEdit = {jest.fn()}
+            dispatchErrors = {jest.fn()}
+        />
+    )
+}
+
+const testDelete = (ingredient) => {
+    const deleteButton = within(screen.getByTestId(ingredient.id)).getByTestId(ID_DELETE_INGREDIENT_BUTTON)
+    fireEvent.click(deleteButton)
+    expect(screen.queryByText(ingredient.name)).not.toBeInTheDocument()
+}
+
+const checkForAllErrors = () => {
+    let errorMessages = [ERROR_MESSAGE_AMOUNT_MISSING, ERROR_MESSAGE_AMOUNT_NAN, ERROR_MESSAGE_NAME_MISSING]
+    errorMessages.forEach((message) => {
+        expect(screen.queryByText(message)).toBeNull()
+    })
+}
+
+//Integration tests with RecipePage and IngredientList
+describe('IngredientList unit tests', () => {
     
-
-    function renderRecipe(recipe) {
-        let addHandler = jest.fn();
-        let updateHandler = jest.fn();
-        render(<RecipePage recipe = {recipe} prevPath = "" handleAddRecipe = {addHandler} handleUpdateRecipe = {updateHandler} />);
-    }
-
-    const getNthIngredientField = (labelText, n) => {
-        let fields = screen.queryAllByLabelText(labelText)
-        return fields[n]
-    }
-    /*
-     *name: str,
-     *amount: str,
-     *unit: str
-     */
-    const performAdd = (name, amount, unit) => {
-        fireEvent.click(screen.getByTestId(ID_BUTTON_ADD_INGREDIENT))
-        let nameFields = screen.queryAllByLabelText("Name")
-        let amountFields = screen.queryAllByLabelText("Amount")
-        let unitFields = screen.queryAllByLabelText("Unit")
-        //fields[field.length - 1] is the last aka newly added field
-        userEvent.type(nameFields[nameFields.length - 1], name)
-        userEvent.clear(amountFields[amountFields.length - 1])
-        userEvent.type(amountFields[amountFields.length - 1], amount)
-        if(unit){
-            userEvent.type(unitFields[unitFields.length - 1], unit)
-        }
-    }
-
-
     describe('displays', () => {
+        let ingredients
         beforeEach(() => {
-            recipe = {
-                name: "waffles",
-                ingredients: []
-            }
-        })
+            ingredients = []
+        })  
         test('a list of one ingredient', () => {
 
-            recipe.ingredients =
+            ingredients =
             [
-                {name: "ing1", amount: 1, unit: "tsp", id: "2001"}
+                new Ingredient("ing1", 1, "tsp")
             ];
-            renderRecipe(recipe)
+            renderIngredientList(ingredients)
             expect(screen.getByText("ing1, 1 tsp")).toBeInTheDocument();
         });
     
         test('an ingredient without a unit', () => {
-            recipe.ingredients = [{name: "egg", amount: 1, id: "2001"}];
-
-            renderRecipe(recipe)
+            ingredients = [new Ingredient("egg", 1)];
+            renderIngredientList(ingredients)
             expect(screen.getByText(/egg, 1/)).toBeInTheDocument();
         });
     
         test('a list of ingredients', () => {
-            recipe.ingredients =
+            ingredients =
                 [
                     new Ingredient("flour", 1.5, "cups"),
                     new Ingredient("baking powder", 3.5, "tsp"),
                     new Ingredient("salt", 1, "tsp"),
                 ];
-
-            renderRecipe(recipe)
+            renderIngredientList(ingredients)
             expect(screen.getByText("flour, 1.5 cups")).toBeInTheDocument();
             expect(screen.getByText("baking powder, 3.5 tsp")).toBeInTheDocument();
             expect(screen.getByText("salt, 1 tsp")).toBeInTheDocument();
         });
     })
+})
+
+
+describe('IngredientList integration tests within RecipePage', () => {
+    afterEach(cleanup);
+
+    beforeEach(() => {
+        jest.useFakeTimers()
+        jest.clearAllMocks()
+    })
+    
+    afterAll(() => {
+        jest.useRealTimers()
+    })
+
+    let recipe = null;
+    
+    
+
 
     describe('when editing ingredients', () => {
-        beforeEach(()=> {
+        beforeEach(async ()=> {
             recipe = {
                 name: "waffles",
-                ingredients: [ {name: "egg", amount: 1, id: "2001"}]
+                ingredients: [ {name: "egg", amount: 1, id: "2001"}],
+                id: "1234"
             }
 
-            renderRecipe(recipe)
+            await testHelper.setupAndRenderRecipe(recipe, userFixture())
             fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
         })
 
         
-        test('allows one ingredient to be edited', async () => {
+        test('allows one ingredient to be edited', () => {
             
             const eggTextField = screen.getByDisplayValue("egg")
             userEvent.clear(eggTextField)
             userEvent.type(eggTextField, "Butter")
-            fireEvent.click(screen.getByText("Save Changes"))
-            expect( await screen.findByText("Butter, 1")).toBeInTheDocument()
+            expect(screen.getByDisplayValue("Butter")).toBeInTheDocument()
         })
 
         test('shows an error message if an ingredients name is blank', () => {
@@ -144,27 +177,25 @@ describe('IngredientList', () => {
 
 
     describe('when adding ingredients', () => {
-        beforeEach(() => {
+        beforeEach(async () => {
             recipe = {
                 name: "waffles",
-                ingredients: []
+                ingredients: [],
+                id: "12345",
             }
-            renderRecipe(recipe)
+            await testHelper.setupAndRenderRecipe(recipe, userFixture())
             fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
         })
 
 
-
-        test('succeeds for an ingredient with a name, unit, and amount', async () => {
+        test('shows no errors when adding an ingredient with a name, unit, and amount', async () => {
             performAdd("batter", "1", "scoop")
-            fireEvent.click(screen.getByText("Save Changes"))
-            expect(await screen.findByText("batter, 1 scoop")).toBeInTheDocument()
+            checkForAllErrors()
         })
 
-        test('succeeds for an ingredient missing a unit', async () => {
+        test('shows no errors when adding an ingredient missing a unit', async () => {
             performAdd("batter", "1")
-            fireEvent.click(screen.getByText("Save Changes"))
-            expect(await screen.findByText("batter, 1")).toBeInTheDocument()
+            checkForAllErrors()
         })
 
         test('displays an error when the ingredient does not have a name', () => {
@@ -205,20 +236,33 @@ describe('IngredientList', () => {
 
     })
 
-    test('allows ingredients to be deleted', () => {
-        let water = {name: "water", amount: 1, unit: "cup", id: "2002"}
-        let batter = {name: "batter", amount: 1, unit: "cup", id: "2001"}
-        recipe = {
-            name : "waffles",
-            ingredients: [batter, water]
-        }
-        renderRecipe(recipe);
-        fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
-        const deleteButton = within(screen.getByTestId(water.id)).getByTestId(ID_DELETE_INGREDIENT_BUTTON)
-        fireEvent.click(deleteButton)
-        expect(screen.queryByText(/water/)).not.toBeInTheDocument()
-    });
 
-    
+
+    describe('when deleting ingredients', ()=> {
+        beforeEach(async () => {
+            recipe = {
+                name : "waffles",
+                ingredients: [
+                    {name: "water", amount: 1, unit: "cup", id: "2002"},
+                    {name: "batter", amount: 1, unit: "cup", id: "2001"},
+                    {name: "pancake mix", amount: 2, unit: "cup", id: "4041"}
+                ],
+                id: "1234"
+            }
+            
+            await testHelper.setupAndRenderRecipe(recipe, userFixture())
+            fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
+        });
+
+        test('allows ingredients to be deleted', async () => {
+            testDelete(recipe.ingredients[0])
+        });
+
+        test('allows multiple ingredients to be deleted', ()=> {
+            recipe.ingredients.forEach((ingredient) => {
+                testDelete(ingredient)
+            })
+        })
+    })
 
 });

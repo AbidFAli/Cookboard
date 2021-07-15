@@ -5,6 +5,7 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import CancelIcon from '@material-ui/icons/Cancel';
 import EditIcon from '@material-ui/icons/Edit';
+import Rating from '@material-ui/lab/Rating';
 import { cloneDeep } from 'lodash';
 import React, { useEffect, useReducer, useState } from 'react';
 import { useHistory } from 'react-router';
@@ -12,7 +13,8 @@ import ErrorMessenger from '../../Model/errorMessenger';
 import { Ingredient } from '../../Model/ingredient';
 import Instruction from '../../Model/instruction';
 import recipeService from '../../services/recipeService';
-import { DescriptionRating } from './DescriptionRating';
+import { PageLoadedSnackbar } from '../PageLoadedSnackbar';
+import { Description } from './Description';
 import { IngredientList } from './IngredientList';
 import { InstructionList } from './InstructionList';
 import { RecipeName } from './RecipeName';
@@ -24,6 +26,7 @@ const ID_EDIT_BUTTON = "editButton"
 const ID_SAVE_BUTTON = "saveButton"
 
 const KEY_RECIPE_BEFORE_EDITS = "keyRecipeBeforeEdits"
+const MESSAGE_RECIPE_LOADED = "Recipe loaded."
 
 //errors is an instance of the ErrorMessenger class
 function reduceErrors(errors, action){
@@ -66,13 +69,16 @@ const RecipePage = (props) => {
     const [rating, setRating] = useState(0)
     const [timeToMake, setTimeToMake] = useState(null)
     const [servingInfo, setServingInfo] = useState(null)
+    //page state
     const [editable, setEditable] = useState(props.id == null)
     const [created, setCreated] = useState(props.id != null)
+    const [snackbarVisible, setSnackbarVisible] = useState(false)
     
 
     useEffect(() => { 
       if(props.id){
         recipeService.getById(props.id).then((recipe) => {
+          setSnackbarVisible(true)
           setPageState(recipe)
         })
       }
@@ -251,7 +257,45 @@ const RecipePage = (props) => {
         );
     } 
 
+    
+    let descriptionLayout = (  
+      <Grid container item xs = {6} direction = "column">
+        <Grid item >
+          <Typography variant="h5" gutterBottom>
+              Description
+          </Typography>
+        </Grid>
+        <Grid item >
+          <Description 
+            desc={description} 
+            setDesc = {setDescription}
+            editable = {editable} />
+        </Grid>
+      </Grid>
+    )
+
+    let ratingLayout = (
+      <Grid container item xs = {6} direction = "column">
+        <Grid item>
+          <Typography variant="h5" gutterBottom>
+              Rating
+          </Typography>
+        </Grid>
+        <Grid item>
+          <Rating 
+            value = {rating}
+            readOnly = {!editable}
+            preciscion = {0.5}
+            onChange = {(event, newRating) => setRating(newRating) }
+          />
+        </Grid>
+      </Grid>
+    )
+
     return (
+      <React.Fragment>
+
+      
       <Grid container spacing={4}>
           <Grid container item xs={12} spacing={3} justify='space-between' alignItems='flex-end'>
               <Grid item>
@@ -273,30 +317,28 @@ const RecipePage = (props) => {
                 />
               </Grid>
           </Grid>
-          <Grid item xs={12}>
+          <Grid item xs = {12}>
             <Paper>
-              <DescriptionRating 
-                desc={description} 
-                setDesc = {setDescription}
-                rating={rating}
-                setRating = {setRating} 
-                editable = {editable}/>
+            <Grid container item xs = {12} direction = "row">
+              {descriptionLayout}
+              {ratingLayout}
+            </Grid >
             </Paper>
           </Grid>
           <Grid item  xs={12}>
-              <Paper>
-                  <Typography variant="h5" gutterBottom>
-                      Ingredients
-                  </Typography>
-                  <IngredientList 
-                    ingredients={ingredients} 
-                    editable = {editable} 
-                    handleRemove = {removeIngredient}
-                    handleAdd = {addIngredient}
-                    handleEdit = {editIngredient}
-                    dispatchErrors = {dispatchErrors}
-                  />
-              </Paper>
+            <Paper>
+              <Typography variant="h5" gutterBottom>
+                  Ingredients
+              </Typography>
+              <IngredientList 
+                ingredients={ingredients} 
+                editable = {editable} 
+                handleRemove = {removeIngredient}
+                handleAdd = {addIngredient}
+                handleEdit = {editIngredient}
+                dispatchErrors = {dispatchErrors}
+              />
+            </Paper>
           </Grid>
           <Grid item  xs={12} >                    
               <ServingInfoList 
@@ -311,7 +353,8 @@ const RecipePage = (props) => {
               <Typography variant="h5" gutterBottom>
                   Instructions
               </Typography>
-              <InstructionList 
+              <InstructionList
+                data-testid = 'ilist' 
                 instructions={instructions}
                 editable = {editable}
                 handleAdd = {addInstruction}
@@ -335,6 +378,13 @@ const RecipePage = (props) => {
             </Fab>
           </Grid>
       </Grid>
+      <PageLoadedSnackbar
+        message = {MESSAGE_RECIPE_LOADED}
+        open = {snackbarVisible}
+        onClose = {() => setSnackbarVisible(false)}
+       />
+      </React.Fragment>
+      
     );
     
 }
@@ -342,6 +392,7 @@ const RecipePage = (props) => {
 export {
   RecipePage,
   ID_EDIT_BUTTON,
-  ID_SAVE_BUTTON
+  ID_SAVE_BUTTON,
+  MESSAGE_RECIPE_LOADED
 };
 

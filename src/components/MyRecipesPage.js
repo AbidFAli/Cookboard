@@ -17,8 +17,9 @@ import { RecipePage } from './recipe-page/RecipePage';
 
 
 
-const ID_BUTTON_ADD_RECIPE = "MyRecipesPage_addRecipeButton"
 
+const ID_BUTTON_ADD_RECIPE = "MyRecipesPage_addRecipeButton"
+const MESSAGE_NO_RECIPES = "You have no recipes. Click on the button below to create one."
 
 /*
  * @param props = {
@@ -35,8 +36,11 @@ function RecipeList(props){
         setSelectedRecipe(recipe)
         console.log(`${recipe.name}'s check handler was called`)
     }
-
-    if (props.recipes != null) {
+    
+    if(props.recipes == null || props.recipes.length == 0){
+        return (<Typography variant = "subtitle1" gutterBottom>{MESSAGE_NO_RECIPES}</Typography>)
+    }
+    else if (props.recipes != null) {
         content = props.recipes.map((recipe, index) => {
             return (
                 
@@ -56,8 +60,9 @@ function RecipeList(props){
                 
             );
         });
+        return (<List component="ul">{content}</List>);
     }
-    return (<List component="ul">{content}</List>);
+    
 }
 
 
@@ -163,5 +168,6 @@ export {
     MyRecipesPage,
     RecipeList,
     ID_BUTTON_ADD_RECIPE,
+    MESSAGE_NO_RECIPES
 };
 

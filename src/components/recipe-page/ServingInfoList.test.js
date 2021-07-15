@@ -1,77 +1,70 @@
-import React from 'react';
-import { cleanup, screen, render, fireEvent } from '@testing-library/react';
-import {within} from '@testing-library/dom'
-import userEvent from '@testing-library/user-event'
+import { cleanup, fireEvent, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import userFixture from '../../test/fixtures/user/userNoRecipes';
+import testHelper from '../../test/util/recipePageTestHelper';
+import { ID_EDIT_BUTTON, ID_SAVE_BUTTON } from './RecipePage';
+import {
+  ERROR_MSG_NUM_SERVED_NAN, ERROR_MSG_SERVING_SIZE_NAN, ERROR_MSG_YIELD_NAN, FIELD_NUM_SERVED, FIELD_SERVING_SIZE, FIELD_YIELD
+} from './ServingInfoList';
 
-import { Ingredient } from '../../Model/ingredient.js'
-import { 
-  ERROR_MSG_NUM_SERVED_NAN,
-  ERROR_MSG_YIELD_NAN,
-  ERROR_MSG_SERVING_SIZE_NAN,
-  FIELD_NUM_SERVED, 
-  FIELD_YIELD, 
-  FIELD_SERVING_SIZE 
-} from './ServingInfoList'
-import { RecipePage} from './RecipePage';
 
-jest.mock('../../services/recipeService')
+jest.mock('axios')
 
 //Integration tests for ServingInfoList in RecipePage
 
+const testNonNumericalText = async (recipe, testid, expectedMessage) => {
+  await testHelper.setupAndRenderRecipe(recipe, userFixture())
+  fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
+  let textbox = screen.getByTestId(testid)
+  userEvent.clear(textbox)
+  userEvent.type(textbox, "letters")
+  expect(screen.getByText(expectedMessage)).toBeInTheDocument()
+}
+
 describe('ServingInfoList', () => {
-  afterEach(cleanup);
-  let recipe = null;
-  let addHandler, updateHandler;
-
-  function renderRecipe(recipe) {
-      render(<RecipePage recipe = {recipe} prevPath = "" handleAddRecipe = {addHandler} handleUpdateRecipe = {updateHandler} />);
-  }
-
-  const testNonNumericalText = (testid, expectedMessage) => {
-    renderRecipe(recipe)
-    fireEvent.click(screen.getByTestId('editButton'))
-    let textbox = screen.getByTestId(testid)
-    userEvent.clear(textbox)
-    userEvent.type(textbox, "letters")
-    expect(screen.getByText(expectedMessage)).toBeInTheDocument()
-  }
-
-
-
+  let recipe;
   beforeEach(() => {
-      addHandler = jest.fn()
-      updateHandler = jest.fn()
-      recipe = {
-        name: "waffles"
-      }
-  });
+    jest.useFakeTimers()
+    jest.clearAllMocks()
 
-  test('cannot save if there is an error in the textboxes', () => {
-    renderRecipe(recipe)
+    recipe = {
+      name: "waffles",
+      id: "12346"
+    }
+  })
+
+  afterEach(cleanup);
+
+  afterAll(() => {
+    jest.useRealTimers()
+  })
+
+
+  test('cannot save if there is an error in the textboxes', async () => {
+    await testHelper.setupAndRenderRecipe(recipe, userFixture())
     fireEvent.click(screen.getByTestId('editButton'))
     let textbox = screen.getByTestId(FIELD_NUM_SERVED)
     userEvent.clear(textbox)
     userEvent.type(textbox, "letters")
-    expect(screen.getByTestId("saveButton")).toBeDisabled()
+    expect(screen.getByTestId(ID_SAVE_BUTTON)).toBeDisabled()
   })
 
   describe('when editing numServed', () => {
-    test('displays an error message when non-numerical text is typed' , () => {
-      testNonNumericalText(FIELD_NUM_SERVED, ERROR_MSG_NUM_SERVED_NAN)
+    test('displays an error message when non-numerical text is typed' , async () => {
+      await testNonNumericalText(recipe, FIELD_NUM_SERVED, ERROR_MSG_NUM_SERVED_NAN)
     })
   })
 
   describe('when editing yield', () => {
-    test('displays an error message when non-numerical text is typed' , () => {
-      testNonNumericalText(FIELD_YIELD, ERROR_MSG_YIELD_NAN)
+    test('displays an error message when non-numerical text is typed' , async () => {
+      await testNonNumericalText(recipe, FIELD_YIELD, ERROR_MSG_YIELD_NAN)
     })
   })
 
   describe('when editing serving size', () => {
-    test('displays an error message when non-numerical text is typed' , () => {
-      testNonNumericalText(FIELD_SERVING_SIZE, ERROR_MSG_SERVING_SIZE_NAN)
+    test('displays an error message when non-numerical text is typed' , async () => {
+      await testNonNumericalText(recipe, FIELD_SERVING_SIZE, ERROR_MSG_SERVING_SIZE_NAN)
     })
-
   })
 
   // describe('when editing serving size unit', ()=> {
