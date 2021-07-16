@@ -42,7 +42,7 @@ describe('ServingInfoList', () => {
 
   test('cannot save if there is an error in the textboxes', async () => {
     await testHelper.setupAndRenderRecipe(recipe, userFixture())
-    fireEvent.click(screen.getByTestId('editButton'))
+    fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
     let textbox = screen.getByTestId(FIELD_NUM_SERVED)
     userEvent.clear(textbox)
     userEvent.type(textbox, "letters")

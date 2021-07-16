@@ -22,8 +22,9 @@ import { ServingInfoList } from './ServingInfoList';
 import { TimingInfo } from './TimingInfo';
 
 
-const ID_EDIT_BUTTON = "editButton"
-const ID_SAVE_BUTTON = "saveButton"
+const ID_EDIT_BUTTON = "idRecipePage_editButton"
+const ID_SAVE_BUTTON = "idRecipePage_saveButton"
+const ID_RATING_SLIDER = "idRecipePage_RatingSlider"
 
 const KEY_RECIPE_BEFORE_EDITS = "keyRecipeBeforeEdits"
 const MESSAGE_RECIPE_LOADED = "Recipe loaded."
@@ -53,8 +54,10 @@ function reduceErrors(errors, action){
  *  @type User || null
  *@prop handleAddRecipe
  *  @type function handleAddRecipe(recipe: Recipe)
+ *  should only be called on save
  *@prop handleUpdateRecipe
  *  @type function handleUpdateRecipe(recipe: Recipe) 
+ *  should only be called on save
  */
 const RecipePage = (props) => {
     const history = useHistory();
@@ -282,7 +285,8 @@ const RecipePage = (props) => {
           </Typography>
         </Grid>
         <Grid item>
-          <Rating 
+          <Rating
+            name = {ID_RATING_SLIDER}
             value = {rating}
             readOnly = {!editable}
             preciscion = {0.5}

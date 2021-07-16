@@ -13,6 +13,15 @@ import {
 
 jest.mock('axios')
 
+const getUnitTextbox = () => {
+  return screen.getByTestId(ID_FIELD_TTM_UNIT)
+}
+
+const getValueTextbox = () => {
+  return screen.getByTestId(ID_FIELD_TTM_VALUE)
+}
+
+
 describe('RecipeName', () => {
   afterEach(cleanup);
   let recipe = null;
@@ -45,6 +54,7 @@ describe('RecipeName', () => {
       userEvent.type(textbox, "1")
       expect(screen.getByTestId(ID_FIELD_TTM_VALUE)).toHaveDisplayValue("1")
     })
+
   })
 
   describe('with existing timing info already set', () => {
@@ -58,24 +68,39 @@ describe('RecipeName', () => {
       fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
     });
 
-    test('an error is displayed if the prep time value is present but the prep time unit is missing', () => {
-      let textbox = screen.getByTestId(ID_FIELD_TTM_UNIT)
-      userEvent.clear(textbox)
-      expect(screen.getByText(ERROR_MESSAGE_TTM_UNIT_MISSING)).toBeInTheDocument()
+    describe('Cases when error should be displayed and create recipe button should be disabled:', () => {
+      test('if the prep time value is present but the prep time unit is missing', () => {
+        let textbox = getUnitTextbox()
+        userEvent.clear(textbox)
+        expect(screen.getByText(ERROR_MESSAGE_TTM_UNIT_MISSING)).toBeInTheDocument()
+        testHelper.expectSaveButtonDisabled()
+      })
+
+      test('if the prep time unit is present but the prep time value is missing' , () => {
+        let textbox = getValueTextbox()
+        userEvent.clear(textbox)
+        expect(screen.getByText(ERROR_MESSAGE_TTM_VALUE_MISSING)).toBeInTheDocument()
+        testHelper.expectSaveButtonDisabled()
+      })
+
+      test('an error is displayed if letters are typed into the textbox for prep time value', () => {
+        let textbox = getValueTextbox()
+        userEvent.clear(textbox)
+        userEvent.type(textbox, "letters")
+        expect(screen.getByText(ERROR_MESSAGE_TTM_VALUE_NAN)).toBeInTheDocument()
+        testHelper.expectSaveButtonDisabled()
+      })
     })
-  
-    test('an error is displayed if the prep time unit is present but the prep time value is missing' , () => {
-      let textbox = screen.getByTestId(ID_FIELD_TTM_VALUE)
-      userEvent.clear(textbox)
-      expect(screen.getByText(ERROR_MESSAGE_TTM_VALUE_MISSING)).toBeInTheDocument()
+
+    
+    test('you can delete the timing info and still click on the create recipe button', () => {
+      let unitInput = getUnitTextbox()
+      let valueInput = getValueTextbox()
+      userEvent.clear(unitInput)
+      userEvent.clear(valueInput)
+      testHelper.expectSaveButtonEnabled()
     })
-  
-    test('an error is displayed if letters are typed into the textbox for prep time value', () => {
-      let textbox = screen.getByTestId(ID_FIELD_TTM_VALUE)
-      userEvent.clear(textbox)
-      userEvent.type(textbox, "letters")
-      expect(screen.getByText(ERROR_MESSAGE_TTM_VALUE_NAN)).toBeInTheDocument()
-    })
+
   })
 
 

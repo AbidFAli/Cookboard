@@ -88,17 +88,17 @@ const ServingInfoList = ({servingInfo, setServingInfo, editable, errors, dispatc
     dispatchErrors({type: 'remove', errorKey: ERROR_SERVING_SIZE_UNIT})
     let errorKey = null, errorMessage = null, errorInfo = {};
 
-    if(servingSize != null  && !Number.isFinite(servingSize)){
+    if(servingSize  && !Number.isFinite(servingSize)){
       errorKey = ERROR_SERVING_SIZE
       errorMessage = ERROR_MSG_SERVING_SIZE_NAN
       errorInfo = {errorMessageValue: ERROR_MSG_SERVING_SIZE_NAN}
     }
-    else if(servingSize != null && servingSizeUnit == null){
+    else if(servingSize && servingSizeUnit == ''){
       errorKey = ERROR_SERVING_SIZE_UNIT
       errorMessage = ERROR_MSG_SERVING_SIZE_UNIT_MISSING
       errorInfo = {errorMessageUnit : ERROR_MSG_SERVING_SIZE_UNIT_MISSING}
     }
-    else if(servingSize == null && servingSizeUnit != null){
+    else if(!servingSize && servingSizeUnit != ''){
       errorKey = ERROR_SERVING_SIZE
       errorMessage = ERROR_MSG_SERVING_SIZE_MISSING
       errorInfo = {errorMessageValue: ERROR_MSG_SERVING_SIZE_MISSING}
@@ -199,3 +199,4 @@ export {
   FIELD_SERVING_SIZE,
   FIELD_YIELD
 };
+

@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import axios from 'axios';
 import { cloneDeep } from 'lodash';
 import React from 'react';
-import { MESSAGE_RECIPE_LOADED, RecipePage } from '../../components/recipe-page/RecipePage';
+import { ID_SAVE_BUTTON, MESSAGE_RECIPE_LOADED, RecipePage } from '../../components/recipe-page/RecipePage';
 
 
 
@@ -50,9 +50,19 @@ const setupAndRenderRecipe =  async (recipe, user) => {
   
 }
 
+const expectSaveButtonDisabled = () => {
+  expect(screen.getByTestId(ID_SAVE_BUTTON)).toBeDisabled()
+}
+
+const expectSaveButtonEnabled = () => {
+  expect(screen.getByTestId(ID_SAVE_BUTTON)).toBeEnabled()
+}
+
 
 const testHelper = {
-  setupAndRenderRecipe
+  setupAndRenderRecipe,
+  expectSaveButtonDisabled,
+  expectSaveButtonEnabled
 }
 
 export default testHelper;

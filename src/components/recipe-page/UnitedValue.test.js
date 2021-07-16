@@ -1,9 +1,8 @@
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { cleanup, screen, render, fireEvent } from '@testing-library/react';
-import {within} from '@testing-library/dom'
-import userEvent from '@testing-library/user-event'
+import { UnitedValue } from './UnitedValue';
 
-import {UnitedValue} from './UnitedValue'
 
 const TEST_ID_UNIT = 'ID_UNIT'
 const TEST_ID_VALUE = 'ID_VALUE'
@@ -104,7 +103,7 @@ describe('UnitedValue', ()=> {
     expect(setUnit.mock.calls[setUnit.mock.calls.length - 1][0]).toMatch("unit")
 
   })
-  test("passes null to setUnit when the unit is blank", () => {
+  test("passes blank to setUnit when the unit is blank", () => {
     let value = 1
     let valueName = "Amount"
     let unit = "mg"
@@ -112,6 +111,6 @@ describe('UnitedValue', ()=> {
     renderUnitedValue(value, valueName, unit, setValue, setUnit, handleError)
     let unitInput = screen.getByTestId(TEST_ID_UNIT)
     userEvent.clear(unitInput)
-    expect(setUnit.mock.calls[0][0]).toBeNull()
+    expect(setUnit.mock.calls[0][0]).toEqual('')
   })
 })
