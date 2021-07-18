@@ -9,7 +9,7 @@ import Rating from '@material-ui/lab/Rating';
 import { cloneDeep } from 'lodash';
 import React, { useEffect, useReducer, useState } from 'react';
 import { useHistory } from 'react-router';
-import ErrorMessenger from '../../Model/errorMessenger';
+import { ErrorMessenger, reduceErrors } from '../../Model/errorMessenger';
 import { Ingredient } from '../../Model/ingredient';
 import Instruction from '../../Model/instruction';
 import recipeService from '../../services/recipeService';
@@ -23,26 +23,16 @@ import { TimingInfo } from './TimingInfo';
 
 
 const ID_EDIT_BUTTON = "idRecipePage_editButton"
+const ID_CANCEL_BUTTON = "idRecipePage_cancelEditsButton"
 const ID_SAVE_BUTTON = "idRecipePage_saveButton"
 const ID_RATING_SLIDER = "idRecipePage_RatingSlider"
 
 const KEY_RECIPE_BEFORE_EDITS = "keyRecipeBeforeEdits"
 const MESSAGE_RECIPE_LOADED = "Recipe loaded."
 
-//errors is an instance of the ErrorMessenger class
-function reduceErrors(errors, action){
-  const newErrors = new ErrorMessenger(errors)
-  switch(action.type) {
-    case 'add':
-      return newErrors.addError(action.errorKey, action.errorMessage);
-    case 'remove':
-      return newErrors.removeError(action.errorKey);
-    case 'reset':
-      return new ErrorMessenger();
-    default:
-      return newErrors
-  }
-}
+const TEXT_EDIT_BUTTON = "Edit recipe"
+const TEXT_CANCEL_BUTTON = "Cancel edits"
+
 
 /*
  *@prop id: the id of the recipe to display;
@@ -245,6 +235,7 @@ const RecipePage = (props) => {
     }
 
     let saveButton = null;
+    let fab = null
     if(editable){
         let text = created ? "Save Changes" : "Create Recipe"
         saveButton = ( 
@@ -368,17 +359,12 @@ const RecipePage = (props) => {
           </Grid>
           <Grid item xs = {12} >
             {saveButton}
-            <Fab 
-              data-testid = {ID_EDIT_BUTTON} 
-              alt = {editable ? "Cancel edit" : "Edit recipe" }
-              color = {editable === false ? "primary" : "secondary" } 
+            <Fab
+              data-testid = {editable ? ID_CANCEL_BUTTON : ID_EDIT_BUTTON} 
+              color = {editable === false ? "primary" : "secondary" }
               onClick = {() => changeEditable()}
               >
-              {
-                editable
-                ? <CancelIcon/>
-                : <EditIcon/>
-              }
+              { editable ? <CancelIcon/> : <EditIcon/> }
             </Fab>
           </Grid>
       </Grid>
@@ -397,6 +383,7 @@ export {
   RecipePage,
   ID_EDIT_BUTTON,
   ID_SAVE_BUTTON,
-  MESSAGE_RECIPE_LOADED
+  MESSAGE_RECIPE_LOADED,
+  ID_CANCEL_BUTTON
 };
 

@@ -1,7 +1,7 @@
 //locks? since shared data
 //shouldn't since removing different errors.
 
-import {cloneDeep} from 'lodash'
+import { cloneDeep } from 'lodash'
 
 class ErrorMessenger {
   constructor(otherService){
@@ -40,5 +40,20 @@ class ErrorMessenger {
   }
 }
 
+//errors is an instance of the ErrorMessenger class
+function reduceErrors(errors, action){
+  const newErrors = new ErrorMessenger(errors)
+  switch(action.type) {
+    case 'add':
+      return newErrors.addError(action.errorKey, action.errorMessage);
+    case 'remove':
+      return newErrors.removeError(action.errorKey);
+    case 'reset':
+      return new ErrorMessenger();
+    default:
+      return newErrors
+  }
+}
 
-export default ErrorMessenger
+
+export { ErrorMessenger, reduceErrors }

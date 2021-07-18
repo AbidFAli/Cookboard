@@ -5,7 +5,8 @@ import ListItemText from '@material-ui/core/ListItemText';
 import TextField from '@material-ui/core/TextField';
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+//import { ErrorMessenger } from '../../Model/errorMessenger';
 //import {UnitedValue, ERROR_TYPE_UNIT, ERROR_TYPE_VALUE} from './UnitedValue'
 import { Ingredient } from '../../Model/ingredient';
 
@@ -21,36 +22,47 @@ const ID_FIELD_INGREDIENT_UNIT = "ingredientUnitField"
 
 const ID_BUTTON_ADD_INGREDIENT = "startAddButton"
 
-//Error Ids
-const ERROR_ID_AMOUNT = "errorIdAmount"
-const ERROR_ID_NAME = "errorIdName"
+//Error Keys
+const ERROR_KEY_INGREDIENT_LIST = "keyErrorIngredientList"
 
 //Error Messsages
 const ERROR_MESSAGE_AMOUNT_NAN = "Amount must be a number"
 const ERROR_MESSAGE_AMOUNT_MISSING = "Amount required"
 const ERROR_MESSAGE_NAME_MISSING = "Name required"
+const ERROR_MESSAGE_INGREDIENT_LIST = "There is an error in one of the ingredients"
 
-const IngredientList = ({ingredients, editable, handleAdd, handleEdit, handleRemove, dispatchErrors}) => {
+/*
+*@prop ingredients
+*@prop editable
+*@prop handleAdd
+*@prop handleEdit
+*@prop handleRemove
+*@prop dispatchErrors
+*/
+const IngredientList = (props) => {
+  const ingredientErrors = useRef(new Map())
 
   const addBlankIngredient =  () => {
-    handleAdd(new Ingredient())
+    props.handleAdd(new Ingredient())
   }
 
-  let content = ingredients.map((ingr, index) => {
+  let content = props.ingredients.map((ingr, index) => {
     return (
       <IngredientListItem
         key = {ingr.id}
         ingr = {ingr}
         pos = {index}
-        editable = {editable}
-        handleEdit = {handleEdit}
-        handleRemove = {handleRemove}
+        editable = {props.editable}
+        handleEdit = {props.handleEdit}
+        handleRemove = {props.handleRemove}
+        ref = {ingredientErrors}
+        dispatchErrors = {props.dispatchErrors}
       />
     );
   });
 
   let buttons = null;
-  if(editable){
+  if(props.editable){
    buttons = (
     <IconButton data-testid = {ID_BUTTON_ADD_INGREDIENT} onClick = {() => addBlankIngredient()}>
       <AddIcon />
@@ -70,85 +82,119 @@ const IngredientList = ({ingredients, editable, handleAdd, handleEdit, handleRem
 }
 
 //ensures that if amountText is a valid number, then ingredient's amount is a number.
-const IngredientListItem = ({ingr, editable,  handleEdit, handleRemove}) => {
+/*
+*@prop ingr
+*@prop editable
+*@prop handleEdit
+*@prop handleRemove
+*@prop dispatchErrors
+*@ref ingredientErrorsRef
+*/
+const IngredientListItem = React.forwardRef((props, ingredientErrorsRef) => {
   const [amountErrorMessage, setAmountErrorMessage] = useState(null)
   const [nameErrorMessage, setNameErrorMessage] = useState(null)
 
+  useEffect(() => {
+    if(props.editable){
+      checkForErrors(props.ingr)
+    }
+  }, [props.ingr, props.editable])
 
   const checkForErrors = (ingr) => {
     let amount = Number(ingr.amount)
+    let hasErrors = false;
+    let amountErrorMessage = null;
+    let nameErrorMessage = null;
+
     if(amount === 0){
-      setAmountErrorMessage(ERROR_MESSAGE_AMOUNT_MISSING)
+      amountErrorMessage = ERROR_MESSAGE_AMOUNT_MISSING
+      hasErrors = true;
     }
     else if(!Number.isFinite(amount)){
-      setAmountErrorMessage(ERROR_MESSAGE_AMOUNT_NAN)
-    }
-    else{
-      setAmountErrorMessage(null)
+      amountErrorMessage = ERROR_MESSAGE_AMOUNT_NAN
+      hasErrors = true;
     }
 
     if(!ingr.name){
-      setNameErrorMessage(ERROR_MESSAGE_NAME_MISSING)
+      nameErrorMessage = ERROR_MESSAGE_NAME_MISSING
+      hasErrors = true;
+    }
+    setAmountErrorMessage(amountErrorMessage)
+    setNameErrorMessage(nameErrorMessage)
+  
+    if(hasErrors){
+      if(ingredientErrorsRef.current.size == 0){
+        //now there is a new error and this is the first error so notify that there is an error in ingredient list
+        props.dispatchErrors({
+          type: 'add', 
+          errorKey: ERROR_KEY_INGREDIENT_LIST, 
+          errorMessage: ERROR_MESSAGE_INGREDIENT_LIST
+        })
+      }
+      ingredientErrorsRef.current.set(props.ingr.id, ERROR_MESSAGE_AMOUNT_MISSING)
     }
     else{
-      setNameErrorMessage(null)
-    }
+      //this is the last error and it will be removed, so there are now no errors. notify
+      if(ingredientErrorsRef.current.size == 1){
+        props.dispatchErrors({type: 'remove', errorKey: ERROR_KEY_INGREDIENT_LIST})
+      }
+      ingredientErrorsRef.current.delete(props.ingr.id)
+    }    
   }
 
   const handleNameChange = (name) => {
-    let editedIngredient = {...ingr}
+    let editedIngredient = {...props.ingr}
     editedIngredient.name = name
-    checkForErrors(editedIngredient)
-    handleEdit(editedIngredient)
+    props.handleEdit(editedIngredient)
   }
 
-  const handleAmountChange = (amountText) => {
+  const handleAmountChange = (text) => {
+    let amountText = text.trim()
     let amount = Number(amountText)
-    let editedIngredient = {...ingr}
+    let editedIngredient = {...props.ingr}
     editedIngredient.amount = amountText;
 
     if(amountText !== '' && Number.isFinite(amount)){
       editedIngredient.amount = amount
     }
-    checkForErrors(editedIngredient)
-    handleEdit(editedIngredient)
+    props.handleEdit(editedIngredient)
   }
 
-  const handleUnitChange = (unit) => {
-    let editedIngredient = {...ingr}
+  const handleUnitChange = (text) => {
+    let unit = text.trim()
+    let editedIngredient = {...props.ingr}
     editedIngredient.unit = unit
-    checkForErrors(editedIngredient)
-    handleEdit(editedIngredient)
+    props.handleEdit(editedIngredient)
   }
   
-  if(editable){
+  if(props.editable){
     return (
-      <ListItem data-testid = {ingr.id}>
+      <ListItem data-testid = {props.ingr.id}>
         <TextField
           label = "Name"
-          id = {"INGR_NAME_"+ingr.id}
-          value = {ingr != null && ingr.name != null ? ingr.name : ''}
+          id = {"INGR_NAME_"+props.ingr.id}
+          value = {props.ingr != null && props.ingr.name != null ? props.ingr.name : ''}
           onChange = {(event) => handleNameChange(event.target.value)}
           error = {nameErrorMessage != null}
           helperText = {nameErrorMessage}
           />
         <TextField 
           label = "Amount"
-          id = {"INGR_AMOUNT_"+ingr.id}
+          id = {"INGR_AMOUNT_"+props.ingr.id}
           inputProps = {{ 'data-testid' :  ID_FIELD_INGREDIENT_AMOUNT }}
-          value = {ingr != null && ingr.amount != null ? ingr.amount : ''}
-          onChange = {(event) => handleAmountChange(event.target.value.trim())}
+          value = {props.ingr != null && props.ingr.amount != null ? props.ingr.amount : ''}
+          onChange = {(event) => handleAmountChange(event.target.value)}
           error = {amountErrorMessage != null}
           helperText = {amountErrorMessage}
         />
         <TextField 
           label = "Unit"
-          id = {"INGR_UNIT_"+ingr.id}
+          id = {"INGR_UNIT_"+props.ingr.id}
           inputProps = {{'data-testid' : ID_FIELD_INGREDIENT_UNIT}}
-          value = {ingr != null && ingr.unit != null ? ingr.unit : ''}
-          onChange = {(event) => handleUnitChange(event.target.value.trim())}
+          value = {props.ingr != null && props.ingr.unit != null ? props.ingr.unit : ''}
+          onChange = {(event) => handleUnitChange(event.target.value)}
         />
-        <IconButton size = "small" data-testid = {ID_DELETE_INGREDIENT_BUTTON} onClick = {() => handleRemove(ingr)}>
+        <IconButton size = "small" data-testid = {ID_DELETE_INGREDIENT_BUTTON} onClick = {() => props.handleRemove(props.ingr)}>
           <DeleteIcon />
         </IconButton>
       </ListItem>
@@ -157,12 +203,12 @@ const IngredientListItem = ({ingr, editable,  handleEdit, handleRemove}) => {
   else{
     return (
       <ListItem>
-        <ListItemText primary={`${ingr.name}, ${ingr.amount} ${ingr.unit ? ingr.unit: ""}`} />
+        <ListItemText primary={`${props.ingr.name}, ${props.ingr.amount} ${props.ingr.unit ? props.ingr.unit: ""}`} />
       </ListItem>
     );
   }
 
-}
+});
 
 
 
@@ -171,6 +217,7 @@ export {
   ERROR_MESSAGE_AMOUNT_MISSING,
   ERROR_MESSAGE_NAME_MISSING,
   ERROR_MESSAGE_AMOUNT_NAN,
+  ERROR_KEY_INGREDIENT_LIST,
   ID_DELETE_INGREDIENT_BUTTON,
   ID_FIELD_INGREDIENT_AMOUNT,
   ID_FIELD_INGREDIENT_UNIT,

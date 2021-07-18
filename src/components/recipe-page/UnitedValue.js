@@ -69,7 +69,7 @@ const handleChangeUnit = (newUnitText) => {
 
 UnitedValue.propTypes = {
   //This component will parse value strings into numbers if possible
-  value: PropTypes.string || PropTypes.number,
+  value: PropTypes.oneOfType([PropTypes.string || PropTypes.number]),
   valueName: PropTypes.string.isRequired,
   unit: PropTypes.string,
 
