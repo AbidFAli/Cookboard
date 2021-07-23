@@ -120,7 +120,8 @@ const RecipePage = (props) => {
         if(props.id){
           newRecipe.id = props.id
         }
-
+        
+        //get rid of ids for any ingredients with temporary ids
         newRecipe.ingredients.forEach((ingredient) => {
           if(Ingredient.hasTempId(ingredient)){
             delete ingredient.id
@@ -349,12 +350,12 @@ const RecipePage = (props) => {
                   Instructions
               </Typography>
               <InstructionList
-                data-testid = 'ilist' 
                 instructions={instructions}
                 editable = {editable}
                 handleAdd = {addInstruction}
                 handleRemove = {removeInstruction}
-                handleEdit = {editInstruction} />
+                handleEdit = {editInstruction}
+                dispatchErrors = {dispatchErrors} />
             </Paper>
           </Grid>
           <Grid item xs = {12} >

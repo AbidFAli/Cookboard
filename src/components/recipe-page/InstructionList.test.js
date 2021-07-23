@@ -6,7 +6,11 @@ import Instruction from '../../Model/instruction.js';
 import { Recipe } from '../../Model/recipe.js';
 import userFixture from '../../test/fixtures/user/userNoRecipes';
 import testHelper from '../../test/util/recipePageTestHelper';
-import { ERROR_BLANK_INSTRUCTION, ID_INSTRUCTION_LIST, InstructionList } from './InstructionList';
+import {
+  ERROR_BLANK_INSTRUCTION,
+  ID_BUTTON_ADD_INSTRUCTION,
+  ID_INSTRUCTION_LIST, InstructionList, LABEL_INSTRUCTION_TEXT_FIELD
+} from './InstructionList';
 import { ID_EDIT_BUTTON } from './RecipePage';
 
 
@@ -29,6 +33,10 @@ const printToConsole = () => {
   console.log(prettyDOM(screen.getByTestId(ID_INSTRUCTION_LIST)))
 }
 
+const getInstructionFields = (pos) => {
+  return screen.getAllByLabelText(LABEL_INSTRUCTION_TEXT_FIELD)[pos]
+}
+
 
 describe('InstructionList Unit Tests', () => {
   afterEach(cleanup);
@@ -41,6 +49,7 @@ describe('InstructionList Unit Tests', () => {
         handleAdd = {jest.fn()}
         handleRemove = {jest.fn()}
         handleEdit = {jest.fn()}
+        dispatchErrors = {jest.fn()}
       />
     )
   }
@@ -72,6 +81,10 @@ describe('Tests for InstructionList integration with RecipePage', () => {
     jest.useRealTimers()
   })
 
+  afterEach(() => {
+    cleanup();
+  });
+
 
 
  describe('when adding instructions,', () => {
@@ -88,9 +101,8 @@ describe('Tests for InstructionList integration with RecipePage', () => {
    test('adding succeeds for a recipe with no instructions', async () => {
      await testHelper.setupAndRenderRecipe(recipe, userFixture())
      fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
-     fireEvent.click(screen.getByTestId('addingInstructionButton'))
-     userEvent.type(screen.getByTestId("newInstructionField"), "turn on stove")
-     fireEvent.click(screen.getByText(/Add instruction/i))
+     fireEvent.click(screen.getByTestId(ID_BUTTON_ADD_INSTRUCTION))
+     userEvent.type(getInstructionFields(0), "turn on stove")
 
      let result = await screen.findByDisplayValue("turn on stove")
      expect(result).toBeInTheDocument();
@@ -102,20 +114,27 @@ describe('Tests for InstructionList integration with RecipePage', () => {
     await testHelper.setupAndRenderRecipe(recipe, userFixture())
 
     fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
-    fireEvent.click(screen.getByTestId('addingInstructionButton'))
+    fireEvent.click(screen.getByTestId(ID_BUTTON_ADD_INSTRUCTION))
     let newInstruction = "step three"
-    userEvent.type(screen.getByTestId("newInstructionField"), newInstruction)
-    fireEvent.click(screen.getByText(/Add instruction/i))
-    expect(await screen.findByDisplayValue(newInstruction)).toBeInTheDocument();
+    userEvent.type(getInstructionFields(2), newInstruction)
+    expect( screen.getByDisplayValue(newInstruction)).toBeInTheDocument();
    })
 
-   test('does not allow blank instructions to be added' , async () => {
-     await testHelper.setupAndRenderRecipe(recipe, userFixture())
-     fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
-     fireEvent.click(screen.getByTestId('addingInstructionButton'))
-     userEvent.clear(screen.getByTestId("newInstructionField"))
-     fireEvent.click(screen.getByText(/Add instruction/i))
-     expect(screen.getByText(ERROR_BLANK_INSTRUCTION)).toBeInTheDocument()
+   test('multiple instructions can be added', async () => {
+    
+    await testHelper.setupAndRenderRecipe(recipe, userFixture())
+    fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
+    let instructions = ['step one', 'step two']
+    let numAdded = 0;
+    instructions.forEach((instr) => {
+      fireEvent.click(screen.getByTestId(ID_BUTTON_ADD_INSTRUCTION))
+      userEvent.type(getInstructionFields(numAdded), instr )
+      numAdded += 1;
+    })
+
+    instructions.forEach(instr => expect(screen.getByDisplayValue(instr)).toBeInTheDocument())
+    
+
    })
 
  })
@@ -151,11 +170,15 @@ describe('Tests for InstructionList integration with RecipePage', () => {
     expect(screen.getByDisplayValue(/step 3 changed/i)).toBeInTheDocument();
    })
 
-   test('an error message is displayed if an instructions name is cleared', () => {
+   test('an error message is displayed and the save button is disabled if an instructions name is cleared', () => {
     let editedField = screen.getByDisplayValue(/step two/i)
     userEvent.clear(editedField)
     expect(screen.getByText(ERROR_BLANK_INSTRUCTION)).toBeInTheDocument()
+    testHelper.expectSaveButtonDisabled()
    })
+
+   
+
  })
 
  describe('instructions can be removed', () => {
@@ -191,6 +214,14 @@ describe('Tests for InstructionList integration with RecipePage', () => {
       removeInstruction(listItems[0])
     }
     expect(getInstructions()).toHaveLength(0)
+  })
+
+  test('causing an error in an instruction and then deleting the ingredient with the error re-enables the save recipe button', () => {
+    userEvent.clear(screen.getByDisplayValue("step three"))
+    expect(screen.getByText(ERROR_BLANK_INSTRUCTION)).toBeInTheDocument() //sanity check
+    let listItems = getInstructions()
+    removeInstruction(listItems[2])
+    testHelper.expectSaveButtonEnabled()
   })
 
  })

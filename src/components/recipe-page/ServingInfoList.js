@@ -5,7 +5,7 @@ import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import React from 'react';
-import { UnitedValue } from './UnitedValue';
+import { UnitedValue } from '../UnitedValue';
 
 
 

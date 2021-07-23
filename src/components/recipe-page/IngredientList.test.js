@@ -286,6 +286,13 @@ describe('IngredientList integration tests within RecipePage', () => {
                 testDelete(ingredient)
             })
         })
+
+        test('when deleting an ingredient that has an error, the save button is re-enabled', () => {
+            userEvent.clear(getNthIngredientField("Amount", 0))
+            testHelper.expectSaveButtonDisabled()
+            testDelete(recipe.ingredients[0])
+            testHelper.expectSaveButtonEnabled()
+        })
     })
 
     
