@@ -72,7 +72,10 @@ function MyRecipesPage({user}){
     let { path } = useRouteMatch();
     let [recipes, setRecipes] = useState([])
 
-
+    const fetchRecipeNames = async (userId) => {
+        let recipes = await recipeService.getRecipesForUser(userId)
+        setRecipes(recipes)
+    }
 
     useEffect(() => {
         if(user == null){
@@ -81,7 +84,8 @@ function MyRecipesPage({user}){
             })
         }
         else{
-            setRecipes(user.recipes)
+            //can't just call setRecipes on user.recipes b/c those recipes may be stale( if user was restored from localstorage)
+            fetchRecipeNames(user.id)  //get updated recipe names/ids for the user
         }
 
     }, [user]);
@@ -108,6 +112,14 @@ function MyRecipesPage({user}){
         setRecipes(newRecipes)
     }
 
+    const getRecipeNameById = (id) => {
+        let name = undefined;
+        if(id){
+            let foundRecipe = recipes.find(recipe => recipe.id === id)
+            name = foundRecipe ? foundRecipe.name : undefined
+        }
+        return name
+    }
 
 
     let page = (
@@ -150,7 +162,7 @@ function MyRecipesPage({user}){
                     render={({ match }) => (
                         <RecipePage 
                             id={match.params.recipeId}
-                            name = {recipes.find(recipe => recipe.id === match.params.recipeId).name}
+                            name = {getRecipeNameById(match.params.recipeId)}
                             prevPath = {path}
                             handleAddRecipe = {addRecipe}
                             handleUpdateRecipe = {updateRecipe}

@@ -1,9 +1,11 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, render, screen } from '@testing-library/react';
+import axios from 'axios';
 import React from 'react';
 import { MemoryRouter, Route } from 'react-router-dom';
 import { Recipe } from '../Model/recipe.js';
 import { MESSAGE_NO_RECIPES, MyRecipesPage, RecipeList } from './MyRecipesPage';
 
+jest.mock('axios')
 
 
 describe("RecipeList Tests", () => {
@@ -42,14 +44,16 @@ describe("RecipeList Tests", () => {
 
 
 
-const renderPage = (user) => {
-    render (
-    <MemoryRouter initialEntries = {["/myrecipes"]} initialIndex = {0}>
-        <Route path = "/myrecipes">
-            <MyRecipesPage user = {user} />
-        </Route>
-    </MemoryRouter>
-    )
+const renderPage = async (user) => {
+    await act(async () => {
+        render (
+            <MemoryRouter initialEntries = {["/myrecipes"]} initialIndex = {0}>
+                <Route path = "/myrecipes">
+                    <MyRecipesPage user = {user} />
+                </Route>
+            </MemoryRouter>
+            )
+    });
 }
 
 //jest.mock('../../services/recipeService')
@@ -57,19 +61,24 @@ const renderPage = (user) => {
 
 describe("MyRecipesPage", () => {
     let user;
+    let recipes;
 
-    afterEach(cleanup);
+    afterEach(() => {
+        cleanup;
+        axios.get.mockRestore()
+    });
     
     beforeEach(() => {
+        recipes = [
+            new Recipe("Waffles"),
+            new Recipe("Spaghetti"),
+            new Recipe("Baked Potatoes")
+        ]
         user = {
             username: "Bob",
             email: "bob@bob.com",
             token: "1234",
-            recipes: [
-                new Recipe("Waffles"),
-                new Recipe("Spaghetti"),
-                new Recipe("Baked Potatoes")
-            ]
+            recipes: recipes.map(recipe => { return {id: recipe.id, name: recipe.name} })
         }
     })
 
@@ -92,21 +101,35 @@ describe("MyRecipesPage", () => {
     // });
 
     
-    test('displays a message when the user has no recipes', () => {
+    test('displays a message when the user has no recipes', async () => {
         let user2 = {
             username: "test",
             recipes: []
         }
-        renderPage(user2)
+
+        axios.get.mockResolvedValueOnce({
+            data: {
+                recipes: user2.recipes
+            }
+        })
+        
+        await renderPage(user2)
         expect(screen.getByText(MESSAGE_NO_RECIPES)).toBeInTheDocument()
     })
     
-    test('displays the recipes for a user with recipes', () => {
-        renderPage(user)
-        user.recipes.forEach((recipe) => {
-            expect(screen.getByText(recipe.name)).toBeInTheDocument()
+    test('displays the recipes for a user with recipes', async () => {
+        axios.get.mockResolvedValueOnce({
+            data: {
+                recipes: user.recipes
+            }
         })
+        await renderPage(user)
         
+        
+        for( let recipe of user.recipes){
+            let recipeName = await screen.findByText(recipe.name)
+            expect(recipeName).toBeInTheDocument()
+        }
     })
 
 });

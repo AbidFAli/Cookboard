@@ -7,6 +7,8 @@ const BASE_URL = `${process.env.REACT_APP_API_BASE_URL}/users`
 const ERROR_INVALID_PASSWORD = "The provided password was incorrect"
 const ERROR_USER_NOT_FOUND = "No users with the provided username exist"
 const ERROR_OTHER = "other error"
+
+//gets you the user information + a token authenticating the user
 const login = async (username, password) => {
   try{
     const result = await axios.post(LOGIN_URL + '/', { username, password });
@@ -41,8 +43,19 @@ const create = async (user) => {
 
 }
 
+//just gets the user's information
+const getById = async (userId) => {
+  try{
+    const response = await axios.get(BASE_URL+ "/" + userId);
+    return response.data;
+  }
+  catch(error){
+    console.log(error)
+  }
+}
+
 const userService = {
-  login, create
+  login, create, getById
 }
 
 export {

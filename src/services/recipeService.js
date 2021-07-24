@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { userService } from './userService';
 
 const BASE_URL = 'http://localhost:3001/api/recipes'
 const MESSAGE_DELETE_SUCCESS = "deletion successful"
@@ -54,13 +55,26 @@ const destroy = async (recipe, user) => {
   }
 }
 
+/*
+*@returns [{name, id}]
+*/
+const getRecipesForUser = async (userId) => {
+  try{
+    const user = await userService.getById(userId)
+    return user.recipes
+  }
+  catch(error){
+    console.log(error)
+  }
+}
 
 let recipeService = {
   create,
   getById,
   getAll,
   update,
-  destroy
+  destroy,
+  getRecipesForUser
 }
 
 export default recipeService;

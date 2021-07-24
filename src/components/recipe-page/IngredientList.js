@@ -104,6 +104,8 @@ const IngredientListItem = ({
   const [amountErrorMessage, setAmountErrorMessage] = useState(null)
   const [nameErrorMessage, setNameErrorMessage] = useState(null)
 
+  //gives a warning about dependencies for addIngredientError and removeIngredientError, but they are functions
+  //Adding them causes infinite loop of updates. Seems to work fine without them as dependencies.
   useEffect(() => {
     const checkForErrors = (ingr) => {
       let amount = Number(ingr.amount)
