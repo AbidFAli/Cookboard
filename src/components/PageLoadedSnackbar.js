@@ -6,6 +6,7 @@ import React from 'react';
 
 //idea from https://material-ui.com/components/snackbars/#SimpleSnackbar.js
 
+const ID_BUTTON_CLOSE_LOADED_NOTE = "PageLoadedSnackbarCloseLoadedNotification"
 /*
 *@prop message
 *@prop open
@@ -25,7 +26,13 @@ const PageLoadedSnackbar = (props) => {
       autoHideDuration = {6000}
       action = {
         <React.Fragment>
-          <IconButton size="small" aria-label="close" color="inherit" onClick={props.onClose}>
+          <IconButton 
+            size="small" 
+            aria-label="close" 
+            color="inherit" 
+            onClick={props.onClose}
+            data-testid = {ID_BUTTON_CLOSE_LOADED_NOTE}
+            >
             <CloseIcon fontSize="small" />
           </IconButton>
         </React.Fragment>
@@ -35,6 +42,7 @@ const PageLoadedSnackbar = (props) => {
 }
 
 export {
+  ID_BUTTON_CLOSE_LOADED_NOTE,
   PageLoadedSnackbar
 };
 

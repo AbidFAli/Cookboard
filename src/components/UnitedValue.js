@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
 //import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
-import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
+import React, { useState } from 'react';
 
 
 
@@ -37,7 +37,7 @@ const UnitedValue = (props) => {
 }
 
 const handleChangeUnit = (newUnitText) => {
-    let newUnit = newUnitText.trim() !== '' ? newUnitText.trim() : null ;
+    let newUnit = newUnitText.trim();
     props.setUnit(newUnit)
 
     let errorInfo = props.handleError(props.value, newUnit)
@@ -68,7 +68,8 @@ const handleChangeUnit = (newUnitText) => {
 }
 
 UnitedValue.propTypes = {
-  value: PropTypes.number,
+  //This component will parse value strings into numbers if possible
+  value: PropTypes.oneOfType([PropTypes.string || PropTypes.number]),
   valueName: PropTypes.string.isRequired,
   unit: PropTypes.string,
 
@@ -86,4 +87,5 @@ UnitedValue.propTypes = {
   testIdValue: PropTypes.string,
 }
 
-export { UnitedValue};
+export { UnitedValue };
+

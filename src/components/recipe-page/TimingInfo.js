@@ -1,6 +1,6 @@
 import Typography from '@material-ui/core/Typography';
 import React from 'react';
-import { UnitedValue } from './UnitedValue';
+import { UnitedValue } from '../UnitedValue';
 
 
 const ERROR_MESSAGE_TTM_VALUE_MISSING = "Prep Time(value) missing"
@@ -21,17 +21,18 @@ const TimingInfo = ({timeToMake, setTimeToMake, editable, errors, dispatchErrors
     dispatchErrors({type: 'remove', errorKey: ERROR_TTM_UNIT})
     let errorKey = null, errorMessage = null, errorInfo = {};
 
-    if(ttmValue != null  && !Number.isFinite(ttmValue)){
+    //use truthy/falsy equivlance to cover '', null, undefined, 0 cases as missing
+    if(ttmValue && !Number.isFinite(ttmValue)){
       errorKey = ERROR_TTM_VALUE
       errorMessage = ERROR_MESSAGE_TTM_VALUE_NAN
       errorInfo = {errorMessageValue : ERROR_MESSAGE_TTM_VALUE_NAN }
     }
-    else if(ttmValue != null && ttmUnit == null){
+    else if(ttmValue && ttmUnit == ''){
       errorKey = ERROR_TTM_UNIT
       errorMessage = ERROR_MESSAGE_TTM_UNIT_MISSING
       errorInfo = {errorMessageUnit : ERROR_MESSAGE_TTM_UNIT_MISSING }
     }
-    else if(ttmValue == null && ttmUnit != null){
+    else if(!ttmValue && ttmUnit != ''){
       errorKey = ERROR_TTM_VALUE
       errorMessage = ERROR_MESSAGE_TTM_VALUE_MISSING
       errorInfo = {errorMessageValue : ERROR_MESSAGE_TTM_VALUE_MISSING }
@@ -94,3 +95,4 @@ export {
   ERROR_MESSAGE_TTM_VALUE_MISSING,
   ERROR_MESSAGE_TTM_VALUE_NAN
 };
+

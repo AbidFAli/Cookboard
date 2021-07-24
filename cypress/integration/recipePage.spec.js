@@ -1,7 +1,8 @@
 import { ID_BUTTON_ADD_RECIPE } from '../../src/components/MyRecipesPage';
-import { ID_FIELD_DESCRIPTION } from '../../src/components/recipe-page/DescriptionRating';
+import { ID_BUTTON_CLOSE_LOADED_NOTE } from '../../src/components/PageLoadedSnackbar';
+import { ID_FIELD_DESCRIPTION } from '../../src/components/recipe-page/Description';
 import { ID_FIELD_RECIPE_NAME } from '../../src/components/recipe-page/RecipeName';
-import { ID_EDIT_BUTTON, ID_SAVE_BUTTON } from '../../src/components/recipe-page/RecipePage';
+import { ID_CANCEL_BUTTON, ID_EDIT_BUTTON, ID_SAVE_BUTTON } from '../../src/components/recipe-page/RecipePage';
 import recipeService from '../../src/services/recipeService';
 
 
@@ -17,7 +18,7 @@ describe('RecipePage', function () {
     cy.get('@userInfo')
       .then((user) => {
         cy.fixture('recipes/waffles.json').then((recipe) => {
-          cy.createRecipe(recipe, user).as('testRecipe')
+          cy.createRecipe(recipe, user).as('wafflesCreationResponse')
         })
         cy.login(user.username, user.password)
     })
@@ -27,10 +28,16 @@ describe('RecipePage', function () {
 
   it('restores the original recipe after canceling edits', function () {
     cy.contains("waffles").click()
+    //TODO: wait for the recipe to load
+    cy.getByTestId(ID_BUTTON_CLOSE_LOADED_NOTE).click() //close snackbar
     cy.get(`[data-testid=${ID_EDIT_BUTTON}]`).click()
     cy.get(`[data-testid=${ID_FIELD_DESCRIPTION}]`).clear().type("something")
-    cy.get(`[data-testid=${ID_EDIT_BUTTON}]`).click() //click again to cancel
-    cy.get(`[data-testid=${ID_FIELD_DESCRIPTION}]`).should('have.text', 'yummy')
+    cy.get(`[data-testid=${ID_CANCEL_BUTTON}]`).click() //click again to cancel
+    cy.get('@wafflesCreationResponse').then(response => {
+      let testRecipe = response.body;
+      cy.get(`[data-testid=${ID_FIELD_DESCRIPTION}]`).should('have.text', testRecipe.description)
+    })
+    
   })
 
   describe('when creating a new recipe', function() {

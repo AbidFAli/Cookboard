@@ -1,8 +1,11 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import { cloneDeep } from 'lodash';
 import React from 'react';
-import { MESSAGE_RECIPE_LOADED, RecipePage } from '../../components/recipe-page/RecipePage';
+import {
+  ID_CANCEL_BUTTON, ID_EDIT_BUTTON, ID_SAVE_BUTTON, MESSAGE_RECIPE_LOADED, RecipePage
+} from '../../components/recipe-page/RecipePage';
 
 
 
@@ -50,9 +53,34 @@ const setupAndRenderRecipe =  async (recipe, user) => {
   
 }
 
+const expectSaveButtonDisabled = () => {
+  expect(screen.getByTestId(ID_SAVE_BUTTON)).toBeDisabled()
+}
+
+const expectSaveButtonEnabled = () => {
+  expect(screen.getByTestId(ID_SAVE_BUTTON)).toBeEnabled()
+}
+
+const clickCancel = () => {
+  userEvent.click(screen.getByTestId(ID_CANCEL_BUTTON))
+}
+
+const clickEdit = () => {
+  userEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
+}
+
+const getEditButton = () => {
+  return screen.getByTestId(ID_EDIT_BUTTON)
+}
+
 
 const testHelper = {
-  setupAndRenderRecipe
+  setupAndRenderRecipe,
+  expectSaveButtonDisabled,
+  expectSaveButtonEnabled, 
+  clickEdit,
+  getEditButton,
+  clickCancel
 }
 
 export default testHelper;

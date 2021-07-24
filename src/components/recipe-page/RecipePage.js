@@ -9,7 +9,7 @@ import Rating from '@material-ui/lab/Rating';
 import { cloneDeep } from 'lodash';
 import React, { useEffect, useReducer, useState } from 'react';
 import { useHistory } from 'react-router';
-import ErrorMessenger from '../../Model/errorMessenger';
+import { ErrorMessenger, reduceErrors } from '../../Model/errorMessenger';
 import { Ingredient } from '../../Model/ingredient';
 import Instruction from '../../Model/instruction';
 import recipeService from '../../services/recipeService';
@@ -22,26 +22,17 @@ import { ServingInfoList } from './ServingInfoList';
 import { TimingInfo } from './TimingInfo';
 
 
-const ID_EDIT_BUTTON = "editButton"
-const ID_SAVE_BUTTON = "saveButton"
+const ID_EDIT_BUTTON = "idRecipePage_editButton"
+const ID_CANCEL_BUTTON = "idRecipePage_cancelEditsButton"
+const ID_SAVE_BUTTON = "idRecipePage_saveButton"
+const ID_RATING_SLIDER = "idRecipePage_RatingSlider"
 
 const KEY_RECIPE_BEFORE_EDITS = "keyRecipeBeforeEdits"
 const MESSAGE_RECIPE_LOADED = "Recipe loaded."
 
-//errors is an instance of the ErrorMessenger class
-function reduceErrors(errors, action){
-  const newErrors = new ErrorMessenger(errors)
-  switch(action.type) {
-    case 'add':
-      return newErrors.addError(action.errorKey, action.errorMessage);
-    case 'remove':
-      return newErrors.removeError(action.errorKey);
-    case 'reset':
-      return new ErrorMessenger();
-    default:
-      return newErrors
-  }
-}
+const TEXT_EDIT_BUTTON = "Edit recipe"
+const TEXT_CANCEL_BUTTON = "Cancel edits"
+
 
 /*
  *@prop id: the id of the recipe to display;
@@ -53,8 +44,10 @@ function reduceErrors(errors, action){
  *  @type User || null
  *@prop handleAddRecipe
  *  @type function handleAddRecipe(recipe: Recipe)
+ *  should only be called on save
  *@prop handleUpdateRecipe
  *  @type function handleUpdateRecipe(recipe: Recipe) 
+ *  should only be called on save
  */
 const RecipePage = (props) => {
     const history = useHistory();
@@ -127,7 +120,8 @@ const RecipePage = (props) => {
         if(props.id){
           newRecipe.id = props.id
         }
-
+        
+        //get rid of ids for any ingredients with temporary ids
         newRecipe.ingredients.forEach((ingredient) => {
           if(Ingredient.hasTempId(ingredient)){
             delete ingredient.id
@@ -242,6 +236,7 @@ const RecipePage = (props) => {
     }
 
     let saveButton = null;
+    let fab = null
     if(editable){
         let text = created ? "Save Changes" : "Create Recipe"
         saveButton = ( 
@@ -282,7 +277,8 @@ const RecipePage = (props) => {
           </Typography>
         </Grid>
         <Grid item>
-          <Rating 
+          <Rating
+            name = {ID_RATING_SLIDER}
             value = {rating}
             readOnly = {!editable}
             preciscion = {0.5}
@@ -354,27 +350,22 @@ const RecipePage = (props) => {
                   Instructions
               </Typography>
               <InstructionList
-                data-testid = 'ilist' 
                 instructions={instructions}
                 editable = {editable}
                 handleAdd = {addInstruction}
                 handleRemove = {removeInstruction}
-                handleEdit = {editInstruction} />
+                handleEdit = {editInstruction}
+                dispatchErrors = {dispatchErrors} />
             </Paper>
           </Grid>
           <Grid item xs = {12} >
             {saveButton}
-            <Fab 
-              data-testid = {ID_EDIT_BUTTON} 
-              alt = {editable ? "Cancel edit" : "Edit recipe" }
-              color = {editable === false ? "primary" : "secondary" } 
+            <Fab
+              data-testid = {editable ? ID_CANCEL_BUTTON : ID_EDIT_BUTTON} 
+              color = {editable === false ? "primary" : "secondary" }
               onClick = {() => changeEditable()}
               >
-              {
-                editable
-                ? <CancelIcon/>
-                : <EditIcon/>
-              }
+              { editable ? <CancelIcon/> : <EditIcon/> }
             </Fab>
           </Grid>
       </Grid>
@@ -393,6 +384,7 @@ export {
   RecipePage,
   ID_EDIT_BUTTON,
   ID_SAVE_BUTTON,
-  MESSAGE_RECIPE_LOADED
+  MESSAGE_RECIPE_LOADED,
+  ID_CANCEL_BUTTON
 };
 

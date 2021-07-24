@@ -1,4 +1,4 @@
-import { ID_BUTTON_LOG_IN, ID_INPUT_PASSWORD, ID_INPUT_USERNAME } from '../../src/components/LoginWindow';
+import { KEY_USER_STORAGE } from '../../src/components/LoginWindow';
 
 // **********************************************
 // This example commands.js shows you how to
@@ -34,10 +34,19 @@ Cypress.Commands.add('createUser', (user) => {
 })
 
 Cypress.Commands.add('login', (username, password) => {
+  cy.request({
+    method: 'POST',
+    url : 'http://localhost:3001/api/login',
+    body: {
+      username,
+      password
+    }
+  })
+  .then(response => {
+    let userToSave = JSON.stringify(response.body);
+    window.localStorage.setItem(KEY_USER_STORAGE, userToSave )
+  })
   cy.visit('http://localhost:3000/login')
-  cy.get(`[data-testid=${ID_INPUT_USERNAME}`).type(username)
-  cy.get(`[data-testid=${ID_INPUT_PASSWORD}`).type(password)
-  cy.get(`[data-testid=${ID_BUTTON_LOG_IN}`).click()
 })
 
 /*
@@ -59,4 +68,8 @@ Cypress.Commands.add('createRecipe', (recipe, user) => {
         } 
       })
     })
+})
+
+Cypress.Commands.add('getByTestId', (dataTestId) => {
+  return cy.get(`[data-testid=${dataTestId}]`)
 })

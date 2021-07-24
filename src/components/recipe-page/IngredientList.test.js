@@ -1,5 +1,5 @@
 import { within } from '@testing-library/dom';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { Ingredient } from '../../Model/ingredient.js';
@@ -135,7 +135,7 @@ describe('IngredientList integration tests within RecipePage', () => {
             }
 
             await testHelper.setupAndRenderRecipe(recipe, userFixture())
-            fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
+            testHelper.clickEdit()
         })
 
         
@@ -171,6 +171,29 @@ describe('IngredientList integration tests within RecipePage', () => {
             let amountField = screen.getByLabelText("Amount")
             userEvent.type(amountField, 'something')
             expect(screen.getByText(ERROR_MESSAGE_AMOUNT_NAN)).toBeInTheDocument()
+        })
+
+        test('disables create recipe button if there is an error in an ingredient', () => {
+            let amountField = screen.getByLabelText("Amount")
+            userEvent.clear(amountField)
+            testHelper.expectSaveButtonDisabled()
+        })
+
+        test('create recipe button should be enabled if there are no errors in the ingredient', () => {
+            testHelper.expectSaveButtonEnabled()
+        })
+
+        //getting test wrapped in act errors
+        test('errors are reset and create button is enabled after causing an error, canceling edits, and then editing again', async () => {
+            let amountField = screen.getByLabelText("Amount")
+            userEvent.clear(amountField)
+            expect(screen.getByText(ERROR_MESSAGE_AMOUNT_MISSING)).toBeInTheDocument()
+            testHelper.clickCancel()
+            //wait for edit to show up
+            await waitFor(() => expect(screen.getByTestId(ID_EDIT_BUTTON)).toBeInTheDocument())
+            testHelper.clickEdit()
+            expect(screen.queryByText(ERROR_MESSAGE_AMOUNT_MISSING)).toBeNull()
+            testHelper.expectSaveButtonEnabled()
         })
 
     });
@@ -263,6 +286,14 @@ describe('IngredientList integration tests within RecipePage', () => {
                 testDelete(ingredient)
             })
         })
+
+        test('when deleting an ingredient that has an error, the save button is re-enabled', () => {
+            userEvent.clear(getNthIngredientField("Amount", 0))
+            testHelper.expectSaveButtonDisabled()
+            testDelete(recipe.ingredients[0])
+            testHelper.expectSaveButtonEnabled()
+        })
     })
 
+    
 });

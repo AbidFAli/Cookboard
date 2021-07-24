@@ -108,6 +108,7 @@ const LoginButton = ({username, password, updateUser, setErrorPassword, setError
     return hasError;
   }
 
+
   const handleLogin = async () => {
     let hasInitialError = checkForErrors();
 
