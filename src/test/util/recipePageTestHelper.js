@@ -4,7 +4,8 @@ import axios from 'axios';
 import { cloneDeep } from 'lodash';
 import React from 'react';
 import {
-  ID_CANCEL_BUTTON, ID_EDIT_BUTTON, ID_SAVE_BUTTON, MESSAGE_RECIPE_LOADED, RecipePage
+  ID_CANCEL_BUTTON, ID_DELETE_BUTTON, ID_EDIT_BUTTON,
+  ID_SAVE_BUTTON, MESSAGE_RECIPE_LOADED, RecipePage
 } from '../../components/recipe-page/RecipePage';
 
 
@@ -69,6 +70,11 @@ const clickEdit = () => {
   userEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
 }
 
+const clickDelete = (pass) => {
+  window.confirm.mockReturnValueOnce(pass)
+  userEvent.click(screen.getByTestId(ID_DELETE_BUTTON))
+}
+
 const getEditButton = () => {
   return screen.getByTestId(ID_EDIT_BUTTON)
 }
@@ -79,8 +85,10 @@ const testHelper = {
   expectSaveButtonDisabled,
   expectSaveButtonEnabled, 
   clickEdit,
+  clickDelete,
+  clickCancel,
   getEditButton,
-  clickCancel
+  waitForSnackbar
 }
 
 export default testHelper;

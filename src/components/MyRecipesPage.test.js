@@ -1,9 +1,9 @@
-import { act, cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import axios from 'axios';
 import React from 'react';
-import { MemoryRouter, Route } from 'react-router-dom';
 import { Recipe } from '../Model/recipe.js';
-import { MESSAGE_NO_RECIPES, MyRecipesPage, RecipeList } from './MyRecipesPage';
+import testHelper from '../test/util/myRecipesPageTestHelper';
+import { MESSAGE_NO_RECIPES, RecipeList } from './MyRecipesPage';
 
 jest.mock('axios')
 
@@ -44,17 +44,7 @@ describe("RecipeList Tests", () => {
 
 
 
-const renderPage = async (user) => {
-    await act(async () => {
-        render (
-            <MemoryRouter initialEntries = {["/myrecipes"]} initialIndex = {0}>
-                <Route path = "/myrecipes">
-                    <MyRecipesPage user = {user} />
-                </Route>
-            </MemoryRouter>
-            )
-    });
-}
+
 
 //jest.mock('../../services/recipeService')
 //either mock recipeService or axios get/post requests
@@ -113,7 +103,7 @@ describe("MyRecipesPage", () => {
             }
         })
         
-        await renderPage(user2)
+        await testHelper.renderPage(user2)
         expect(screen.getByText(MESSAGE_NO_RECIPES)).toBeInTheDocument()
     })
     
@@ -123,7 +113,7 @@ describe("MyRecipesPage", () => {
                 recipes: user.recipes
             }
         })
-        await renderPage(user)
+        await testHelper.renderPage(user)
         
         
         for( let recipe of user.recipes){

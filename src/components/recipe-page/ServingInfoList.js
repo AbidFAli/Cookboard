@@ -93,12 +93,12 @@ const ServingInfoList = ({servingInfo, setServingInfo, editable, errors, dispatc
       errorMessage = ERROR_MSG_SERVING_SIZE_NAN
       errorInfo = {errorMessageValue: ERROR_MSG_SERVING_SIZE_NAN}
     }
-    else if(servingSize && servingSizeUnit == ''){
+    else if(servingSize && servingSizeUnit === ''){
       errorKey = ERROR_SERVING_SIZE_UNIT
       errorMessage = ERROR_MSG_SERVING_SIZE_UNIT_MISSING
       errorInfo = {errorMessageUnit : ERROR_MSG_SERVING_SIZE_UNIT_MISSING}
     }
-    else if(!servingSize && servingSizeUnit != ''){
+    else if(!servingSize && servingSizeUnit !== ''){
       errorKey = ERROR_SERVING_SIZE
       errorMessage = ERROR_MSG_SERVING_SIZE_MISSING
       errorInfo = {errorMessageValue: ERROR_MSG_SERVING_SIZE_MISSING}

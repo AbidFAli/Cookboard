@@ -46,9 +46,9 @@ const update = async (recipe, user) => {
   }
 }
 
-const destroy = async (recipe, user) => {
+const destroy = async (recipeId, user) => {
   try{
-    await axios.delete(BASE_URL + `/${recipe.id}`, {headers: authHeaderForUser(user)})
+    await axios.delete(BASE_URL + `/${recipeId}`, {headers: authHeaderForUser(user)})
   }
   catch(error){
     console.log(error)

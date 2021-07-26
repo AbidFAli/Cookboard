@@ -27,12 +27,12 @@ const TimingInfo = ({timeToMake, setTimeToMake, editable, errors, dispatchErrors
       errorMessage = ERROR_MESSAGE_TTM_VALUE_NAN
       errorInfo = {errorMessageValue : ERROR_MESSAGE_TTM_VALUE_NAN }
     }
-    else if(ttmValue && ttmUnit == ''){
+    else if(ttmValue && ttmUnit === ''){
       errorKey = ERROR_TTM_UNIT
       errorMessage = ERROR_MESSAGE_TTM_UNIT_MISSING
       errorInfo = {errorMessageUnit : ERROR_MESSAGE_TTM_UNIT_MISSING }
     }
-    else if(!ttmValue && ttmUnit != ''){
+    else if(!ttmValue && ttmUnit !== ''){
       errorKey = ERROR_TTM_VALUE
       errorMessage = ERROR_MESSAGE_TTM_VALUE_MISSING
       errorInfo = {errorMessageValue : ERROR_MESSAGE_TTM_VALUE_MISSING }

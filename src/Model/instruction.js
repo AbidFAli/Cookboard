@@ -3,7 +3,8 @@ import uniqueId from 'lodash/uniqueId';
 class Instruction{
 
   constructor(text){
-    this.mText = text;
+
+    this.mText = text ?? "";
     this.mId = uniqueId("INSTR_")
   }
   get text() {

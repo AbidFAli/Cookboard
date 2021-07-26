@@ -17,7 +17,7 @@ import { RecipePage } from './recipe-page/RecipePage';
 
 
 
-
+const TITLE_MY_RECIPES = "My Recipes"
 const ID_BUTTON_ADD_RECIPE = "MyRecipesPage_addRecipeButton"
 const MESSAGE_NO_RECIPES = "You have no recipes. Click on the button below to create one."
 
@@ -107,8 +107,8 @@ function MyRecipesPage({user}){
         setRecipes(newRecipes)
     }
 
-    const removeRecipe = (recipeToRemove) => {
-        let newRecipes = recipes.filter(recipe => recipe.id !== recipeToRemove.id)
+    const removeRecipe = (idToRemove) => {
+        let newRecipes = recipes.filter(recipe => recipe.id !== idToRemove)
         setRecipes(newRecipes)
     }
 
@@ -127,7 +127,7 @@ function MyRecipesPage({user}){
             <Grid container item xs={12} spacing={3} justify='center' alignItems='flex-end'>
                 <Grid item>
                     <Typography variant="h2">
-                        My Recipes
+                        {TITLE_MY_RECIPES}
                     </Typography>
                 </Grid>
             </Grid>
@@ -155,6 +155,7 @@ function MyRecipesPage({user}){
                         prevPath = {path} 
                         handleAddRecipe = {addRecipe} 
                         handleUpdateRecipe = {updateRecipe}
+                        handleDeleteRecipe = {removeRecipe}
                         user = {user}
                         />
                 </Route>
@@ -166,6 +167,7 @@ function MyRecipesPage({user}){
                             prevPath = {path}
                             handleAddRecipe = {addRecipe}
                             handleUpdateRecipe = {updateRecipe}
+                            handleDeleteRecipe = {removeRecipe}
                             user = {user}
                             />
                     )}
@@ -180,6 +182,7 @@ export {
     MyRecipesPage,
     RecipeList,
     ID_BUTTON_ADD_RECIPE,
-    MESSAGE_NO_RECIPES
+    MESSAGE_NO_RECIPES,
+    TITLE_MY_RECIPES
 };
 

@@ -22,16 +22,16 @@ import { ServingInfoList } from './ServingInfoList';
 import { TimingInfo } from './TimingInfo';
 
 
+const TEXT_CONFIRM_DELETE = "Are you sure you want to delete this recipe?"
+
 const ID_EDIT_BUTTON = "idRecipePage_editButton"
 const ID_CANCEL_BUTTON = "idRecipePage_cancelEditsButton"
 const ID_SAVE_BUTTON = "idRecipePage_saveButton"
 const ID_RATING_SLIDER = "idRecipePage_RatingSlider"
+const ID_DELETE_BUTTON = "idRecipePage_deleteButton"
 
 const KEY_RECIPE_BEFORE_EDITS = "keyRecipeBeforeEdits"
 const MESSAGE_RECIPE_LOADED = "Recipe loaded."
-
-const TEXT_EDIT_BUTTON = "Edit recipe"
-const TEXT_CANCEL_BUTTON = "Cancel edits"
 
 
 /*
@@ -48,6 +48,8 @@ const TEXT_CANCEL_BUTTON = "Cancel edits"
  *@prop handleUpdateRecipe
  *  @type function handleUpdateRecipe(recipe: Recipe) 
  *  should only be called on save
+ *@prop handleDeleteRecipe
+ * @type function handleDeleteRecipe(recipeId: string)
  */
 const RecipePage = (props) => {
     const history = useHistory();
@@ -77,33 +79,13 @@ const RecipePage = (props) => {
       }
     }, [props.id] );
 
-    
-    const checkRecipeForErrors = (recipe) => {
-      let errorList = []
-      if(recipe.name == null || recipe.name.trim() === ''){
-        errorList.push('Recipe name is missing')
+    const handleDeleteRecipe = async () => {
+      if(window.confirm(TEXT_CONFIRM_DELETE)){
+        await recipeService.destroy(props.id, props.user)
+        history.push(props.prevPath)
+        props.handleDeleteRecipe(props.id)
       }
-
-      if(recipe.instructions.some((instruction) => instruction.trim() === '')){
-        errorList.push('Blank instruction')
-      }
-
-      if(recipe.ingredients.some(ingredient => ingredient.name == null || ingredient.name.trim() === '')){
-        errorList.push('An ingredient is missing a name')
-      }
-
-      if(recipe.ingredients.some(ingredient => ingredient.amount == null || ingredient.amount === 0)){
-        errorList.push('An ingredient is missing an amount')
-      }
-
-      return errorList
     }
-
-    const displayErrors = (errorList) => {
-      let errorText = errorList.reduce((text, error, index) => { return text + `${error}\n` }, '');
-      window.alert("Errors: \n" + errorText)
-    }
-
 
     const handleSave = async () => {
       if(errors.size() === 0){
@@ -127,12 +109,8 @@ const RecipePage = (props) => {
             delete ingredient.id
           }
         })
-        let errorList = checkRecipeForErrors(newRecipe)
-
-        if(errorList.length !== 0){
-          displayErrors(errorList)
-        }
-        else if(created){
+        
+        if(created){
           try{
             newRecipe = await recipeService.update(newRecipe, props.user)
             props.handleUpdateRecipe(newRecipe)
@@ -143,6 +121,7 @@ const RecipePage = (props) => {
         }else{
           try{
             newRecipe = await recipeService.create(newRecipe, props.user)
+            setCreated(true);
             props.handleAddRecipe(newRecipe)
             history.push(`${props.prevPath}/${newRecipe.id}`)
             setEditable(false);
@@ -235,8 +214,9 @@ const RecipePage = (props) => {
       setInstructions(newInstructions)
     }
 
+
+
     let saveButton = null;
-    let fab = null
     if(editable){
         let text = created ? "Save Changes" : "Create Recipe"
         saveButton = ( 
@@ -250,7 +230,43 @@ const RecipePage = (props) => {
           {text}
         </Button>
         );
-    } 
+    }
+
+    let deleteButton = null;
+    if(created){
+      deleteButton = (
+        <Button onClick = {handleDeleteRecipe} data-testid = {ID_DELETE_BUTTON} variant = "outlined" color = "primary">
+          Delete Recipe
+        </Button>
+      )
+    }
+    let floatingActionButton = (
+      <Fab
+      data-testid = {editable ? ID_CANCEL_BUTTON : ID_EDIT_BUTTON} 
+      color = {editable === false ? "primary" : "secondary" }
+      onClick = {() => changeEditable()}>
+      { editable ? <CancelIcon/> : <EditIcon/> }
+      </Fab>
+    )
+    
+    //Good example of a split left/right layout.
+    let buttonBar = (
+      <React.Fragment>
+        <Grid container item xs = {12} md = {6} spacing = {2}>
+          <Grid item>
+            {floatingActionButton}
+          </Grid>
+          <Grid item>
+            {saveButton}
+          </Grid>
+        </Grid>
+        <Grid container item xs = {12} md = {6} justify = "flex-end">
+          <Grid item>
+            {deleteButton}
+          </Grid>
+        </Grid>
+      </React.Fragment>
+    )
 
     
     let descriptionLayout = (  
@@ -287,6 +303,8 @@ const RecipePage = (props) => {
         </Grid>
       </Grid>
     )
+
+
 
     return (
       <React.Fragment>
@@ -358,15 +376,8 @@ const RecipePage = (props) => {
                 dispatchErrors = {dispatchErrors} />
             </Paper>
           </Grid>
-          <Grid item xs = {12} >
-            {saveButton}
-            <Fab
-              data-testid = {editable ? ID_CANCEL_BUTTON : ID_EDIT_BUTTON} 
-              color = {editable === false ? "primary" : "secondary" }
-              onClick = {() => changeEditable()}
-              >
-              { editable ? <CancelIcon/> : <EditIcon/> }
-            </Fab>
+          <Grid container item xs = {12}>
+            {buttonBar}
           </Grid>
       </Grid>
       <PageLoadedSnackbar
@@ -385,6 +396,7 @@ export {
   ID_EDIT_BUTTON,
   ID_SAVE_BUTTON,
   MESSAGE_RECIPE_LOADED,
-  ID_CANCEL_BUTTON
+  ID_CANCEL_BUTTON,
+  ID_DELETE_BUTTON
 };
 
