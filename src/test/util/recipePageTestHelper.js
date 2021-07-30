@@ -4,6 +4,7 @@ import { createMemoryHistory } from "history";
 import { cloneDeep } from 'lodash';
 import React from 'react';
 import { Router } from "react-router";
+import { SnackbarProvider } from '../../components/NotificationSnackbar';
 import { ID_FIELD_DESCRIPTION } from '../../components/recipe-page/Description';
 import { ID_FIELD_RECIPE_NAME } from '../../components/recipe-page/RecipeName';
 import {
@@ -29,6 +30,7 @@ const renderRecipe = (recipeName,recipeId, user) => {
   
   let initialEntries = [`/myrecipes/${recipeId ?? 'new'}`,'/myrecipes']
   const history =  createMemoryHistory({initialEntries})
+  const ref = React.createRef()
   render(
     <Router history = {history} >
       <RecipePage 
@@ -38,7 +40,9 @@ const renderRecipe = (recipeName,recipeId, user) => {
         prevPath = "/myrecipes" 
         handleAddRecipe = {addHandler} 
         handleUpdateRecipe = {updateHandler}
-        handleDeleteRecipe = {removeHandler} />
+        handleDeleteRecipe = {removeHandler}
+        snackbarRef = {ref} />
+      <SnackbarProvider ref = {ref} />
     </Router>
 
   ) ;

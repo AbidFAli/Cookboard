@@ -66,8 +66,11 @@ function RecipeList(props){
 }
 
 
-
-function MyRecipesPage({user}){
+/*
+*@prop user
+*@prop snackbarRef
+*/
+function MyRecipesPage({user, snackbarRef}){
     const history = useHistory();
     let { path } = useRouteMatch();
     let [recipes, setRecipes] = useState([])
@@ -157,6 +160,7 @@ function MyRecipesPage({user}){
                         handleUpdateRecipe = {updateRecipe}
                         handleDeleteRecipe = {removeRecipe}
                         user = {user}
+                        snackbarRef = {snackbarRef}
                         />
                 </Route>
                 <Route path={`${path}/:recipeId`}
@@ -169,6 +173,7 @@ function MyRecipesPage({user}){
                             handleUpdateRecipe = {updateRecipe}
                             handleDeleteRecipe = {removeRecipe}
                             user = {user}
+                            snackbarRef = {snackbarRef}
                             />
                     )}
                 />

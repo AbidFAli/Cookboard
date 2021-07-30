@@ -1,7 +1,7 @@
 import Container from '@material-ui/core/Container';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Toolbar from '@material-ui/core/Toolbar';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   BrowserRouter as Router, Redirect, Route, Switch
 } from "react-router-dom";
@@ -9,6 +9,7 @@ import './App.css';
 import { AppBar } from './components/AppBar';
 import { LoginWindow } from './components/LoginWindow.js';
 import { MyRecipesPage } from './components/MyRecipesPage.js';
+import { SnackbarProvider } from './components/NotificationSnackbar';
 import { PATH_LOGIN, PATH_MYRECIPES } from './paths.js';
 
 
@@ -27,6 +28,8 @@ import { PATH_LOGIN, PATH_MYRECIPES } from './paths.js';
 
 const App = ({basePath}) =>  {
   const [user, setUser] = useState(undefined)
+  const snackbarRef = useRef({})
+
   let appBar = (
     <React.Fragment>
       <AppBar user = {user} clearUser = {() => setUser(undefined)} />
@@ -34,6 +37,8 @@ const App = ({basePath}) =>  {
     </React.Fragment>
     
   )
+
+
   return (
     <Router>
       <CssBaseline />
@@ -41,7 +46,7 @@ const App = ({basePath}) =>  {
         {appBar}
         <Switch>  
             <Route path={PATH_MYRECIPES}>
-              <MyRecipesPage user = {user} /> 
+              <MyRecipesPage user = {user} snackbarRef = {snackbarRef} /> 
             </Route>
             <Route path = {PATH_LOGIN}>
               <LoginWindow user = {user} updateUser = {setUser} />
@@ -50,6 +55,7 @@ const App = ({basePath}) =>  {
                 <Redirect to= {PATH_LOGIN} />
             </Route>
         </Switch>
+        <SnackbarProvider ref = {snackbarRef} />
       </Container>
     </Router>
   );

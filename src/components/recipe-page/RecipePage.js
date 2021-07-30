@@ -15,7 +15,6 @@ import Instruction from '../../Model/instruction';
 import { PATH_LOGIN } from '../../paths';
 import recipeService from '../../services/recipeService';
 import { isTokenExpiredError } from '../../util/errors';
-import { PageLoadedSnackbar } from '../PageLoadedSnackbar';
 import { Description } from './Description';
 import { IngredientList } from './IngredientList';
 import { InstructionList } from './InstructionList';
@@ -33,6 +32,7 @@ const ID_DELETE_BUTTON = "idRecipePage_deleteButton"
 
 const KEY_RECIPE_BEFORE_EDITS = "keyRecipeBeforeEdits"
 const MESSAGE_RECIPE_LOADED = "Recipe loaded."
+const MESSAGE_TOKEN_EXPIRED = "It has been too long since your last login. Please log in again."
 
 
 /*
@@ -51,6 +51,7 @@ const MESSAGE_RECIPE_LOADED = "Recipe loaded."
  *  should only be called on save
  *@prop handleDeleteRecipe
  * @type function handleDeleteRecipe(recipeId: string)
+ *@prop snackbarRef
  */
 const RecipePage = (props) => {
     const history = useHistory();
@@ -70,13 +71,12 @@ const RecipePage = (props) => {
     //page control state
     const [editable, setEditable] = useState(props.id == null)
     const [created, setCreated] = useState(props.id != null)
-    const [snackbarVisible, setSnackbarVisible] = useState(false)
+  
     
-
     useEffect(() => { 
       if(props.id){
         recipeService.getById(props.id).then((recipe) => {
-          setSnackbarVisible(true)
+          props.snackbarRef.current.displayMessage(MESSAGE_RECIPE_LOADED)
           setPageState(recipe)
         })
       }
@@ -85,6 +85,7 @@ const RecipePage = (props) => {
     const handleRecipeServiceError = (error) => {
       if(isTokenExpiredError(error)){
           history.push(PATH_LOGIN)
+          props.snackbarRef.current.displayMessage(MESSAGE_TOKEN_EXPIRED)
       }
       else{
         console.log(error)
@@ -414,11 +415,6 @@ const RecipePage = (props) => {
             {buttonBar}
           </Grid>
       </Grid>
-      <PageLoadedSnackbar
-        message = {MESSAGE_RECIPE_LOADED}
-        open = {snackbarVisible}
-        onClose = {() => setSnackbarVisible(false)}
-       />
       </React.Fragment>
       
     );
@@ -431,6 +427,7 @@ export {
   ID_SAVE_BUTTON,
   MESSAGE_RECIPE_LOADED,
   ID_CANCEL_BUTTON,
-  ID_DELETE_BUTTON
+  ID_DELETE_BUTTON,
+  MESSAGE_TOKEN_EXPIRED
 };
 

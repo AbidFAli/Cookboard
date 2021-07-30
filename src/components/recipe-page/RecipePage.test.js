@@ -4,7 +4,7 @@ import recipeService from '../../services/recipeService';
 import recipeFixture from '../../test/fixtures/recipes/spaghetti';
 import userFixture from '../../test/fixtures/user/userNoRecipes';
 import testHelper from '../../test/util/recipePageTestHelper';
-import { ID_EDIT_BUTTON, MESSAGE_RECIPE_LOADED } from './RecipePage';
+import { ID_EDIT_BUTTON, MESSAGE_RECIPE_LOADED, MESSAGE_TOKEN_EXPIRED } from './RecipePage';
 
 
 //jest.mock('axios')
@@ -72,10 +72,19 @@ describe('Tests for RecipePage', () => {
       testHelper.enterRecipeName("Waffles")
       recipeService.create.mockRejectedValueOnce(createTokenExpiredError())
       testHelper.clickSave()
-      await waitFor(() => expect(history.location.pathname).toEqual(PATH_LOGIN))      
+      await waitFor(() => expect(history.location.pathname).toEqual(PATH_LOGIN))
+         
+    })
+    
+    test("A message will be displayed to the user if a TokenExpiredError occurs", async () => {
+      testHelper.enterRecipeName("Waffles")
+      recipeService.create.mockRejectedValueOnce(createTokenExpiredError())
+      testHelper.clickSave()
+      expect(await screen.findByText(MESSAGE_TOKEN_EXPIRED)).toBeInTheDocument();  
     })
   })
 
+  
 
   describe('tests with an existing recipe', () => {
     let history;
@@ -118,7 +127,7 @@ describe('Tests for RecipePage', () => {
       test("Clicking delete will redirect to the login page if a user's token has expired", async() => {
         recipeService.destroy.mockRejectedValueOnce(createTokenExpiredError())
         testHelper.clickDelete()
-        await waitFor(() => expect(history.location.pathname).toEqual(PATH_LOGIN))      
+        await waitFor(() => expect(history.location.pathname).toEqual(PATH_LOGIN))
       })
     });
     
