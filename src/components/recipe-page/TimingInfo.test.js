@@ -11,7 +11,7 @@ import {
 } from './TimingInfo';
 
 
-jest.mock('axios')
+jest.mock('../../services/recipeService')
 
 const getUnitTextbox = () => {
   return screen.getByTestId(ID_FIELD_TTM_UNIT)
@@ -38,7 +38,6 @@ describe('RecipeName', () => {
   describe('with a blank recipe', () => {
     beforeEach(async () => {
       await testHelper.setupAndRenderRecipe(recipe, userFixture())
-      fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
     });
 
     test('the time to make unit can be set', () => {

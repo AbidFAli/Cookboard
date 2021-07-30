@@ -1,10 +1,10 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import { createMemoryHistory } from "history";
 import React from 'react';
 import { MemoryRouter, Router } from "react-router";
-import { PATH_MYRECIPES } from '../paths';
+import { PATH_LOGIN, PATH_MYRECIPES } from '../paths';
 import {
   ID_BUTTON_LOG_IN,
   ID_INPUT_PASSWORD,
@@ -100,18 +100,40 @@ describe("tests for LoginWindow.", () => {
 
 
   })
-  
+
+
   describe('manually render', () => {
-    //fails
-    test("when viewing the login window, if there are user credentials in local storage, then redirect to /myrecipes", () => {
-      const history =  createMemoryHistory({initialEntries: ['/login']})
-      localStorage.__STORE__[KEY_USER_STORAGE] = JSON.stringify(testUserInfo)
-      render(
-        <Router history = {history}>
-          <LoginWindow updateUser = {jest.fn()} />
-        </Router>
-      )
-      expect(history.location.pathname).toEqual(PATH_MYRECIPES)
+    describe("when viewing the login window, if there are user credentials in local storage", () => {
+
+      const renderWithHistory = async () => {
+        const history =  createMemoryHistory({initialEntries: ['/login']})
+        localStorage.__STORE__[KEY_USER_STORAGE] = JSON.stringify(testUserInfo)
+        await act(async () => {
+          render(
+            <Router history = {history}>
+              <LoginWindow updateUser = {jest.fn()} />
+            </Router>
+          )
+        })
+        return history
+      }
+
+      test("if they have not expired, then redirect to /myrecipes", async () => {
+        
+        axios.post.mockResolvedValueOnce({data: {
+          tokenValid: true
+        }})
+        let history = await renderWithHistory()
+        expect(history.location.pathname).toEqual(PATH_MYRECIPES)
+      })
+
+      test("if they have expired, then display the login window", async () => {
+        axios.post.mockResolvedValueOnce({data: {
+          tokenValid: false
+        }})
+        let history = await renderWithHistory()
+        expect(history.location.pathname).toEqual(PATH_LOGIN)
+      })
     })
   })
 

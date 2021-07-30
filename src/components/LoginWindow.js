@@ -33,10 +33,15 @@ const LoginWindow = ({user, updateUser}) => {
   useEffect(() => {
     if(user === undefined && localStorage.getItem(KEY_USER_STORAGE)){
       let storedUser = JSON.parse(localStorage.getItem(KEY_USER_STORAGE))
-      updateUser(storedUser)
-      history.push(PATH_MYRECIPES)
+      userService.isTokenValid(storedUser.token).then((isValid) => {
+        if(isValid){
+          updateUser(storedUser)
+          history.push(PATH_MYRECIPES)
+        }
+      })
+
     }
-  }, [history, user, updateUser])
+  }, [user, updateUser])
 
   const handleUsernameChange = (text) => {
     setUsername(text)

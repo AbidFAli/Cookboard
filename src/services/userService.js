@@ -27,6 +27,16 @@ const login = async (username, password) => {
   }
 }
 
+const isTokenValid = async(token) => {
+  try{
+    const result = await axios.post(LOGIN_URL + '/valid', {token})
+    return result.data.tokenValid;
+  }
+  catch(error){
+    console.log(error);
+  }
+}
+
 const create = async (user) => {
   try{
     const result = await axios.post(BASE_URL + '/',
@@ -55,7 +65,7 @@ const getById = async (userId) => {
 }
 
 const userService = {
-  login, create, getById
+  login, create, getById, isTokenValid
 }
 
 export {

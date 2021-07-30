@@ -1,11 +1,11 @@
 import { cleanup, render, screen } from '@testing-library/react';
-import axios from 'axios';
 import React from 'react';
 import { Recipe } from '../Model/recipe.js';
+import recipeService from '../services/recipeService.js';
 import testHelper from '../test/util/myRecipesPageTestHelper';
 import { MESSAGE_NO_RECIPES, RecipeList } from './MyRecipesPage';
 
-jest.mock('axios')
+jest.mock('../services/recipeService')
 
 
 describe("RecipeList Tests", () => {
@@ -44,18 +44,13 @@ describe("RecipeList Tests", () => {
 
 
 
-
-
-//jest.mock('../../services/recipeService')
-//either mock recipeService or axios get/post requests
-
 describe("MyRecipesPage", () => {
     let user;
     let recipes;
 
     afterEach(() => {
         cleanup;
-        axios.get.mockRestore()
+        recipeService.getRecipesForUser.mockRestore()
     });
     
     beforeEach(() => {
@@ -97,22 +92,14 @@ describe("MyRecipesPage", () => {
             recipes: []
         }
 
-        axios.get.mockResolvedValueOnce({
-            data: {
-                recipes: user2.recipes
-            }
-        })
+        recipeService.getRecipesForUser.mockResolvedValueOnce(user2.recipes)
         
         await testHelper.renderPage(user2)
         expect(screen.getByText(MESSAGE_NO_RECIPES)).toBeInTheDocument()
     })
     
     test('displays the recipes for a user with recipes', async () => {
-        axios.get.mockResolvedValueOnce({
-            data: {
-                recipes: user.recipes
-            }
-        })
+        recipeService.getRecipesForUser.mockResolvedValueOnce(user.recipes)
         await testHelper.renderPage(user)
         
         

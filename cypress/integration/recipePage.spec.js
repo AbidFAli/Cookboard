@@ -91,6 +91,11 @@ describe('RecipePage', function () {
 
     });
 
+    it('returns you to the MyRecipes page if cancel is pressed', function () {
+      cy.get(`[data-testid=${ID_CANCEL_BUTTON}]`).click()
+      cy.isMyRecipesPageUrl()
+    })
+
   })
 
 

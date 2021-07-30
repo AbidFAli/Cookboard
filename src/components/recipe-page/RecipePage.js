@@ -12,7 +12,9 @@ import { useHistory } from 'react-router';
 import { ErrorMessenger, reduceErrors } from '../../Model/errorMessenger';
 import { Ingredient } from '../../Model/ingredient';
 import Instruction from '../../Model/instruction';
+import { PATH_LOGIN } from '../../paths';
 import recipeService from '../../services/recipeService';
+import { isTokenExpiredError } from '../../util/errors';
 import { PageLoadedSnackbar } from '../PageLoadedSnackbar';
 import { Description } from './Description';
 import { IngredientList } from './IngredientList';
@@ -20,7 +22,6 @@ import { InstructionList } from './InstructionList';
 import { RecipeName } from './RecipeName';
 import { ServingInfoList } from './ServingInfoList';
 import { TimingInfo } from './TimingInfo';
-
 
 const TEXT_CONFIRM_DELETE = "Are you sure you want to delete this recipe?"
 
@@ -57,6 +58,7 @@ const RecipePage = (props) => {
 
     
     //recipe state
+    
     const [name, setName] = useState(props.name ?? '')
     const [description, setDescription] = useState('')
     const [instructions, setInstructions] = useState([])
@@ -64,7 +66,8 @@ const RecipePage = (props) => {
     const [rating, setRating] = useState(0)
     const [timeToMake, setTimeToMake] = useState(null)
     const [servingInfo, setServingInfo] = useState(null)
-    //page state
+    
+    //page control state
     const [editable, setEditable] = useState(props.id == null)
     const [created, setCreated] = useState(props.id != null)
     const [snackbarVisible, setSnackbarVisible] = useState(false)
@@ -77,61 +80,87 @@ const RecipePage = (props) => {
           setPageState(recipe)
         })
       }
-    }, [props.id] );
+    }, [props.id]);
+
+    const handleRecipeServiceError = (error) => {
+      if(isTokenExpiredError(error)){
+          history.push(PATH_LOGIN)
+      }
+      else{
+        console.log(error)
+      }
+    }
 
     const handleDeleteRecipe = async () => {
-      if(window.confirm(TEXT_CONFIRM_DELETE)){
-        await recipeService.destroy(props.id, props.user)
-        history.push(props.prevPath)
-        props.handleDeleteRecipe(props.id)
+      try{
+        if(window.confirm(TEXT_CONFIRM_DELETE)){
+          await recipeService.destroy(props.id, props.user)
+          history.push(props.prevPath)
+          props.handleDeleteRecipe(props.id)
+        }
+      }
+      catch(error){
+        handleRecipeServiceError(error)
+      }
+
+    }
+
+
+    const getRecipeStateToSave = ()  => {
+      let newRecipe = {
+        name: name.trim(), 
+        description,
+        rating,
+        timeToMake,
+        servingInfo,
+        instructions: instructions.map(instr => instr.text),
+        ingredients: cloneDeep(ingredients),
+      }
+      if(props.id){
+        newRecipe.id = props.id
+      }
+      
+      //get rid of ids for any ingredients with temporary ids
+      newRecipe.ingredients.forEach((ingredient) => {
+        if(Ingredient.hasTempId(ingredient)){
+          delete ingredient.id
+        }
+      })
+
+      return newRecipe;
+    }
+
+    const handleUpdate = async () => {
+      if(errors.size() === 0){
+        let newRecipe = getRecipeStateToSave()
+        try{
+          newRecipe = await recipeService.update(newRecipe, props.user)
+          setPageState(newRecipe)
+          props.handleUpdateRecipe(newRecipe)
+          setEditable(false);
+        }catch(error){
+          handleRecipeServiceError(error)
+        }
       }
     }
 
-    const handleSave = async () => {
+    const handleCreate = async () => {
       if(errors.size() === 0){
-        
-        let newRecipe = {
-          name: name.trim(), 
-          description,
-          rating,
-          timeToMake,
-          servingInfo,
-          instructions: instructions.map(instr => instr.text),
-          ingredients: cloneDeep(ingredients),
+        let newRecipe = getRecipeStateToSave()
+        try{
+          newRecipe = await recipeService.create(newRecipe, props.user)
+          setCreated(true);
+          props.handleAddRecipe(newRecipe)
+          history.replace(`${props.prevPath}/${newRecipe.id}`)
+          setEditable(false);
         }
-        if(props.id){
-          newRecipe.id = props.id
-        }
-        
-        //get rid of ids for any ingredients with temporary ids
-        newRecipe.ingredients.forEach((ingredient) => {
-          if(Ingredient.hasTempId(ingredient)){
-            delete ingredient.id
-          }
-        })
-        
-        if(created){
-          try{
-            newRecipe = await recipeService.update(newRecipe, props.user)
-            props.handleUpdateRecipe(newRecipe)
-            setEditable(false);
-          }catch(error){
-            console.log(error)
-          }
-        }else{
-          try{
-            newRecipe = await recipeService.create(newRecipe, props.user)
-            setCreated(true);
-            props.handleAddRecipe(newRecipe)
-            history.push(`${props.prevPath}/${newRecipe.id}`)
-            setEditable(false);
-          }
-          catch(error){
-            console.log(error)
-          }
+        catch(error){
+          handleRecipeServiceError(error)
         }
       }
     }
+
+    
 
     const setPageState = (recipe) => {
       setName(recipe != null && recipe.name != null ? recipe.name : '')
@@ -154,10 +183,14 @@ const RecipePage = (props) => {
       setPageState(recipeBeforeEdits)
     }
 
+    //refactor this into multiple functions?
     const changeEditable = async () => {
       dispatchErrors({type: 'reset'})
       if(created && editable){
         await restoreRecipeBeforeEdits()
+      }
+      else if(!created && editable){
+        history.push(props.prevPath)
       }
       else if(created){
         saveRecipeLocally()
@@ -180,6 +213,7 @@ const RecipePage = (props) => {
       window.sessionStorage.setItem(KEY_RECIPE_BEFORE_EDITS, recipeData)
     }
 
+    //below here can be made into reducer functions to clean up this class
     const addIngredient =  function(newIngredient){
       let newIngredients = Array.from(ingredients)
       newIngredients.push(newIngredient)
@@ -223,7 +257,7 @@ const RecipePage = (props) => {
         <Button 
           variant = "outlined" 
           color = "primary" 
-          onClick = {() => handleSave()}
+          onClick = {() => created ? handleUpdate() : handleCreate()}
           disabled = {errors.size() !== 0}
           data-testid = {ID_SAVE_BUTTON}
         >

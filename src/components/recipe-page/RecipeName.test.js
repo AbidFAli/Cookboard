@@ -9,14 +9,14 @@ import {
 import { ID_EDIT_BUTTON } from './RecipePage';
 
 
-jest.mock('axios')
+jest.mock('../../services/recipeService')
 
 
 
 describe('RecipeName', () => {
   afterEach(cleanup);
   let recipe = null;
-  let addHandler, updateHandler;
+  
 
 
   describe('On a page with a created recipe', () => {
@@ -47,7 +47,6 @@ describe('RecipeName', () => {
   describe('on a page with a blank recipe', () => {
     beforeEach(async () => {
       await testHelper.setupAndRenderRecipe(null, userFixture())
-      fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
     });
 
     test('the name of the recipe can be set' , () => {

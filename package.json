@@ -22,7 +22,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "cross-env REACT_APP_ENV=test react-scripts test",
     "test:debug": "react-scripts test --runInBand --no-cache --watchAll=false",
     "eject": "react-scripts eject",
     "cypress:open": "cypress open"
@@ -46,11 +46,12 @@
     ]
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "cypress": "^7.4.0",
     "jest-localstorage-mock": "^2.4.14",
     "json-server": "^0.16.3"
   },
-  "jest" : {
-    "resetMocks" : false
+  "jest": {
+    "resetMocks": false
   }
 }

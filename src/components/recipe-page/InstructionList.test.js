@@ -16,7 +16,7 @@ import { ID_EDIT_BUTTON } from './RecipePage';
 
 //Integration tests with RecipePage and InstructionList
 
-jest.mock('axios')
+jest.mock('../../services/recipeService')
 
 
 

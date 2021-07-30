@@ -4,4 +4,10 @@
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
 
+
 require('jest-localstorage-mock');
+
+Object.defineProperty(window, 'confirm', {
+  writable: true,
+  value: jest.fn()
+})

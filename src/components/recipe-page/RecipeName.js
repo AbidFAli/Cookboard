@@ -6,6 +6,7 @@ const ERROR_RECIPE_NAME = "errorKeyRecipeName"
 const ERROR_MSG_RECIPE_NAME_MISSING = "Recipe name is required"
 
 const ID_FIELD_RECIPE_NAME = "fieldRecipeName"
+
 const RecipeName = ({recipeName, setRecipeName, editable, errors, dispatchErrors}) => {
   const handleChangeRecipeName = (newName) => {
       if(newName.trim() === ''){
@@ -45,3 +46,4 @@ export {
     ERROR_MSG_RECIPE_NAME_MISSING,
     ID_FIELD_RECIPE_NAME
 };
+

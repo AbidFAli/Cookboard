@@ -8,7 +8,7 @@ import {
 } from './ServingInfoList';
 
 
-jest.mock('axios')
+jest.mock('../../services/recipeService')
 
 //Integration tests for ServingInfoList in RecipePage
 

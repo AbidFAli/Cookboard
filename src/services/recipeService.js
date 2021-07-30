@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { isTokenExpiredError } from '../util/errors';
 import { userService } from './userService';
 
 const BASE_URL = 'http://localhost:3001/api/recipes'
@@ -9,14 +10,22 @@ const authHeaderForUser = (user) => {
   return {'Authorization': `Bearer ${user.token}`}
 }
 
+
+
+
+//will throw TokenExpiredErrors
 const create = async (recipe, user) => {
   try{
     const result = await axios.post(BASE_URL + '/', recipe, {headers: authHeaderForUser(user)});
     return result.data;
   }catch(error){
     console.log(error)
+    if(isTokenExpiredError(error)){
+      throw error
+    }
   }
 }
+
 
 const getById = async (id) => {
   try{
@@ -36,6 +45,7 @@ const getAll = async () => {
   }
 }
 
+//will throw TokenExpiredErrors
 const update = async (recipe, user) => {
   try{
     const result = await axios.put(BASE_URL + `/${recipe.id}`, recipe, {headers: authHeaderForUser(user)});
@@ -43,15 +53,22 @@ const update = async (recipe, user) => {
   }
   catch(error){
     console.log(error)
+    if(isTokenExpiredError(error)){
+      throw error
+    }
   }
 }
 
+//will throw TokenExpiredErrors
 const destroy = async (recipeId, user) => {
   try{
     await axios.delete(BASE_URL + `/${recipeId}`, {headers: authHeaderForUser(user)})
   }
   catch(error){
     console.log(error)
+    if(isTokenExpiredError(error)){
+      throw error
+    }
   }
 }
 
@@ -68,13 +85,13 @@ const getRecipesForUser = async (userId) => {
   }
 }
 
-let recipeService = {
+const recipeService = {
   create,
   getById,
   getAll,
   update,
   destroy,
-  getRecipesForUser
+  getRecipesForUser,
 }
 
 export default recipeService;
