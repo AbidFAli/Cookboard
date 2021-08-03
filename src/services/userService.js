@@ -15,15 +15,15 @@ const login = async (username, password) => {
     return result.data;
   }
   catch(error){
-    console.log(error)
-    let errorMessage = ERROR_OTHER;
     if(error.response.status === 401){
-      errorMessage = ERROR_INVALID_PASSWORD
+       return ERROR_INVALID_PASSWORD
     }
     else if(error.response.status === 404){
-      errorMessage = ERROR_USER_NOT_FOUND
+      return ERROR_USER_NOT_FOUND
     }
-    return errorMessage;
+    else{
+      throw error;
+    }
   }
 }
 
@@ -38,18 +38,14 @@ const isTokenValid = async(token) => {
 }
 
 const create = async (user) => {
-  try{
     const result = await axios.post(BASE_URL + '/',
     {
       username: user.username,
       password: user.password,
       email: user.email
     });
+    
     return result.data;
-  }
-  catch(error){
-    console.log(error)
-  }
 
 }
 
