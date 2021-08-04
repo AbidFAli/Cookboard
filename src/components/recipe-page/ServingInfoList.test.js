@@ -12,8 +12,8 @@ jest.mock('../../services/recipeService')
 
 //Integration tests for ServingInfoList in RecipePage
 
-const testNonNumericalText = async (recipe, testid, expectedMessage) => {
-  await testHelper.setupAndRenderRecipe(recipe, userFixture())
+const testNonNumericalText = async (recipe, user,  testid, expectedMessage) => {
+  await testHelper.setupAndRenderRecipe(recipe, user)
   fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
   let textbox = screen.getByTestId(testid)
   userEvent.clear(textbox)
@@ -23,13 +23,15 @@ const testNonNumericalText = async (recipe, testid, expectedMessage) => {
 
 describe('ServingInfoList', () => {
   let recipe;
+  let user;
   beforeEach(() => {
     jest.useFakeTimers()
     jest.clearAllMocks()
-
+    user = userFixture();
     recipe = {
       name: "waffles",
-      id: "12346"
+      id: "12346",
+      user: user.id
     }
   })
 
@@ -41,7 +43,7 @@ describe('ServingInfoList', () => {
 
 
   test('cannot save if there is an error in the textboxes', async () => {
-    await testHelper.setupAndRenderRecipe(recipe, userFixture())
+    await testHelper.setupAndRenderRecipe(recipe, user)
     fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
     let textbox = screen.getByTestId(FIELD_NUM_SERVED)
     userEvent.clear(textbox)
@@ -51,19 +53,19 @@ describe('ServingInfoList', () => {
 
   describe('when editing numServed', () => {
     test('displays an error message when non-numerical text is typed' , async () => {
-      await testNonNumericalText(recipe, FIELD_NUM_SERVED, ERROR_MSG_NUM_SERVED_NAN)
+      await testNonNumericalText(recipe, user, FIELD_NUM_SERVED, ERROR_MSG_NUM_SERVED_NAN)
     })
   })
 
   describe('when editing yield', () => {
     test('displays an error message when non-numerical text is typed' , async () => {
-      await testNonNumericalText(recipe, FIELD_YIELD, ERROR_MSG_YIELD_NAN)
+      await testNonNumericalText(recipe, user,  FIELD_YIELD, ERROR_MSG_YIELD_NAN)
     })
   })
 
   describe('when editing serving size', () => {
     test('displays an error message when non-numerical text is typed' , async () => {
-      await testNonNumericalText(recipe, FIELD_SERVING_SIZE, ERROR_MSG_SERVING_SIZE_NAN)
+      await testNonNumericalText(recipe, user,  FIELD_SERVING_SIZE, ERROR_MSG_SERVING_SIZE_NAN)
     })
   })
 

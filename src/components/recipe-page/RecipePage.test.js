@@ -3,8 +3,13 @@ import { PATH_LOGIN, PATH_MYRECIPES } from '../../paths';
 import recipeService from '../../services/recipeService';
 import recipeFixture from '../../test/fixtures/recipes/spaghetti';
 import userFixture from '../../test/fixtures/user/userNoRecipes';
+import userSomeRecipes from '../../test/fixtures/user/userSomeRecipes';
 import testHelper from '../../test/util/recipePageTestHelper';
-import { ID_EDIT_BUTTON, MESSAGE_RECIPE_LOADED, MESSAGE_TOKEN_EXPIRED } from './RecipePage';
+import {
+  ID_DELETE_BUTTON, ID_EDIT_BUTTON,
+  ID_SAVE_BUTTON, MESSAGE_RECIPE_LOADED,
+  MESSAGE_TOKEN_EXPIRED
+} from './RecipePage';
 
 
 //jest.mock('axios')
@@ -24,6 +29,8 @@ const createTokenExpiredError = () => {
     }
   }
 }
+
+
 
 describe('Tests for RecipePage', () => {
 
@@ -46,6 +53,16 @@ describe('Tests for RecipePage', () => {
     expect(screen.queryByTestId(ID_EDIT_BUTTON)).toBeNull()
   })
 
+  test('a new recipe cannot be created wihout a user', async () => {
+    await testHelper.setupAndRenderRecipe()
+    expect(screen.queryByTestId(ID_SAVE_BUTTON)).toBeNull()
+  })
+
+  test('recipes cannot be edited or deleted without a user', async () => {
+    await testHelper.setupAndRenderRecipe(recipeFixture())
+    expect(screen.queryByTestId(ID_EDIT_BUTTON)).toBeNull()
+    expect(screen.queryByTestId(ID_DELETE_BUTTON)).toBeNull()
+  })
 
 
   describe('tests for recipe creation', () => {
@@ -88,8 +105,17 @@ describe('Tests for RecipePage', () => {
 
   describe('tests with an existing recipe', () => {
     let history;
+    let user;
+    let recipe;
+    
+    function testRecipe(){ 
+      return userSomeRecipes().recipes[0] 
+    }
+
     beforeEach(async () => {
-      ({history} = await testHelper.setupAndRenderRecipe(recipeFixture(), userFixture()));
+      user = userSomeRecipes();
+      recipe = testRecipe();
+      ({history} = await testHelper.setupAndRenderRecipe(recipe, user));
     })
 
     describe('tests for updating recipes', () => {
@@ -97,7 +123,7 @@ describe('Tests for RecipePage', () => {
 
       test('recipes can be updated', async () => {
         let desc = "Something else"
-        let updatedRecipe = recipeFixture()
+        let updatedRecipe = testRecipe()
         updatedRecipe.description = desc
 
         testHelper.clickEdit()

@@ -127,17 +127,17 @@ describe('IngredientList integration tests within RecipePage', () => {
     let recipe = null;
     
     
-
-
     describe('when editing ingredients', () => {
         beforeEach(async ()=> {
+            let user = userFixture()
             recipe = {
                 name: "waffles",
                 ingredients: [ {name: "egg", amount: 1, id: "2001"}],
-                id: "1234"
+                id: "1234",
+                user: user.id
             }
 
-            await testHelper.setupAndRenderRecipe(recipe, userFixture())
+            await testHelper.setupAndRenderRecipe(recipe, user)
             testHelper.clickEdit()
         })
 
@@ -204,12 +204,14 @@ describe('IngredientList integration tests within RecipePage', () => {
 
     describe('when adding ingredients', () => {
         beforeEach(async () => {
+            let user = userFixture()
             recipe = {
                 name: "waffles",
                 ingredients: [],
                 id: "12345",
+                user: user.id
             }
-            await testHelper.setupAndRenderRecipe(recipe, userFixture())
+            await testHelper.setupAndRenderRecipe(recipe, user)
             fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
         })
 
@@ -266,6 +268,7 @@ describe('IngredientList integration tests within RecipePage', () => {
 
     describe('when deleting ingredients', ()=> {
         beforeEach(async () => {
+            let user = userFixture()
             recipe = {
                 name : "waffles",
                 ingredients: [
@@ -273,10 +276,11 @@ describe('IngredientList integration tests within RecipePage', () => {
                     {name: "batter", amount: 1, unit: "cup", id: "2001"},
                     {name: "pancake mix", amount: 2, unit: "cup", id: "4041"}
                 ],
-                id: "1234"
+                id: "1234",
+                user: user.id
             }
             
-            await testHelper.setupAndRenderRecipe(recipe, userFixture())
+            await testHelper.setupAndRenderRecipe(recipe, user)
             fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
         });
 

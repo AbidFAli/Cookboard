@@ -1,5 +1,5 @@
 import { fireEvent, within } from '@testing-library/dom';
-import { cleanup, prettyDOM, render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import Instruction from '../../Model/instruction.js';
@@ -29,9 +29,7 @@ const getInstructions = () => {
   return within(screen.getByTestId(ID_INSTRUCTION_LIST)).queryAllByRole("listitem")
 }
 
-const printToConsole = () => {
-  console.log(prettyDOM(screen.getByTestId(ID_INSTRUCTION_LIST)))
-}
+
 
 const getInstructionFields = (pos) => {
   return screen.getAllByLabelText(LABEL_INSTRUCTION_TEXT_FIELD)[pos]
@@ -89,17 +87,20 @@ describe('Tests for InstructionList integration with RecipePage', () => {
 
  describe('when adding instructions,', () => {
    let recipe
+   let user;
    beforeEach(() => {
+    user = userFixture()
     recipe = {
       name: "waffles",
       id : "1234",
       instructions: [],
-      description: 'hacky'
+      description: 'hacky',
+      user: user.id
     }
    });
 
    test('adding succeeds for a recipe with no instructions', async () => {
-     await testHelper.setupAndRenderRecipe(recipe, userFixture())
+     await testHelper.setupAndRenderRecipe(recipe, user)
      fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
      fireEvent.click(screen.getByTestId(ID_BUTTON_ADD_INSTRUCTION))
      userEvent.type(getInstructionFields(0), "turn on stove")
@@ -111,7 +112,7 @@ describe('Tests for InstructionList integration with RecipePage', () => {
    
    test('adding succeeds for a recipe with some instructions', async () => {
     recipe.instructions = ['step one', 'step two']
-    await testHelper.setupAndRenderRecipe(recipe, userFixture())
+    await testHelper.setupAndRenderRecipe(recipe, user)
 
     fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
     fireEvent.click(screen.getByTestId(ID_BUTTON_ADD_INSTRUCTION))
@@ -122,7 +123,7 @@ describe('Tests for InstructionList integration with RecipePage', () => {
 
    test('multiple instructions can be added', async () => {
     
-    await testHelper.setupAndRenderRecipe(recipe, userFixture())
+    await testHelper.setupAndRenderRecipe(recipe, user)
     fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
     let instructions = ['step one', 'step two']
     let numAdded = 0;
@@ -140,14 +141,16 @@ describe('Tests for InstructionList integration with RecipePage', () => {
  })
  
  describe('instructions can be edited', () => {
-  let recipe
+  let recipe, user;
   beforeEach( async () => {
-   recipe = {
-     name: "waffles",
-     instructions: ['step one', 'step two', 'step three'],
-     id : "12345"
-   }
-   await testHelper.setupAndRenderRecipe(recipe, userFixture())
+    user = userFixture()
+    recipe = {
+      name: "waffles",
+      instructions: ['step one', 'step two', 'step three'],
+      id : "12345",
+      user: user.id
+    }
+   await testHelper.setupAndRenderRecipe(recipe, user)
    fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
   });
 
@@ -182,14 +185,16 @@ describe('Tests for InstructionList integration with RecipePage', () => {
  })
 
  describe('instructions can be removed', () => {
-  let recipe
+  let recipe, user;
   beforeEach(async () => {
+   user = userFixture();
    recipe = {
      name: "waffles",
      instructions: ['step one', 'step two', 'step three'],
-     id: "1234"
+     id: "1234",
+     user: user.id
    }
-   await testHelper.setupAndRenderRecipe(recipe, userFixture())
+   await testHelper.setupAndRenderRecipe(recipe, user)
    fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
   });
 

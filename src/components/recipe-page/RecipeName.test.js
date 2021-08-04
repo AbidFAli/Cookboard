@@ -21,11 +21,13 @@ describe('RecipeName', () => {
 
   describe('On a page with a created recipe', () => {
     beforeEach(async () => {
+      let user = userFixture()
       recipe = {
         name: "waffles",
-        id: "12345"
+        id: "12345",
+        user: user.id
       }
-      await testHelper.setupAndRenderRecipe(recipe, userFixture())
+      await testHelper.setupAndRenderRecipe(recipe, user)
       fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
     });
 

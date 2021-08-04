@@ -67,9 +67,13 @@ const RecipePage = (props) => {
     const [rating, setRating] = useState(0)
     const [timeToMake, setTimeToMake] = useState(null)
     const [servingInfo, setServingInfo] = useState(null)
+    const [ownerId, setOwnerId] = useState(undefined)
     
     //page control state
-    const [editable, setEditable] = useState(props.id == null)
+
+    //whether the page is currently in editing mode
+    const [editable, setEditable] = useState(props.id == null && props.user != null)
+    //whether the recipe has been created or not
     const [created, setCreated] = useState(props.id != null)
   
     
@@ -176,6 +180,7 @@ const RecipePage = (props) => {
       setRating(recipe != null && recipe.rating != null ? recipe.rating : 0)
       setTimeToMake(recipe != null ? recipe.timeToMake : null)
       setServingInfo(recipe != null ? recipe.servingInfo : null)
+      setOwnerId(recipe != null && recipe.user != null ? recipe.user : undefined)
     }
     
     const restoreRecipeBeforeEdits = async () => {
@@ -208,7 +213,8 @@ const RecipePage = (props) => {
         ingredients,
         rating,
         timeToMake,
-        servingInfo
+        servingInfo,
+        user : ownerId
       }
       let recipeData = JSON.stringify(recipeToSave)
       window.sessionStorage.setItem(KEY_RECIPE_BEFORE_EDITS, recipeData)
@@ -249,12 +255,12 @@ const RecipePage = (props) => {
       setInstructions(newInstructions)
     }
 
-
-
-    let saveButton = null;
-    if(editable){
-        let text = created ? "Save Changes" : "Create Recipe"
-        saveButton = ( 
+    //functions for creating UI components
+    const createSaveButton = function(created, errors) {
+      let saveButtonText = created ? "Save Changes" : "Create Recipe"
+      let saveButton = null;
+      
+      saveButton = ( 
         <Button 
           variant = "outlined" 
           color = "primary" 
@@ -262,28 +268,63 @@ const RecipePage = (props) => {
           disabled = {errors.size() !== 0}
           data-testid = {ID_SAVE_BUTTON}
         >
-          {text}
+          {saveButtonText}
         </Button>
         );
+      return saveButton;
     }
 
-    let deleteButton = null;
-    if(created){
+    const createDeleteButton = function(){
+      let deleteButton = null;
+      
       deleteButton = (
         <Button onClick = {handleDeleteRecipe} data-testid = {ID_DELETE_BUTTON} variant = "outlined" color = "primary">
           Delete Recipe
         </Button>
       )
+      return deleteButton
     }
-    let floatingActionButton = (
-      <Fab
-      data-testid = {editable ? ID_CANCEL_BUTTON : ID_EDIT_BUTTON} 
-      color = {editable === false ? "primary" : "secondary" }
-      onClick = {() => changeEditable()}>
-      { editable ? <CancelIcon/> : <EditIcon/> }
-      </Fab>
-    )
+
+    const createCancelButton = function(){
+       return (
+        <Fab
+          data-testid = {ID_CANCEL_BUTTON} 
+          color = "secondary" 
+          onClick = {() => changeEditable()}>
+          <CancelIcon/>  
+        </Fab>
+      )
+    }
+
+    const createEditButton = function(){
+      return  (
+        <Fab
+          data-testid = {ID_EDIT_BUTTON} 
+          color = "primary"  
+          onClick = {() => changeEditable()}>
+          <EditIcon/> 
+        </Fab>
+      )
+    }
+
+    let saveButton = null;
+    let deleteButton = null;
+    let floatingActionButton = null;
+    if(editable){
+      saveButton = createSaveButton(created, errors);
+      floatingActionButton = createCancelButton()
+    }
     
+    if(props.user && props.user.id && props.user.id === ownerId){
+        if(created){
+          deleteButton = createDeleteButton();   
+        }
+
+        if(!editable){
+          floatingActionButton = createEditButton()
+        }
+    }
+
     //Good example of a split left/right layout.
     let buttonBar = (
       <React.Fragment>

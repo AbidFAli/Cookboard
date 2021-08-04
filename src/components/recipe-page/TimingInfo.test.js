@@ -58,12 +58,14 @@ describe('RecipeName', () => {
 
   describe('with existing timing info already set', () => {
     beforeEach(async () => {
+      let user = userFixture()
       recipe = {
         name: "waffles",
         timeToMake : { value: 10, unit: "minutes"},
-        id: "121"
+        id: "121",
+        user: user.id
       }
-      await testHelper.setupAndRenderRecipe(recipe, userFixture())
+      await testHelper.setupAndRenderRecipe(recipe, user)
       fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON))
     });
 
