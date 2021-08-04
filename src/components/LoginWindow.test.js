@@ -4,7 +4,8 @@ import { createMemoryHistory } from "history";
 import React from 'react';
 import { Router } from "react-router";
 import { PATH_LOGIN, PATH_MYRECIPES } from '../paths';
-import { userService } from '../services/userService';
+import { ERROR_INCORRECT_PASSWORD, userService } from '../services/userService';
+import constants from '../util/constants';
 import {
   errorMessages, ids,
   KEY_USER_STORAGE, LoginWindow
@@ -128,7 +129,15 @@ describe("tests for LoginWindow.", () => {
       expect(screen.getByText(errorMessages.MESSAGE_USERNAME_MISSING)).toBeInTheDocument()
     })
 
-
+    test('an error message is displayed if the password you enter is incorrect', async () => {
+      enterUsername("someguy")
+      enterPassword("something")
+      userService.login.mockResolvedValueOnce(ERROR_INCORRECT_PASSWORD)
+      clickOnLoginButton()
+      let message = await screen.findByText(errorMessages.MESSAGE_INCORRECT_PASSWORD)
+      expect(message).toBeInTheDocument()
+      
+    })
   
     test('after the user logs in successfully, their credentials are saved to local storage', async () => {
       enterUsername(testUserInfo.username)
@@ -153,6 +162,29 @@ describe("tests for LoginWindow.", () => {
         enterEmail("test@test.com")
         userEvent.clear(screen.getByTestId(ids.ID_INPUT_EMAIL))
         expect(screen.getByText(errorMessages.MESSAGE_EMAIL_MISSING)).toBeInTheDocument()
+      })
+
+      
+      
+      describe('tests for password rules', () => {
+
+        test.each([
+          ["\\abcd", errorMessages.MESSAGE_INVALID_PASSWORD_CHARACTER],
+          [">abcdefghij", errorMessages.MESSAGE_INVALID_PASSWORD_CHARACTER],
+          ["<abcdefghij", errorMessages.MESSAGE_INVALID_PASSWORD_CHARACTER],
+          ["a", errorMessages.MESSAGE_PASSWORD_TOO_SHORT],
+          ["1234567", errorMessages.MESSAGE_PASSWORD_TOO_SHORT],
+        ])('typing %s displays %s', function (password, errorMessage) {
+          enterPassword(password)
+          expect(screen.getByText(errorMessage)).toBeInTheDocument()
+        })
+
+        test(`you cannot enter a password greater than ${constants.MAX_PASSWORD_LENGTH} chars`, async () => {
+          let testPassword = "a".repeat(constants.MAX_PASSWORD_LENGTH + 1)
+          enterPassword(testPassword)
+          expect(screen.getByTestId(ids.ID_INPUT_PASSWORD).value).toHaveLength(constants.MAX_PASSWORD_LENGTH)
+        })
+
       })
       
       test('an error message is displayed if the password does not match the confirm password', () => {
@@ -198,6 +230,8 @@ describe("tests for LoginWindow.", () => {
 
 
       })
+
+
 
       test('a successful user signup will log them in and take them to MyRecipesPage', async () => {
         enterUsername(testUserInfo.username)

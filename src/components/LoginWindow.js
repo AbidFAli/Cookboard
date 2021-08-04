@@ -1,12 +1,19 @@
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+//import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import React, { useEffect, useState } from 'react';
 import { useHistory } from "react-router-dom";
 import { PATH_LOGIN, PATH_MYRECIPES, PATH_REGISTRATION } from '../paths';
-import { ERROR_INVALID_PASSWORD, ERROR_OTHER, userService } from '../services/userService';
+import { ERROR_INCORRECT_PASSWORD, ERROR_OTHER, userService } from '../services/userService';
+import constants from '../util/constants';
 import { isUsernameTakenError } from '../util/errors';
+
 
 
 const KEY_USER_STORAGE = "CookboardUserLocalStorage"
@@ -22,17 +29,21 @@ const ID_INPUT_EMAIL = "inputEmail"
 const MESSAGE_USERNAME_MISSING = "Enter a username"
 const MESSAGE_USERNAME_NOT_UNIQUE = "This username is taken"
 const MESSAGE_PASSWORD_MISSING = "Enter a password"
-const MESSAGE_INVALID_PASSWORD = "The password you entered was incorrect"
+const MESSAGE_INCORRECT_PASSWORD = "The password you entered was incorrect"
 const MESSAGE_PASSWORD_MATCH = "Password must match"
 const MESSAGE_EMAIL_MISSING = "Please enter an email"
+const MESSAGE_INVALID_PASSWORD_CHARACTER = "Spaces and <>\\ are not allowed"
+const MESSAGE_PASSWORD_TOO_SHORT = `Password must be at least ${constants.MIN_PASSWORD_LENGTH} characters`
 
 const errorMessages = {
   MESSAGE_USERNAME_MISSING,
   MESSAGE_USERNAME_NOT_UNIQUE,
   MESSAGE_PASSWORD_MISSING,
-  MESSAGE_INVALID_PASSWORD,
+  MESSAGE_INCORRECT_PASSWORD,
   MESSAGE_PASSWORD_MATCH,
-  MESSAGE_EMAIL_MISSING
+  MESSAGE_EMAIL_MISSING,
+  MESSAGE_INVALID_PASSWORD_CHARACTER,
+  MESSAGE_PASSWORD_TOO_SHORT
 }
 
 const ids = {
@@ -122,29 +133,40 @@ const LoginWindow = ({user, updateUser}) => {
   }
 
   const checkPasswordErrors = (password, confirmPassword) =>{
-    let hasErrors = false;
-    if(password.trim() === ''){
-      setErrorPassword(MESSAGE_PASSWORD_MISSING)
-      hasErrors = true;
+    let hasErrors = true;
+    let errorMessage = ''
+    if(password === ''){
+      errorMessage = MESSAGE_PASSWORD_MISSING
     }
-    else if(registering && confirmPassword !== password){
-      setErrorPassword(MESSAGE_PASSWORD_MATCH)
-      hasErrors = true;
+    else if(registering && password.match(/[\s\\\<\>]/)){
+      errorMessage = MESSAGE_INVALID_PASSWORD_CHARACTER
+    }
+    else if(registering && (password.length < constants.MIN_PASSWORD_LENGTH)){
+      errorMessage = MESSAGE_PASSWORD_TOO_SHORT
+    }
+    else if(registering && (confirmPassword !== password)){
+      errorMessage = MESSAGE_PASSWORD_MATCH
     }
     else{
-      setErrorPassword('')
+      hasErrors = false;
     }
+    
+    setErrorPassword(errorMessage)
     return hasErrors;
   }
 
   const handlePasswordChange = (text) => {
-    setPassword(text)
-    checkPasswordErrors(text, confirmPassword)
+    if(text.length <= constants.MAX_PASSWORD_LENGTH){
+      setPassword(text)
+      checkPasswordErrors(text, confirmPassword)
+    }
   }
 
   const handleConfirmPasswordChange = (text) => {
-    setConfirmPassword(text)
-    checkPasswordErrors(password, text)
+    if(text.length <= constants.MAX_PASSWORD_LENGTH){
+      setConfirmPassword(text)
+      checkPasswordErrors(password, text)
+    }
   }
 
   const handleEmailChange = (text) => {
@@ -163,13 +185,13 @@ const LoginWindow = ({user, updateUser}) => {
     try{
       if(!hasInitialError){
         let user = await userService.login(username, password)
-        if(user !== ERROR_INVALID_PASSWORD && user !== ERROR_OTHER){
+        if(user !== ERROR_INCORRECT_PASSWORD && user !== ERROR_OTHER){
           localStorage.setItem(KEY_USER_STORAGE, JSON.stringify(user))
           updateUser(user)
           history.push(`/myrecipes`)
         }
-        else if(user === ERROR_INVALID_PASSWORD){
-          setErrorPassword(MESSAGE_INVALID_PASSWORD)
+        else if(user === ERROR_INCORRECT_PASSWORD){
+          setErrorPassword(MESSAGE_INCORRECT_PASSWORD)
         }
       } 
     }catch(error){
@@ -225,6 +247,7 @@ const LoginWindow = ({user, updateUser}) => {
   let fieldPasswordConfirm = (
     <TextField
       label = "Re-enter your password"
+      type = "password"
       value = {confirmPassword}
       helperText = ""
       onChange = {(event) => handleConfirmPasswordChange(event.target.value)}
@@ -267,6 +290,19 @@ const LoginWindow = ({user, updateUser}) => {
       data-testid = {ID_BUTTON_CANCEL_SIGNUP}
       onClick = {cancelRegistering} >Cancel Signup</Button>
   )
+  let passwordRules = (
+    <Paper>
+      <Typography variant = "subtitle2">Password Rules</Typography>
+      <List>
+        <ListItem>
+          <ListItemText primary = {`${constants.MIN_PASSWORD_LENGTH} to ${constants.MAX_PASSWORD_LENGTH} characters`}/>
+        </ListItem>
+        <ListItem>
+          <ListItemText primary = {"Letters, numbers, and other special characters except <>\\"}  />
+        </ListItem>
+      </List>
+    </Paper>
+  )
 
   let fields;
   let buttons;
@@ -278,6 +314,9 @@ const LoginWindow = ({user, updateUser}) => {
         </Grid>
         <Grid item> 
           {fieldPassword}
+        </Grid>
+        <Grid item>
+          {passwordRules}
         </Grid>
         <Grid item>
           {fieldPasswordConfirm}
@@ -322,18 +361,22 @@ const LoginWindow = ({user, updateUser}) => {
     )
   }
 
-  //add type = "password" to password input later
+  
   return (
     <Grid container spacing = {2} justify = "center" alignItems = "center" direction = "column">
       <Grid item>
         <Typography variant = "h1">Cookboard</Typography>
       </Grid>
-      <Grid item container spacing = {2} direction = "column" justify = "center" alignItems = "center">
-        {fields}
-        <Grid item container justify = "center" alignItems = "center">
-          {buttons}
-        </Grid> 
-      </Grid>
+      <Grid item>
+        <form>
+          <Grid item container spacing = {2} direction = "column" justify = "center" alignItems = "center">
+            {fields}
+            <Grid item container justify = "center" alignItems = "center">
+              {buttons}
+            </Grid> 
+          </Grid>
+        </form>
+      </Grid>  
     </Grid>
   )
 }
