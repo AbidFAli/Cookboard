@@ -41,8 +41,16 @@ describe('Integration tests between RecipePage and MyRecipesPage', () => {
     userEvent.click(screen.getByText(user.recipes[0].name));
     await recipePageTestHelper.waitForSnackbar() //wait for recipe page to load
 
+    let recipesWithFirstRemoved = user.recipes.filter((recipe) => recipe.id !== user.recipes[0].id)
+    axios.get.mockResolvedValueOnce({
+      data: {
+        recipes: recipesWithFirstRemoved
+      }
+    })
+
     recipePageTestHelper.clickDelete(true)
     
+
     //expect title to by MyRecipes
     expect(await screen.findByText(TITLE_MY_RECIPES)).toBeInTheDocument()
     //expect recipes[0].name not to be in the DOM

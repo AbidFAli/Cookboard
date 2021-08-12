@@ -138,7 +138,7 @@ const LoginWindow = ({user, updateUser}) => {
     if(password === ''){
       errorMessage = MESSAGE_PASSWORD_MISSING
     }
-    else if(registering && password.match(/[\s\\\<\>]/)){
+    else if(registering && password.match(/[\s\\<>]/)){
       errorMessage = MESSAGE_INVALID_PASSWORD_CHARACTER
     }
     else if(registering && (password.length < constants.MIN_PASSWORD_LENGTH)){

@@ -10,7 +10,8 @@ import { AppBar } from './components/AppBar';
 import { LoginWindow } from './components/LoginWindow.js';
 import { MyRecipesPage } from './components/MyRecipesPage.js';
 import { SnackbarProvider } from './components/NotificationSnackbar';
-import { PATH_LOGIN, PATH_MYRECIPES } from './paths.js';
+import { RecipeSwitch } from './components/RecipeSwitch';
+import { PATH_LOGIN, PATH_MYRECIPES, PATH_RECIPES } from './paths.js';
 
 
 
@@ -47,6 +48,9 @@ const App = ({basePath}) =>  {
         <Switch>  
             <Route path={PATH_MYRECIPES}>
               <MyRecipesPage user = {user} snackbarRef = {snackbarRef} /> 
+            </Route>
+            <Route path = {PATH_RECIPES} >
+              <RecipeSwitch user = {user} snackbarRef = {snackbarRef}/>
             </Route>
             <Route path = {PATH_LOGIN}>
               <LoginWindow user = {user} updateUser = {setUser} />

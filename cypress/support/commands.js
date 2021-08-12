@@ -26,8 +26,8 @@ import { KEY_USER_STORAGE } from '../../src/components/LoginWindow';
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
-Cypress.Commands.add('isMyRecipesPageUrl', () => {
-  cy.url().should('match', /myrecipes\/[\da-f]+/)
+Cypress.Commands.add('isRecipesUrl', () => {
+  cy.url().should('match', /recipes\/[\da-f]+/)
 })
 Cypress.Commands.add('createUser', (user) => {
   cy.request('POST', 'http://localhost:3001/api/users', user )

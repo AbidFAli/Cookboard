@@ -1,8 +1,9 @@
 import { ID_BUTTON_ADD_RECIPE } from '../../src/components/MyRecipesPage';
-import { ID_BUTTON_CLOSE_LOADED_NOTE } from '../../src/components/PageLoadedSnackbar';
+import { ID_BUTTON_CLOSE_NOTIFICATION } from '../../src/components/NotificationSnackbar';
 import { ID_FIELD_DESCRIPTION } from '../../src/components/recipe-page/Description';
 import { ID_FIELD_RECIPE_NAME } from '../../src/components/recipe-page/RecipeName';
 import { ID_CANCEL_BUTTON, ID_EDIT_BUTTON, ID_SAVE_BUTTON } from '../../src/components/recipe-page/RecipePage';
+import { PATH_CREATE_RECIPE, PATH_MYRECIPES } from '../../src/paths';
 import recipeService from '../../src/services/recipeService';
 
 
@@ -29,7 +30,7 @@ describe('RecipePage', function () {
   it('restores the original recipe after canceling edits', function () {
     cy.contains("waffles").click()
     //TODO: wait for the recipe to load
-    cy.getByTestId(ID_BUTTON_CLOSE_LOADED_NOTE).click() //close snackbar
+    cy.getByTestId(ID_BUTTON_CLOSE_NOTIFICATION).click() //close snackbar
     cy.get(`[data-testid=${ID_EDIT_BUTTON}]`).click()
     cy.get(`[data-testid=${ID_FIELD_DESCRIPTION}]`).clear().type("something")
     cy.get(`[data-testid=${ID_CANCEL_BUTTON}]`).click() //click again to cancel
@@ -55,11 +56,11 @@ describe('RecipePage', function () {
       //expect that recipe name appears
       cy.contains(newRecipeName)
       
-      cy.isMyRecipesPageUrl()
+      cy.isRecipesUrl()
       //expect that the recipe exists in the database
       //TODO: make this more reusable with command?
       cy.url().then((url) => {
-        let matches = url.match(/myrecipes\/([\da-f]+)/)
+        let matches = url.match(/recipes\/([\da-f]+)/)
         if(matches.length >= 1 && matches[1]){
           return matches[1]
         }
@@ -83,7 +84,7 @@ describe('RecipePage', function () {
         })
 
       cy.get(`[data-testid=${ID_SAVE_BUTTON}]`).click()
-      cy.url().should('match', /myrecipes\/new/)
+      cy.url().should('match', new RegExp(PATH_CREATE_RECIPE))
 
       recipeService.getAll().then(recipes => {
         expect(recipes.length).to.equal(numInitialRecipes)
@@ -93,7 +94,7 @@ describe('RecipePage', function () {
 
     it('returns you to the MyRecipes page if cancel is pressed', function () {
       cy.get(`[data-testid=${ID_CANCEL_BUTTON}]`).click()
-      cy.isMyRecipesPageUrl()
+      cy.url().should('match', new RegExp(PATH_MYRECIPES))
     })
 
   })

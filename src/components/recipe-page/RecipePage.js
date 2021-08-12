@@ -12,7 +12,7 @@ import { useHistory } from 'react-router';
 import { ErrorMessenger, reduceErrors } from '../../Model/errorMessenger';
 import { Ingredient } from '../../Model/ingredient';
 import Instruction from '../../Model/instruction';
-import { PATH_LOGIN } from '../../paths';
+import { PATH_LOGIN, PATH_MYRECIPES, PATH_RECIPES } from '../../paths';
 import recipeService from '../../services/recipeService';
 import { isTokenExpiredError } from '../../util/errors';
 import { Description } from './Description';
@@ -38,19 +38,8 @@ const MESSAGE_TOKEN_EXPIRED = "It has been too long since your last login. Pleas
 /*
  *@prop id: the id of the recipe to display;
  *  @type null || string
- *@prop name: the name of the recipe to display;
- *  @type null || string
- *@prop prevPath: the path to the previous page
  *@prop user: the logged in user
  *  @type User || null
- *@prop handleAddRecipe
- *  @type function handleAddRecipe(recipe: Recipe)
- *  should only be called on save
- *@prop handleUpdateRecipe
- *  @type function handleUpdateRecipe(recipe: Recipe) 
- *  should only be called on save
- *@prop handleDeleteRecipe
- * @type function handleDeleteRecipe(recipeId: string)
  *@prop snackbarRef
  */
 const RecipePage = (props) => {
@@ -60,7 +49,7 @@ const RecipePage = (props) => {
     
     //recipe state
     
-    const [name, setName] = useState(props.name ?? '')
+    const [name, setName] = useState('')
     const [description, setDescription] = useState('')
     const [instructions, setInstructions] = useState([])
     const [ingredients, setIngredients] = useState([])
@@ -100,8 +89,7 @@ const RecipePage = (props) => {
       try{
         if(window.confirm(TEXT_CONFIRM_DELETE)){
           await recipeService.destroy(props.id, props.user)
-          history.push(props.prevPath)
-          props.handleDeleteRecipe(props.id)
+          history.push(PATH_MYRECIPES)
         }
       }
       catch(error){
@@ -141,7 +129,6 @@ const RecipePage = (props) => {
         try{
           newRecipe = await recipeService.update(newRecipe, props.user)
           setPageState(newRecipe)
-          props.handleUpdateRecipe(newRecipe)
           setEditable(false);
         }catch(error){
           handleRecipeServiceError(error)
@@ -155,8 +142,7 @@ const RecipePage = (props) => {
         try{
           newRecipe = await recipeService.create(newRecipe, props.user)
           setCreated(true);
-          props.handleAddRecipe(newRecipe)
-          history.replace(`${props.prevPath}/${newRecipe.id}`)
+          history.replace(`${PATH_RECIPES}/${newRecipe.id}`)
           setEditable(false);
         }
         catch(error){
@@ -196,7 +182,7 @@ const RecipePage = (props) => {
         await restoreRecipeBeforeEdits()
       }
       else if(!created && editable){
-        history.push(props.prevPath)
+        history.push(PATH_MYRECIPES)
       }
       else if(created){
         saveRecipeLocally()

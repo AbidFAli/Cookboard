@@ -22,25 +22,16 @@ import recipeService from '../../services/recipeService';
    history: history object for the page
  }
  */
-const renderRecipe = (recipeName,recipeId, user) => {
-  let addHandler, updateHandler, removeHandler;
-  addHandler = jest.fn();
-  updateHandler = jest.fn();
-  removeHandler = jest.fn();
-  
+const renderRecipe = (recipeId, user) => {
+
   let initialEntries = [`/myrecipes/${recipeId ?? 'new'}`,'/myrecipes']
   const history =  createMemoryHistory({initialEntries})
   const ref = React.createRef()
   render(
     <Router history = {history} >
       <RecipePage 
-        name = {recipeName}
         id = {recipeId}
         user = {user}
-        prevPath = "/myrecipes" 
-        handleAddRecipe = {addHandler} 
-        handleUpdateRecipe = {updateHandler}
-        handleDeleteRecipe = {removeHandler}
         snackbarRef = {ref} />
       <SnackbarProvider ref = {ref} />
     </Router>
@@ -66,10 +57,9 @@ const waitForSnackbar = async () => {
 }
 */
 const setupAndRenderRecipe =  async (recipe, user) => {
-  let recipeName = recipe && recipe.name ? recipe.name : null;
   let recipeId = recipe && recipe.id ? recipe.id : null;
   recipeService.getById.mockResolvedValue(cloneDeep(recipe))
-  let {history} = renderRecipe(recipeName, recipeId, user)
+  let {history} = renderRecipe(recipeId, user)
   if(recipe){
     await waitForSnackbar()
   }
