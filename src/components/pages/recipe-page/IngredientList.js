@@ -5,8 +5,8 @@ import TextField from '@material-ui/core/TextField';
 import DeleteIcon from '@material-ui/icons/Delete';
 import React, { useEffect, useState } from 'react';
 //import {UnitedValue, ERROR_TYPE_UNIT, ERROR_TYPE_VALUE} from './UnitedValue'
-import { Ingredient } from '../../Model/ingredient';
-import { FormList } from '../FormList';
+import { Ingredient } from '../../../Model/ingredient';
+import { FormList } from '../../FormList';
 
 
 

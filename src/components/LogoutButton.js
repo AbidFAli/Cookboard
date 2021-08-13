@@ -2,7 +2,7 @@ import Button from '@material-ui/core/Button';
 import React from 'react';
 import { useHistory } from 'react-router';
 import { PATH_LOGIN } from '../paths';
-import { KEY_USER_STORAGE } from './LoginWindow';
+import { KEY_USER_STORAGE } from './pages/LoginWindow';
 
 const LogoutButton = ({clearUser}) => {
   const history = useHistory()

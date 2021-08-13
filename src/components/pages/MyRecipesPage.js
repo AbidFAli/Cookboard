@@ -5,9 +5,9 @@ import Typography from '@material-ui/core/Typography';
 import AddIcon from '@material-ui/icons/Add';
 import React, { useEffect, useState } from 'react';
 import { useHistory } from "react-router-dom";
-import { PATH_CREATE_RECIPE } from '../paths';
-import recipeService from '../services/recipeService';
-import { RecipeList } from './RecipeList';
+import { PATH_CREATE_RECIPE } from '../../paths';
+import recipeService from '../../services/recipeService';
+import { RecipeList } from '../RecipeList';
 
 
 

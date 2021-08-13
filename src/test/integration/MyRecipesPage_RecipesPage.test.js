@@ -1,7 +1,7 @@
 import { cleanup, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
-import { TITLE_MY_RECIPES } from '../../components/MyRecipesPage';
+import { TITLE_MY_RECIPES } from '../../components/pages/MyRecipesPage';
 import userFixture from '../fixtures/user/userSomeRecipes';
 import myRecipesPageTestHelper from '../util/myRecipesPageTestHelper';
 import recipePageTestHelper from '../util/recipePageTestHelper';

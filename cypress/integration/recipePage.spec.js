@@ -1,8 +1,8 @@
-import { ID_BUTTON_ADD_RECIPE } from '../../src/components/MyRecipesPage';
 import { ID_BUTTON_CLOSE_NOTIFICATION } from '../../src/components/NotificationSnackbar';
-import { ID_FIELD_DESCRIPTION } from '../../src/components/recipe-page/Description';
-import { ID_FIELD_RECIPE_NAME } from '../../src/components/recipe-page/RecipeName';
-import { ID_CANCEL_BUTTON, ID_EDIT_BUTTON, ID_SAVE_BUTTON } from '../../src/components/recipe-page/RecipePage';
+import { ID_BUTTON_ADD_RECIPE } from '../../src/components/pages/MyRecipesPage';
+import { ID_FIELD_DESCRIPTION } from '../../src/components/pages/recipe-page/Description';
+import { ID_FIELD_RECIPE_NAME } from '../../src/components/pages/recipe-page/RecipeName';
+import { ID_CANCEL_BUTTON, ID_EDIT_BUTTON, ID_SAVE_BUTTON } from '../../src/components/pages/recipe-page/RecipePage';
 import { PATH_CREATE_RECIPE, PATH_MYRECIPES } from '../../src/paths';
 import recipeService from '../../src/services/recipeService';
 

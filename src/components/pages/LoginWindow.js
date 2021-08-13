@@ -9,10 +9,10 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import React, { useEffect, useState } from 'react';
 import { useHistory } from "react-router-dom";
-import { PATH_LOGIN, PATH_MYRECIPES, PATH_REGISTRATION } from '../paths';
-import { ERROR_INCORRECT_PASSWORD, ERROR_OTHER, userService } from '../services/userService';
-import constants from '../util/constants';
-import { isUsernameTakenError } from '../util/errors';
+import { PATH_LOGIN, PATH_MYRECIPES, PATH_REGISTRATION } from '../../paths';
+import { ERROR_INCORRECT_PASSWORD, ERROR_OTHER, userService } from '../../services/userService';
+import constants from '../../util/constants';
+import { isUsernameTakenError } from '../../util/errors';
 
 
 

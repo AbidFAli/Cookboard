@@ -1,4 +1,4 @@
-import { errorMessages, ids } from '../../src/components/LoginWindow';
+import { errorMessages, ids } from '../../src/components/pages/LoginWindow';
 
 
 

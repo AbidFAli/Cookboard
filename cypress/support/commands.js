@@ -1,4 +1,4 @@
-import { KEY_USER_STORAGE } from '../../src/components/LoginWindow';
+import { KEY_USER_STORAGE } from '../../src/components/pages/LoginWindow';
 
 // **********************************************
 // This example commands.js shows you how to

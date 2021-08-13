@@ -1,14 +1,14 @@
 import { cleanup, fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import userFixture from '../../test/fixtures/user/userNoRecipes';
-import testHelper from '../../test/util/recipePageTestHelper';
+import userFixture from '../../../test/fixtures/user/userNoRecipes';
+import testHelper from '../../../test/util/recipePageTestHelper';
 import { ID_EDIT_BUTTON, ID_SAVE_BUTTON } from './RecipePage';
 import {
   ERROR_MSG_NUM_SERVED_NAN, ERROR_MSG_SERVING_SIZE_NAN, ERROR_MSG_YIELD_NAN, FIELD_NUM_SERVED, FIELD_SERVING_SIZE, FIELD_YIELD
 } from './ServingInfoList';
 
 
-jest.mock('../../services/recipeService')
+jest.mock('../../../services/recipeService')
 
 //Integration tests for ServingInfoList in RecipePage
 

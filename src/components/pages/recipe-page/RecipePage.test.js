@@ -1,10 +1,10 @@
 import { screen, waitFor } from '@testing-library/react';
-import { PATH_LOGIN, PATH_MYRECIPES } from '../../paths';
-import recipeService from '../../services/recipeService';
-import recipeFixture from '../../test/fixtures/recipes/spaghetti';
-import userFixture from '../../test/fixtures/user/userNoRecipes';
-import userSomeRecipes from '../../test/fixtures/user/userSomeRecipes';
-import testHelper from '../../test/util/recipePageTestHelper';
+import { PATH_LOGIN, PATH_MYRECIPES } from '../../../paths';
+import recipeService from '../../../services/recipeService';
+import recipeFixture from '../../../test/fixtures/recipes/spaghetti';
+import userFixture from '../../../test/fixtures/user/userNoRecipes';
+import userSomeRecipes from '../../../test/fixtures/user/userSomeRecipes';
+import testHelper from '../../../test/util/recipePageTestHelper';
 import {
   ID_DELETE_BUTTON, ID_EDIT_BUTTON,
   ID_SAVE_BUTTON, MESSAGE_RECIPE_LOADED,
@@ -13,7 +13,7 @@ import {
 
 
 //jest.mock('axios')
-jest.mock('../../services/recipeService')
+jest.mock('../../../services/recipeService')
 
 
 

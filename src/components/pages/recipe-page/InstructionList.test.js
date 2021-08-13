@@ -2,10 +2,10 @@ import { fireEvent, within } from '@testing-library/dom';
 import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import Instruction from '../../Model/instruction.js';
-import { Recipe } from '../../Model/recipe.js';
-import userFixture from '../../test/fixtures/user/userNoRecipes';
-import testHelper from '../../test/util/recipePageTestHelper';
+import Instruction from '../../../Model/instruction.js';
+import { Recipe } from '../../../Model/recipe.js';
+import userFixture from '../../../test/fixtures/user/userNoRecipes';
+import testHelper from '../../../test/util/recipePageTestHelper';
 import {
   ERROR_BLANK_INSTRUCTION,
   ID_BUTTON_ADD_INSTRUCTION,
@@ -16,7 +16,7 @@ import { ID_EDIT_BUTTON } from './RecipePage';
 
 //Integration tests with RecipePage and InstructionList
 
-jest.mock('../../services/recipeService')
+jest.mock('../../../services/recipeService')
 
 
 

@@ -5,12 +5,14 @@ const PATH_CREATE_RECIPE = "/recipes/create"
 const PATH_MYRECIPES = "/myrecipes"
 const PATH_LOGIN = "/login"
 const PATH_REGISTRATION = "/login#signup"
+const PATH_SEARCH = "/search"
 
 export {
   PATH_MYRECIPES,
   PATH_LOGIN,
   PATH_REGISTRATION,
   PATH_RECIPES,
-  PATH_CREATE_RECIPE
+  PATH_CREATE_RECIPE,
+  PATH_SEARCH
 }
 

@@ -5,12 +5,12 @@ import { cloneDeep } from 'lodash';
 import React from 'react';
 import { Router } from "react-router";
 import { SnackbarProvider } from '../../components/NotificationSnackbar';
-import { ID_FIELD_DESCRIPTION } from '../../components/recipe-page/Description';
-import { ID_FIELD_RECIPE_NAME } from '../../components/recipe-page/RecipeName';
+import { ID_FIELD_DESCRIPTION } from '../../components/pages/recipe-page/Description';
+import { ID_FIELD_RECIPE_NAME } from '../../components/pages/recipe-page/RecipeName';
 import {
   ID_CANCEL_BUTTON, ID_DELETE_BUTTON, ID_EDIT_BUTTON,
   ID_SAVE_BUTTON, MESSAGE_RECIPE_LOADED, RecipePage
-} from '../../components/recipe-page/RecipePage';
+} from '../../components/pages/recipe-page/RecipePage';
 import recipeService from '../../services/recipeService';
 
 

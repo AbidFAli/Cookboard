@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import userFixture from '../../test/fixtures/user/userNoRecipes';
-import testHelper from '../../test/util/recipePageTestHelper';
+import userFixture from '../../../test/fixtures/user/userNoRecipes';
+import testHelper from '../../../test/util/recipePageTestHelper';
 import { ID_EDIT_BUTTON } from './RecipePage';
 import {
   ERROR_MESSAGE_TTM_UNIT_MISSING,
@@ -11,7 +11,7 @@ import {
 } from './TimingInfo';
 
 
-jest.mock('../../services/recipeService')
+jest.mock('../../../services/recipeService')
 
 const getUnitTextbox = () => {
   return screen.getByTestId(ID_FIELD_TTM_UNIT)

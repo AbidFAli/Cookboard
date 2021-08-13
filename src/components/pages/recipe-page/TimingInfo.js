@@ -1,6 +1,6 @@
 import Typography from '@material-ui/core/Typography';
 import React from 'react';
-import { UnitedValue } from '../UnitedValue';
+import { UnitedValue } from '../../UnitedValue';
 
 
 const ERROR_MESSAGE_TTM_VALUE_MISSING = "Prep Time(value) missing"

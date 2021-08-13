@@ -3,15 +3,15 @@ import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from "history";
 import React from 'react';
 import { Router } from "react-router";
-import { PATH_LOGIN, PATH_MYRECIPES } from '../paths';
-import { ERROR_INCORRECT_PASSWORD, userService } from '../services/userService';
-import constants from '../util/constants';
+import { PATH_LOGIN, PATH_MYRECIPES } from '../../paths';
+import { ERROR_INCORRECT_PASSWORD, userService } from '../../services/userService';
+import constants from '../../util/constants';
 import {
   errorMessages, ids,
   KEY_USER_STORAGE, LoginWindow
 } from './LoginWindow';
 
-jest.mock('../services/userService')
+jest.mock('../../services/userService')
 
 const testUserInfo = {
   username: "AbidAli",

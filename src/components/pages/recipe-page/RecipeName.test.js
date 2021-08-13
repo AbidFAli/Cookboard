@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import userFixture from '../../test/fixtures/user/userNoRecipes';
-import testHelper from '../../test/util/recipePageTestHelper';
+import userFixture from '../../../test/fixtures/user/userNoRecipes';
+import testHelper from '../../../test/util/recipePageTestHelper';
 import {
   ERROR_MSG_RECIPE_NAME_MISSING,
   ID_FIELD_RECIPE_NAME
@@ -9,7 +9,7 @@ import {
 import { ID_EDIT_BUTTON } from './RecipePage';
 
 
-jest.mock('../../services/recipeService')
+jest.mock('../../../services/recipeService')
 
 
 

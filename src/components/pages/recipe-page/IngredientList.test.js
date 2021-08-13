@@ -2,9 +2,9 @@ import { within } from '@testing-library/dom';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { Ingredient } from '../../Model/ingredient.js';
-import userFixture from '../../test/fixtures/user/userNoRecipes';
-import testHelper from '../../test/util/recipePageTestHelper';
+import { Ingredient } from '../../../Model/ingredient.js';
+import userFixture from '../../../test/fixtures/user/userNoRecipes';
+import testHelper from '../../../test/util/recipePageTestHelper';
 import {
     ERROR_MESSAGE_AMOUNT_MISSING,
     ERROR_MESSAGE_AMOUNT_NAN,
@@ -19,7 +19,7 @@ import { ID_EDIT_BUTTON } from './RecipePage';
 
 //Integration tests with RecipePage and IngredientList
 
-jest.mock('../../services/recipeService')
+jest.mock('../../../services/recipeService')
 
 
 /*

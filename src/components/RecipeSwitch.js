@@ -1,7 +1,7 @@
 import { React } from 'react';
 import { Route, Switch } from "react-router-dom";
 import { PATH_CREATE_RECIPE, PATH_RECIPES } from '../paths';
-import { RecipePage } from './recipe-page/RecipePage';
+import { RecipePage } from './pages/recipe-page/RecipePage';
 
 function RecipeSwitch({user, snackbarRef}){
   return (

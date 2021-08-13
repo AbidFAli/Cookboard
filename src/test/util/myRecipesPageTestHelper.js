@@ -1,8 +1,8 @@
 import { act, render } from '@testing-library/react';
 import React from 'react';
 import { MemoryRouter, Route, Switch } from 'react-router-dom';
-import { MyRecipesPage } from '../../components/MyRecipesPage';
 import { SnackbarProvider } from '../../components/NotificationSnackbar';
+import { MyRecipesPage } from '../../components/pages/MyRecipesPage';
 import { RecipeSwitch } from '../../components/RecipeSwitch';
 import { PATH_MYRECIPES, PATH_RECIPES } from '../../paths';
 

@@ -4,8 +4,8 @@ import ListItemText from '@material-ui/core/ListItemText';
 import TextField from '@material-ui/core/TextField';
 import DeleteIcon from '@material-ui/icons/Delete';
 import React, { useState } from 'react';
-import Instruction from '../../Model/instruction';
-import { FormList } from '../FormList';
+import Instruction from '../../../Model/instruction';
+import { FormList } from '../../FormList';
 
 
 //error key

@@ -7,9 +7,9 @@ import {
 } from "react-router-dom";
 import './App.css';
 import { AppBar } from './components/AppBar';
-import { LoginWindow } from './components/LoginWindow.js';
-import { MyRecipesPage } from './components/MyRecipesPage.js';
 import { SnackbarProvider } from './components/NotificationSnackbar';
+import { LoginWindow } from './components/pages/LoginWindow.js';
+import { MyRecipesPage } from './components/pages/MyRecipesPage.js';
 import { RecipeSwitch } from './components/RecipeSwitch';
 import { PATH_LOGIN, PATH_MYRECIPES, PATH_RECIPES } from './paths.js';
 
@@ -19,7 +19,6 @@ import { PATH_LOGIN, PATH_MYRECIPES, PATH_RECIPES } from './paths.js';
 // const navTabs = [
 //   { link: "/search/", name: "Search" },
 //   { link: "/recipes/browse", name: "Browse Recipes" },
-//   { link: "/recipes/create", name: "Create Recipes" },
 //   { link: "/meals/plan", name: "Plan Meals" },
 //   { link: "/pantry/", name: "My Pantry" },
 //   { link: "/grocerylist/", name: "Grocery List" },
@@ -27,7 +26,7 @@ import { PATH_LOGIN, PATH_MYRECIPES, PATH_RECIPES } from './paths.js';
 // ]; 
 
 
-const App = ({basePath}) =>  {
+const App = (props) =>  {
   const [user, setUser] = useState(undefined)
   const snackbarRef = useRef({})
 

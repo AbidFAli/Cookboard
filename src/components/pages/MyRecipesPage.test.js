@@ -1,10 +1,10 @@
 import { cleanup, screen } from '@testing-library/react';
-import { Recipe } from '../Model/recipe.js';
-import recipeService from '../services/recipeService.js';
-import testHelper from '../test/util/myRecipesPageTestHelper';
+import { Recipe } from '../../Model/recipe.js';
+import recipeService from '../../services/recipeService.js';
+import testHelper from '../../test/util/myRecipesPageTestHelper';
 import { MESSAGE_NO_RECIPES } from './MyRecipesPage';
 
-jest.mock('../services/recipeService')
+jest.mock('../../services/recipeService')
 
 
 
