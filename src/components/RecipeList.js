@@ -48,7 +48,7 @@ function RecipeList(props){
               
           );
       });
-      return (<List component="ul">{content}</List>);
+      return (<List data-testid = "RecipeList" component="ul">{content}</List>);
   }
   
 }

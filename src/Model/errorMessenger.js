@@ -2,6 +2,7 @@
 //shouldn't since removing different errors.
 
 import { cloneDeep } from 'lodash'
+import { useReducer } from 'react'
 
 class ErrorMessenger {
   constructor(otherService){
@@ -55,5 +56,26 @@ function reduceErrors(errors, action){
   }
 }
 
+function useErrorMessenger(props){
+  const [errors, dispatchErrors] = useReducer(reduceErrors, new ErrorMessenger())
 
-export { ErrorMessenger, reduceErrors }
+  const addError = (valueName, message) => {
+    dispatchErrors({type: 'add', errorKey: valueName, errorMessage: message})
+  }
+
+  const removeError = (valueName) => {
+    dispatchErrors({type: 'remove', errorKey: valueName})
+  }
+
+  const resetErrors = () => {
+    dispatchErrors({type: 'reset'})
+  }
+
+  return {
+    errors, addError, removeError, resetErrors
+  }
+}
+
+
+export { ErrorMessenger, reduceErrors, useErrorMessenger }
+

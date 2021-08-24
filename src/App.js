@@ -10,8 +10,9 @@ import { AppBar } from './components/AppBar';
 import { SnackbarProvider } from './components/NotificationSnackbar';
 import { LoginWindow } from './components/pages/LoginWindow.js';
 import { MyRecipesPage } from './components/pages/MyRecipesPage.js';
+import { RecipeBrowser } from './components/pages/recipe-browser/RecipeBrowser';
 import { RecipeSwitch } from './components/RecipeSwitch';
-import { PATH_LOGIN, PATH_MYRECIPES, PATH_RECIPES } from './paths.js';
+import * as paths from './paths.js';
 
 
 
@@ -30,9 +31,13 @@ const App = (props) =>  {
   const [user, setUser] = useState(undefined)
   const snackbarRef = useRef({})
 
+  const clearUser = () => {
+    setUser(undefined)
+  }
+
   let appBar = (
     <React.Fragment>
-      <AppBar user = {user} clearUser = {() => setUser(undefined)} />
+      <AppBar user = {user} clearUser = {clearUser} />
       <Toolbar />
     </React.Fragment>
     
@@ -45,17 +50,20 @@ const App = (props) =>  {
       <Container maxWidth='md'>
         {appBar}
         <Switch>  
-            <Route path={PATH_MYRECIPES}>
+            <Route path={paths.PATH_MYRECIPES}>
               <MyRecipesPage user = {user} snackbarRef = {snackbarRef} /> 
             </Route>
-            <Route path = {PATH_RECIPES} >
+            <Route path = {paths.PATH_RECIPES} >
               <RecipeSwitch user = {user} snackbarRef = {snackbarRef}/>
             </Route>
-            <Route path = {PATH_LOGIN}>
+            <Route path = {paths.PATH_SEARCH} >
+              <RecipeBrowser snackbarRef = {snackbarRef} />
+            </Route>
+            <Route path = {paths.PATH_LOGIN}>
               <LoginWindow user = {user} updateUser = {setUser} />
             </Route>
             <Route path="/">
-                <Redirect to= {PATH_LOGIN} />
+                <Redirect to= {paths.PATH_LOGIN} />
             </Route>
         </Switch>
         <SnackbarProvider ref = {snackbarRef} />

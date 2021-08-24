@@ -5,11 +5,14 @@ import React from 'react';
 import { Router } from "react-router";
 import { PATH_LOGIN, PATH_MYRECIPES } from '../../paths';
 import { ERROR_INCORRECT_PASSWORD, userService } from '../../services/userService';
-import constants from '../../util/constants';
 import {
-  errorMessages, ids,
-  KEY_USER_STORAGE, LoginWindow
+  errorMessages,
+  ids,
+  KEY_USER_STORAGE,
+  LoginWindow,
+  MAX_PASSWORD_LENGTH
 } from './LoginWindow';
+
 
 jest.mock('../../services/userService')
 
@@ -179,10 +182,10 @@ describe("tests for LoginWindow.", () => {
           expect(screen.getByText(errorMessage)).toBeInTheDocument()
         })
 
-        test(`you cannot enter a password greater than ${constants.MAX_PASSWORD_LENGTH} chars`, async () => {
-          let testPassword = "a".repeat(constants.MAX_PASSWORD_LENGTH + 1)
+        test(`you cannot enter a password greater than ${MAX_PASSWORD_LENGTH} chars`, async () => {
+          let testPassword = "a".repeat(MAX_PASSWORD_LENGTH + 1)
           enterPassword(testPassword)
-          expect(screen.getByTestId(ids.ID_INPUT_PASSWORD).value).toHaveLength(constants.MAX_PASSWORD_LENGTH)
+          expect(screen.getByTestId(ids.ID_INPUT_PASSWORD).value).toHaveLength(MAX_PASSWORD_LENGTH)
         })
 
       })

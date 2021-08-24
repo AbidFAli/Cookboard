@@ -11,10 +11,11 @@ import React, { useEffect, useState } from 'react';
 import { useHistory } from "react-router-dom";
 import { PATH_LOGIN, PATH_MYRECIPES, PATH_REGISTRATION } from '../../paths';
 import { ERROR_INCORRECT_PASSWORD, ERROR_OTHER, userService } from '../../services/userService';
-import constants from '../../util/constants';
 import { isUsernameTakenError } from '../../util/errors';
 
 
+const MIN_PASSWORD_LENGTH = 8
+const MAX_PASSWORD_LENGTH = 40
 
 const KEY_USER_STORAGE = "CookboardUserLocalStorage"
 
@@ -33,7 +34,7 @@ const MESSAGE_INCORRECT_PASSWORD = "The password you entered was incorrect"
 const MESSAGE_PASSWORD_MATCH = "Password must match"
 const MESSAGE_EMAIL_MISSING = "Please enter an email"
 const MESSAGE_INVALID_PASSWORD_CHARACTER = "Spaces and <>\\ are not allowed"
-const MESSAGE_PASSWORD_TOO_SHORT = `Password must be at least ${constants.MIN_PASSWORD_LENGTH} characters`
+const MESSAGE_PASSWORD_TOO_SHORT = `Password must be at least ${MIN_PASSWORD_LENGTH} characters`
 
 const errorMessages = {
   MESSAGE_USERNAME_MISSING,
@@ -141,7 +142,7 @@ const LoginWindow = ({user, updateUser}) => {
     else if(registering && password.match(/[\s\\<>]/)){
       errorMessage = MESSAGE_INVALID_PASSWORD_CHARACTER
     }
-    else if(registering && (password.length < constants.MIN_PASSWORD_LENGTH)){
+    else if(registering && (password.length < MIN_PASSWORD_LENGTH)){
       errorMessage = MESSAGE_PASSWORD_TOO_SHORT
     }
     else if(registering && (confirmPassword !== password)){
@@ -156,14 +157,14 @@ const LoginWindow = ({user, updateUser}) => {
   }
 
   const handlePasswordChange = (text) => {
-    if(text.length <= constants.MAX_PASSWORD_LENGTH){
+    if(text.length <= MAX_PASSWORD_LENGTH){
       setPassword(text)
       checkPasswordErrors(text, confirmPassword)
     }
   }
 
   const handleConfirmPasswordChange = (text) => {
-    if(text.length <= constants.MAX_PASSWORD_LENGTH){
+    if(text.length <= MAX_PASSWORD_LENGTH){
       setConfirmPassword(text)
       checkPasswordErrors(password, text)
     }
@@ -260,7 +261,7 @@ const LoginWindow = ({user, updateUser}) => {
       label = "Email"
       value = {email}
       helperText = {errorEmail}
-      error = {errorEmail != ''}
+      error = {errorEmail !== ''}
       onChange = {event => handleEmailChange(event.target.value)}
       inputProps = {{'data-testid': ID_INPUT_EMAIL}} 
       id = {ID_INPUT_EMAIL}
@@ -295,7 +296,7 @@ const LoginWindow = ({user, updateUser}) => {
       <Typography variant = "subtitle2">Password Rules</Typography>
       <List>
         <ListItem>
-          <ListItemText primary = {`${constants.MIN_PASSWORD_LENGTH} to ${constants.MAX_PASSWORD_LENGTH} characters`}/>
+          <ListItemText primary = {`${MIN_PASSWORD_LENGTH} to ${MAX_PASSWORD_LENGTH} characters`}/>
         </ListItem>
         <ListItem>
           <ListItemText primary = {"Letters, numbers, and other special characters except <>\\"}  />
@@ -390,6 +391,7 @@ export {
   errorMessages,
   ids,
   KEY_USER_STORAGE,
-
+  MAX_PASSWORD_LENGTH,
+  MIN_PASSWORD_LENGTH
 };
 
