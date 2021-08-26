@@ -67,6 +67,7 @@ async function viewNextRecipes(recipes, currentPos, resultSize = 5){
       return currentPos + nextRecipes.length
 }
 
+//can be made from modification of the above. Ex: just start back 5 and pass that in as
 async function viewPreviousRecipes(recipes, currentPos, resultSize = 5){
   let start = currentPos - resultSize < 0 ? 0 : currentPos - resultSize
   let nextRecipes = recipes.slice(start,currentPos)
