@@ -1,7 +1,10 @@
 {
     "env": {
         "browser": true,
-        "es2021": true
+        "node": true,
+        "es2021": true,
+        "jest/globals": true,
+        "cypress/globals": true
     },
     "extends": [
         "eslint:recommended",
@@ -15,8 +18,16 @@
         "sourceType": "module"
     },
     "plugins": [
-        "react"
+        "react",
+        "jest",
+        "cypress"
     ],
+    "settings": {
+        "react": {
+            "version" : "detect"
+        }
+    },
     "rules": {
+        "no-unused-vars" : ["warn"]
     }
 }

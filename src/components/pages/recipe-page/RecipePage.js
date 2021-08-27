@@ -7,6 +7,7 @@ import CancelIcon from "@material-ui/icons/Cancel";
 import EditIcon from "@material-ui/icons/Edit";
 import Rating from "@material-ui/lab/Rating";
 import { cloneDeep } from "lodash";
+import PropTypes from "prop-types";
 import React, { useEffect, useReducer, useState } from "react";
 import { useHistory } from "react-router";
 import { ErrorMessenger, reduceErrors } from "../../../Model/errorMessenger";
@@ -456,6 +457,14 @@ const RecipePage = (props) => {
       </Grid>
     </React.Fragment>
   );
+};
+
+RecipePage.propTypes = {
+  id: PropTypes.string,
+  user: PropTypes.shape({
+    id: PropTypes.string,
+  }),
+  snackbarRef: PropTypes.object,
 };
 
 export {

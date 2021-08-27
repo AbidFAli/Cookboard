@@ -7,7 +7,7 @@
 /coverage
 
 # production
-#/build
+/build
 
 # misc
 .DS_Store
@@ -17,6 +17,7 @@
 .env.production.local
 
 .vscode/
+.vs
 
 # Logs
 logs

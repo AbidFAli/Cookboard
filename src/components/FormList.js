@@ -1,9 +1,8 @@
-import IconButton from '@material-ui/core/IconButton';
-import List from '@material-ui/core/List';
-import AddIcon from '@material-ui/icons/Add';
-import PropTypes from 'prop-types';
-import React, { useState } from 'react';
-
+import IconButton from "@material-ui/core/IconButton";
+import List from "@material-ui/core/List";
+import AddIcon from "@material-ui/icons/Add";
+import PropTypes from "prop-types";
+import React, { useState } from "react";
 
 /*
  *@prop addNewBlankListItem
@@ -34,79 +33,74 @@ const FormList = ({
   addNewBlankListItem,
   component,
   renderListItem,
-  'data-testid': dataTestId,
+  "data-testid": dataTestId,
   editable,
   idAddButton,
-  listItems, 
+  listItems,
   onListError,
-  onNoListError
-  }) => {
-
-  const [itemErrors, setItemErrors] = useState([])
+  onNoListError,
+}) => {
+  const [itemErrors, setItemErrors] = useState([]);
 
   const addItemError = (childId) => {
-    let newErrors = [...itemErrors]
-    newErrors.push(childId)
+    let newErrors = [...itemErrors];
+    newErrors.push(childId);
 
     //now there is a new error and this is the first error so perform callback
-    if(onListError && itemErrors.length === 0){
-      onListError() 
+    if (onListError && itemErrors.length === 0) {
+      onListError();
     }
-    setItemErrors(newErrors)
-  }
+    setItemErrors(newErrors);
+  };
 
   const removeItemError = (childId) => {
-    let newErrors = itemErrors.filter((id) => id !== childId)
-    
+    let newErrors = itemErrors.filter((id) => id !== childId);
+
     //this is the last error and it will be removed, perform callback
-    if(onNoListError && itemErrors.length === 1){
-      onNoListError()
+    if (onNoListError && itemErrors.length === 1) {
+      onNoListError();
     }
-    setItemErrors(newErrors)
-  }
-
-
+    setItemErrors(newErrors);
+  };
 
   let buttons = null;
   let content = null;
-  if(listItems){
+  if (listItems) {
     content = listItems.map((item, pos) => {
-      return renderListItem(item, pos, addItemError, removeItemError)
+      return renderListItem(item, pos, addItemError, removeItemError);
     });
   }
 
-  
-  if(editable){
-   buttons = (
-    <IconButton data-testid = {idAddButton} onClick = {() => addNewBlankListItem()}>
-      <AddIcon />
-    </IconButton>
-   )
+  if (editable) {
+    buttons = (
+      <IconButton
+        data-testid={idAddButton}
+        onClick={() => addNewBlankListItem()}
+      >
+        <AddIcon />
+      </IconButton>
+    );
   }
 
   return (
-    <div data-testid = {dataTestId}> 
-      <List component = {component}>
-      {content}
-      </List>
+    <div data-testid={dataTestId}>
+      <List component={component}>{content}</List>
       {buttons}
     </div>
   );
-}
+};
 
 FormList.propTypes = {
   addNewBlankListItem: PropTypes.func.isRequired,
   component: PropTypes.string,
-  dataTestId: PropTypes.string, 
+  dataTestId: PropTypes.string,
   editable: PropTypes.bool,
   listItems: PropTypes.array.isRequired,
   idAddButton: PropTypes.string,
-  renderListItem : PropTypes.func.isRequired,
+  renderListItem: PropTypes.func.isRequired,
   onListError: PropTypes.func,
   onNoListError: PropTypes.func,
-}
-
-export {
-  FormList
+  "data-testid": PropTypes.string,
 };
 
+export { FormList };

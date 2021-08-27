@@ -1,6 +1,7 @@
 //Copied from https://reactjs.org/docs/error-boundaries.html
 
-import React from 'react'
+import PropTypes from "prop-types";
+import React from "react";
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -24,8 +25,12 @@ class ErrorBoundary extends React.Component {
       return <h1>Something went wrong.</h1>;
     }
 
-    return this.props.children; 
+    return this.props.children;
   }
 }
+
+ErrorBoundary.propTypes = {
+  children: PropTypes.array,
+};
 
 export default ErrorBoundary;
