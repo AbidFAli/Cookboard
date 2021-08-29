@@ -4,7 +4,10 @@ import MobileStepper from "@material-ui/core/MobileStepper";
 import Paper from "@material-ui/core/Paper";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
-import React, { useState } from "react";
+import PropTypes from "prop-types";
+import React, { useEffect, useState } from "react";
+import { useHistory } from "react-router-dom";
+import { PATH_SEARCH } from "../../../paths";
 import recipeService from "../../../services/recipeService";
 import { RecipeList } from "../../RecipeList";
 import { RecipeBrowserOptions } from "./RecipeBrowserOptions";
@@ -42,9 +45,39 @@ function RecipeBrowser(props) {
   const [searching, setSearching] = useState(false);
   const [resultsTotal, setResultsTotal] = useState(0);
   const [batchNumber, setCurrentBatchNumber] = useState(0); //0 indexed
+  const history = useHistory();
   const resultSize = recipeService.DEFAULT_SEARCH_BATCH_SIZE;
   const maxBatch = Math.ceil(resultsTotal / resultSize);
   let currentPos = batchNumber * resultSize;
+
+  useEffect(() => {
+    if (
+      history.location.pathname === PATH_SEARCH &&
+      history.location.state &&
+      history.action === "POP"
+    ) {
+      loadPageState(history.location.state);
+    }
+  }, [history]);
+
+  const savePageState = (pageState) => {
+    history.replace(
+      {
+        pathname: history.location.pathname,
+        search: history.location.search,
+        hash: history.location.hash,
+      },
+      pageState
+    );
+  };
+
+  const loadPageState = (pageState) => {
+    setRecipes(pageState.recipes);
+    setSearchOptions(pageState.searchOptions);
+    setSearching(pageState.searching);
+    setResultsTotal(pageState.resultsTotal);
+    setCurrentBatchNumber(pageState.batchNumber);
+  };
 
   const performNewSearch = async () => {
     setSearching(true);
@@ -54,6 +87,14 @@ function RecipeBrowser(props) {
     let results = await recipeService.search(searchOptions, 0, resultSize);
     setRecipes(results);
     setResultsTotal(resultsTotal);
+    let pageState = {
+      searchOptions: { ...searchOptions },
+      recipes: [...results],
+      searching: true,
+      resultsTotal,
+      batchNumber,
+    };
+    savePageState(pageState);
   };
 
   const setSearchOptionsName = (name) => {
@@ -70,6 +111,14 @@ function RecipeBrowser(props) {
     );
     setRecipes(results);
     setCurrentBatchNumber(batchNumber + 1);
+    let pageState = {
+      searchOptions: { ...searchOptions },
+      recipes: [...results],
+      searching,
+      resultsTotal,
+      batchNumber: batchNumber + 1,
+    };
+    savePageState(pageState);
   };
 
   const handleBack = async () => {
@@ -80,6 +129,14 @@ function RecipeBrowser(props) {
     );
     setRecipes(results);
     setCurrentBatchNumber(batchNumber - 1);
+    let pageState = {
+      searchOptions: { ...searchOptions },
+      recipes: [...results],
+      searching,
+      resultsTotal,
+      batchNumber: batchNumber - 1,
+    };
+    savePageState(pageState);
   };
 
   const searchButton = (
@@ -166,6 +223,6 @@ function RecipeBrowser(props) {
   );
 }
 
-RecipeBrowser.propTypes = {};
+RecipeBrowser.propTypes = { snackbarRef: PropTypes.object };
 
 export { RecipeBrowser, ids, errorMessages };
