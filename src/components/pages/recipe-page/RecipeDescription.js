@@ -12,7 +12,7 @@ const ID_FIELD_DESCRIPTION = "fieldDescription";
  *  stars: number of recipe stars; number
  * }
  */
-const Description = ({ editable, desc, setDesc }) => {
+const RecipeDescription = ({ editable, desc, setDesc }) => {
   const handleChangeDesc = (newDesc) => {
     setDesc(newDesc);
   };
@@ -35,18 +35,25 @@ const Description = ({ editable, desc, setDesc }) => {
     );
   }
   return (
-    <Grid container>
-      <Grid item xs={6}>
-        {viewDescription}
+    <Grid container item xs={6} direction="column">
+      <Grid item>
+        <Typography variant="h5" gutterBottom>
+          Description
+        </Typography>
+      </Grid>
+      <Grid item container>
+        <Grid item xs={6}>
+          {viewDescription}
+        </Grid>
       </Grid>
     </Grid>
   );
 };
 
-Description.propTypes = {
+RecipeDescription.propTypes = {
   editable: PropTypes.bool,
   desc: PropTypes.string,
   setDesc: PropTypes.func,
 };
 
-export { Description, ID_FIELD_DESCRIPTION };
+export { RecipeDescription, ID_FIELD_DESCRIPTION };

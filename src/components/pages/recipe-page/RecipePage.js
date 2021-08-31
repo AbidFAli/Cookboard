@@ -1,11 +1,6 @@
-import Button from "@material-ui/core/Button";
-import Fab from "@material-ui/core/Fab";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
-import CancelIcon from "@material-ui/icons/Cancel";
-import EditIcon from "@material-ui/icons/Edit";
-import Rating from "@material-ui/lab/Rating";
 import { cloneDeep } from "lodash";
 import PropTypes from "prop-types";
 import React, { useEffect, useReducer, useState } from "react";
@@ -16,26 +11,89 @@ import Instruction from "../../../Model/instruction";
 import { PATH_LOGIN, PATH_MYRECIPES, PATH_RECIPES } from "../../../paths";
 import recipeService from "../../../services/recipeService";
 import { isTokenExpiredError } from "../../../util/errors";
-import { Description } from "./Description";
 import { IngredientList } from "./IngredientList";
 import { InstructionList } from "./InstructionList";
+import { RecipeDescription } from "./RecipeDescription";
 import { RecipeName } from "./RecipeName";
+import { ids as buttonIds, RecipePageButtons } from "./RecipePageButtons";
+import { RecipeRating } from "./RecipeRating";
 import { ServingInfoList } from "./ServingInfoList";
 import { TimingInfo } from "./TimingInfo";
 
 const TEXT_CONFIRM_DELETE = "Are you sure you want to delete this recipe?";
-
-const ID_EDIT_BUTTON = "idRecipePage_editButton";
-const ID_CANCEL_BUTTON = "idRecipePage_cancelEditsButton";
-const ID_SAVE_BUTTON = "idRecipePage_saveButton";
-const ID_RATING_SLIDER = "idRecipePage_RatingSlider";
-const ID_DELETE_BUTTON = "idRecipePage_deleteButton";
-
 const KEY_RECIPE_BEFORE_EDITS = "keyRecipeBeforeEdits";
+
 const MESSAGE_RECIPE_LOADED = "Recipe loaded.";
 const MESSAGE_TOKEN_EXPIRED =
   "It has been too long since your last login. Please log in again.";
 
+//moved these ids to the RecipePageButtons but i dont want to fix the import issues in other files
+const ID_EDIT_BUTTON = buttonIds.ID_EDIT_BUTTON;
+const ID_CANCEL_BUTTON = buttonIds.ID_CANCEL_BUTTON;
+const ID_SAVE_BUTTON = buttonIds.ID_SAVE_BUTTON;
+const ID_DELETE_BUTTON = buttonIds.ID_DELETE_BUTTON;
+
+/*
+*action:{
+  type: 'add'|'edit'|'remove'|'setAll'
+  index: the index of the instruction to edit/remove; only for action.type = 'edit' || 'remove'
+  text: the text of the new instruction; only for action.type = 'edit'
+  instructions: the instructions to be set; only for action.type = 'setAll'
+}
+*/
+function reduceInstructions(instructions, action) {
+  let newInstructions = Array.from(instructions);
+  switch (action.type) {
+    case "add":
+      newInstructions.push(new Instruction(action.text));
+      break;
+    case "remove":
+      newInstructions.splice(action.index, 1);
+      break;
+    case "edit":
+      newInstructions[action.index].text = action.text;
+      break;
+    case "setAll":
+      newInstructions = action.instructions;
+      break;
+    default:
+      throw new Error("Invalid action.type for reduceIngredients");
+  }
+  return newInstructions;
+}
+
+/*
+action: {
+  type: 'add'||'edit'||'remove'||'setAll'
+  ingredient: ingredient to be added/removed or the edited ingredient
+  ingredients: array of ingredients to be set; only for action.type = 'setAll'
+}
+*/
+function reduceIngredients(ingredients, action) {
+  let newIngredients;
+  switch (action.type) {
+    case "add":
+      newIngredients = [...ingredients];
+      newIngredients.push(action.ingredient);
+      break;
+    case "edit":
+      newIngredients = ingredients.map((ingredient) =>
+        ingredient.id === action.ingredient.id ? action.ingredient : ingredient
+      );
+      break;
+    case "remove":
+      newIngredients = ingredients.filter(
+        (ingredient) => ingredient.id !== action.ingredient.id
+      );
+      break;
+    case "setAll":
+      newIngredients = action.ingredients;
+      break;
+    default:
+      throw new Error("Invalid action.type for reduceIngredients");
+  }
+  return newIngredients;
+}
 /*
  *@prop id: the id of the recipe to display;
  *  @type null || string
@@ -51,11 +109,10 @@ const RecipePage = (props) => {
   );
 
   //recipe state
-
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [instructions, setInstructions] = useState([]);
-  const [ingredients, setIngredients] = useState([]);
+  const [instructions, modifyInstructions] = useReducer(reduceInstructions, []);
+  const [ingredients, modifyIngredients] = useReducer(reduceIngredients, []);
   const [rating, setRating] = useState(0);
   const [timeToMake, setTimeToMake] = useState(null);
   const [servingInfo, setServingInfo] = useState(null);
@@ -161,11 +218,10 @@ const RecipePage = (props) => {
         (text) => new Instruction(text)
       );
     }
-
-    setInstructions(newInstructions);
-    setIngredients(
-      recipe != null && recipe.ingredients != null ? recipe.ingredients : []
-    );
+    modifyInstructions({ type: "setAll", instructions: newInstructions });
+    let newIngredients =
+      recipe != null && recipe.ingredients != null ? recipe.ingredients : [];
+    modifyIngredients({ type: "setAll", ingredients: newIngredients });
     setRating(recipe != null && recipe.rating != null ? recipe.rating : 0);
     setTimeToMake(recipe != null ? recipe.timeToMake : null);
     setServingInfo(recipe != null ? recipe.servingInfo : null);
@@ -180,7 +236,6 @@ const RecipePage = (props) => {
     setPageState(recipeBeforeEdits);
   };
 
-  //refactor this into multiple functions?
   const changeEditable = async () => {
     dispatchErrors({ type: "reset" });
     if (created && editable) {
@@ -209,253 +264,102 @@ const RecipePage = (props) => {
     window.sessionStorage.setItem(KEY_RECIPE_BEFORE_EDITS, recipeData);
   };
 
-  //below here can be made into reducer functions to clean up this class
-  const addIngredient = function (newIngredient) {
-    let newIngredients = Array.from(ingredients);
-    newIngredients.push(newIngredient);
-    setIngredients(newIngredients);
-  };
-
-  const removeIngredient = function (ingredientToRemove) {
-    let newIngredients = ingredients.filter(
-      (ingredient) => ingredient.id !== ingredientToRemove.id
-    );
-    setIngredients(newIngredients);
-  };
-
-  const editIngredient = function (editedIngredient) {
-    let newIngredients = ingredients.map((ingredient) =>
-      ingredient.id === editedIngredient.id ? editedIngredient : ingredient
-    );
-    setIngredients(newIngredients);
-  };
-
-  const addInstruction = function (newInstruction) {
-    let newInstructions = Array.from(instructions);
-    newInstructions.push(newInstruction);
-    setInstructions(newInstructions);
-  };
-
-  const removeInstruction = function (index) {
-    let newInstructions = Array.from(instructions);
-    newInstructions.splice(index, 1);
-    setInstructions(newInstructions);
-  };
-
-  const editInstruction = function (index, newInstructionText) {
-    let newInstructions = Array.from(instructions);
-    newInstructions[index].text = newInstructionText;
-    setInstructions(newInstructions);
-  };
-
   //functions for creating UI components
-  const createSaveButton = function (created, errors) {
-    let saveButtonText = created ? "Save Changes" : "Create Recipe";
-    let saveButton = null;
-
-    saveButton = (
-      <Button
-        variant="outlined"
-        color="primary"
-        onClick={() => (created ? handleUpdate() : handleCreate())}
-        disabled={errors.size() !== 0}
-        data-testid={ID_SAVE_BUTTON}
-      >
-        {saveButtonText}
-      </Button>
-    );
-    return saveButton;
-  };
-
-  const createDeleteButton = function () {
-    let deleteButton = null;
-
-    deleteButton = (
-      <Button
-        onClick={handleDeleteRecipe}
-        data-testid={ID_DELETE_BUTTON}
-        variant="outlined"
-        color="primary"
-      >
-        Delete Recipe
-      </Button>
-    );
-    return deleteButton;
-  };
-
-  const createCancelButton = function () {
-    return (
-      <Fab
-        data-testid={ID_CANCEL_BUTTON}
-        color="secondary"
-        onClick={() => changeEditable()}
-      >
-        <CancelIcon />
-      </Fab>
-    );
-  };
-
-  const createEditButton = function () {
-    return (
-      <Fab
-        data-testid={ID_EDIT_BUTTON}
-        color="primary"
-        onClick={() => changeEditable()}
-      >
-        <EditIcon />
-      </Fab>
-    );
-  };
-
-  let saveButton = null;
-  let deleteButton = null;
-  let floatingActionButton = null;
-  if (editable) {
-    saveButton = createSaveButton(created, errors);
-    floatingActionButton = createCancelButton();
-  }
-
-  if (props.user && props.user.id && props.user.id === ownerId) {
-    if (created) {
-      deleteButton = createDeleteButton();
-    }
-
-    if (!editable) {
-      floatingActionButton = createEditButton();
-    }
-  }
-
-  //Good example of a split left/right layout.
-  let buttonBar = (
-    <React.Fragment>
-      <Grid container item xs={12} md={6} spacing={2}>
-        <Grid item>{floatingActionButton}</Grid>
-        <Grid item>{saveButton}</Grid>
-      </Grid>
-      <Grid container item xs={12} md={6} justify="flex-end">
-        <Grid item>{deleteButton}</Grid>
-      </Grid>
-    </React.Fragment>
-  );
-
-  let descriptionLayout = (
-    <Grid container item xs={6} direction="column">
-      <Grid item>
-        <Typography variant="h5" gutterBottom>
-          Description
-        </Typography>
-      </Grid>
-      <Grid item>
-        <Description
-          desc={description}
-          setDesc={setDescription}
-          editable={editable}
-        />
-      </Grid>
-    </Grid>
-  );
-
-  let ratingLayout = (
-    <Grid container item xs={6} direction="column">
-      <Grid item>
-        <Typography variant="h5" gutterBottom>
-          Rating
-        </Typography>
-      </Grid>
-      <Grid item>
-        <Rating
-          name={ID_RATING_SLIDER}
-          value={rating}
-          readOnly={!editable}
-          preciscion={0.5}
-          onChange={(event, newRating) => setRating(newRating)}
-        />
-      </Grid>
-    </Grid>
-  );
 
   return (
-    <React.Fragment>
-      <Grid container spacing={4}>
-        <Grid
-          container
-          item
-          xs={12}
-          spacing={3}
-          justify="space-between"
-          alignItems="flex-end"
-        >
-          <Grid item>
-            <RecipeName
-              recipeName={name}
-              setRecipeName={setName}
-              editable={editable}
-              errors={errors}
-              dispatchErrors={dispatchErrors}
-            />
-          </Grid>
-          <Grid item>
-            <TimingInfo
-              timeToMake={timeToMake}
-              setTimeToMake={setTimeToMake}
-              editable={editable}
-              errors={errors}
-              dispatchErrors={dispatchErrors}
-            />
-          </Grid>
-        </Grid>
-        <Grid item xs={12}>
-          <Paper>
-            <Grid container item xs={12} direction="row">
-              {descriptionLayout}
-              {ratingLayout}
-            </Grid>
-          </Paper>
-        </Grid>
-        <Grid item xs={12}>
-          <Paper>
-            <Typography variant="h5" gutterBottom>
-              Ingredients
-            </Typography>
-            <IngredientList
-              ingredients={ingredients}
-              editable={editable}
-              handleRemove={removeIngredient}
-              handleAdd={addIngredient}
-              handleEdit={editIngredient}
-              dispatchErrors={dispatchErrors}
-            />
-          </Paper>
-        </Grid>
-        <Grid item xs={12}>
-          <ServingInfoList
-            servingInfo={servingInfo}
-            setServingInfo={setServingInfo}
+    <Grid container spacing={4}>
+      <Grid
+        container
+        item
+        xs={12}
+        spacing={3}
+        justify="space-between"
+        alignItems="flex-end"
+      >
+        <Grid item>
+          <RecipeName
+            recipeName={name}
+            setRecipeName={setName}
             editable={editable}
             errors={errors}
             dispatchErrors={dispatchErrors}
           />
         </Grid>
-        <Grid item xs={12}>
-          <Paper>
-            <Typography variant="h5" gutterBottom>
-              Instructions
-            </Typography>
-            <InstructionList
-              instructions={instructions}
-              editable={editable}
-              handleAdd={addInstruction}
-              handleRemove={removeInstruction}
-              handleEdit={editInstruction}
-              dispatchErrors={dispatchErrors}
-            />
-          </Paper>
-        </Grid>
-        <Grid container item xs={12}>
-          {buttonBar}
+        <Grid item>
+          <TimingInfo
+            timeToMake={timeToMake}
+            setTimeToMake={setTimeToMake}
+            editable={editable}
+            errors={errors}
+            dispatchErrors={dispatchErrors}
+          />
         </Grid>
       </Grid>
-    </React.Fragment>
+      <Grid item xs={12}>
+        <Paper>
+          <Grid container item xs={12} direction="row">
+            <RecipeDescription
+              desc={description}
+              setDesc={setDescription}
+              editable={editable}
+            />
+            <RecipeRating
+              rating={rating}
+              editable={editable}
+              setRating={setRating}
+            />
+          </Grid>
+        </Paper>
+      </Grid>
+      <Grid item xs={12}>
+        <Paper>
+          <Typography variant="h5" gutterBottom>
+            Ingredients
+          </Typography>
+          <IngredientList
+            ingredients={ingredients}
+            editable={editable}
+            modifyIngredients={modifyIngredients}
+            dispatchErrors={dispatchErrors}
+          />
+        </Paper>
+      </Grid>
+      <Grid item xs={12}>
+        <ServingInfoList
+          servingInfo={servingInfo}
+          setServingInfo={setServingInfo}
+          editable={editable}
+          errors={errors}
+          dispatchErrors={dispatchErrors}
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <Paper>
+          <Typography variant="h5" gutterBottom>
+            Instructions
+          </Typography>
+          <InstructionList
+            instructions={instructions}
+            editable={editable}
+            modifyInstructions={modifyInstructions}
+            dispatchErrors={dispatchErrors}
+          />
+        </Paper>
+      </Grid>
+      <Grid container item xs={12}>
+        <RecipePageButtons
+          ownerId={ownerId}
+          user={props.user}
+          editable={editable}
+          created={created}
+          errors={errors}
+          handleUpdate={handleUpdate}
+          handleCreate={handleCreate}
+          handleDeleteRecipe={handleDeleteRecipe}
+          changeEditable={changeEditable}
+        />
+      </Grid>
+    </Grid>
   );
 };
 
@@ -469,10 +373,10 @@ RecipePage.propTypes = {
 
 export {
   RecipePage,
-  ID_EDIT_BUTTON,
-  ID_SAVE_BUTTON,
   MESSAGE_RECIPE_LOADED,
-  ID_CANCEL_BUTTON,
-  ID_DELETE_BUTTON,
   MESSAGE_TOKEN_EXPIRED,
+  ID_EDIT_BUTTON,
+  ID_CANCEL_BUTTON,
+  ID_SAVE_BUTTON,
+  ID_DELETE_BUTTON,
 };
