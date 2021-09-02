@@ -106,7 +106,7 @@ const enterRecipeName = (name) => {
 const enterDescription = (desc) => {
   let field = screen.getByTestId(ID_FIELD_DESCRIPTION);
   userEvent.clear(field);
-  userEvent.type(field, name);
+  userEvent.type(field, desc);
 };
 
 const getEditButton = () => {

@@ -17,10 +17,9 @@ const useStyles = makeStyles({
   },
 });
 
-const links = [
-  { name: "Search", path: paths.PATH_SEARCH },
-  { name: "Login", path: paths.PATH_LOGIN },
+const defaultLinks = [
   { name: "Home", path: paths.PATH_HOME },
+  { name: "Search", path: paths.PATH_SEARCH },
 ];
 
 const AppBar = ({ clearUser, user }) => {
@@ -32,7 +31,7 @@ const AppBar = ({ clearUser, user }) => {
    *    path
    *}
    */
-  const createLinks = () => {
+  const createLinks = (links) => {
     let content = links.map((link) => {
       return (
         <Link key={link.name} className={classes.link} to={link.path}>
@@ -46,8 +45,15 @@ const AppBar = ({ clearUser, user }) => {
   return (
     <MuiAppBar>
       <Toolbar className={classes.root}>
-        {user ? <LogoutButton clearUser={clearUser} /> : null}
-        {createLinks()}
+        {user ? (
+          <LogoutButton clearUser={clearUser} />
+        ) : (
+          createLinks([{ name: "Login", path: paths.PATH_LOGIN }])
+        )}
+        {createLinks(defaultLinks)}
+        {user
+          ? createLinks([{ name: "My Recipes", path: paths.PATH_MYRECIPES }])
+          : null}
       </Toolbar>
     </MuiAppBar>
   );

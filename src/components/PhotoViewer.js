@@ -1,6 +1,5 @@
-import { Button } from "@material-ui/core";
+import { Button, Paper } from "@material-ui/core";
 import MobileStepper from "@material-ui/core/MobileStepper";
-import Paper from "@material-ui/core/Paper";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import KeyboardArrowLeft from "@material-ui/icons/KeyboardArrowLeft";
@@ -8,8 +7,19 @@ import KeyboardArrowRight from "@material-ui/icons/KeyboardArrowRight";
 import PropTypes from "prop-types";
 import React, { useState } from "react";
 
+const ids = {
+  BUTTON_NEXT_PHOTO: "buttonNextPhoto",
+  BUTTON_PREV_PHOTO: "buttonPrevPhoto",
+};
 const useStyles = makeStyles({
-  photoTitle: {},
+  imagePlaceholder: {
+    width: "20%",
+    height: "auto",
+  },
+  image: {
+    width: "100%",
+    height: "auto",
+  },
   captionContainer: {
     backgroundColor: "rgba(255, 255, 255,.3)",
     position: "absolute",
@@ -29,7 +39,6 @@ const useStyles = makeStyles({
 //const Photo = {url, title, caption}
 const PhotoViewer = (props) => {
   const classes = useStyles();
-
   const [photos, setPhotos] = useState(props.photos ?? []);
   const [currentPhoto, setCurrentPhoto] = useState(0);
   let maxPhotos = photos.length;
@@ -42,39 +51,56 @@ const PhotoViewer = (props) => {
     setCurrentPhoto(currentPhoto - 1);
   };
 
-  //handle case of no photos
-  return (
-    <Paper>
-      <Photo
-        url={photos[currentPhoto].url}
-        title={photos[currentPhoto].title}
-        caption={photos[currentPhoto].caption}
-        width={props.photoWidth}
-        height={props.photoHeight}
-      />
-      <MobileStepper
-        steps={photos.length}
-        position="static"
-        variant="dots"
-        activeStep={currentPhoto}
-        nextButton={
-          <Button
-            disabled={currentPhoto === maxPhotos - 1}
-            onClick={handleNext}
-          >
-            Next
-            <KeyboardArrowRight />
-          </Button>
-        }
-        backButton={
-          <Button disabled={currentPhoto === 0} onClick={handleBack}>
-            <KeyboardArrowLeft />
-            Back
-          </Button>
-        }
-      />
-    </Paper>
-  );
+  let content = null;
+  if (photos.length > 0) {
+    content = (
+      <React.Fragment>
+        <Photo
+          url={photos[currentPhoto].url}
+          title={photos[currentPhoto].title}
+          caption={photos[currentPhoto].caption}
+          width={props.photoWidth}
+          height={props.photoHeight}
+        />
+        <MobileStepper
+          steps={photos.length}
+          position="static"
+          variant="dots"
+          activeStep={currentPhoto}
+          nextButton={
+            <Button
+              disabled={currentPhoto === maxPhotos - 1}
+              data-testid={ids.BUTTON_NEXT_PHOTO}
+              onClick={handleNext}
+            >
+              Next
+              <KeyboardArrowRight />
+            </Button>
+          }
+          backButton={
+            <Button
+              disabled={currentPhoto === 0}
+              onClick={handleBack}
+              data-testid={ids.BUTTON_PREV_PHOTO}
+            >
+              <KeyboardArrowLeft />
+              Back
+            </Button>
+          }
+        />
+      </React.Fragment>
+    );
+  } else if (props.placeholderElement) {
+    content = (
+      <React.Fragment>
+        {React.cloneElement(props.placeholderElement, {
+          className: classes.imagePlaceholder,
+        })}
+        <Typography>{props.placeholderCaption}</Typography>
+      </React.Fragment>
+    );
+  }
+  return <Paper>{content} </Paper>;
 };
 
 PhotoViewer.propTypes = {
@@ -87,6 +113,12 @@ PhotoViewer.propTypes = {
   ),
   photoWidth: PropTypes.number,
   photoHeight: PropTypes.number,
+  placeholderElement: PropTypes.element, //<img> or <svg> or MaterialUI icon
+  placeholderCaption: PropTypes.string,
+};
+
+PhotoViewer.defaultProps = {
+  photos: [],
 };
 
 PhotoViewer.propTypes = {};
@@ -98,7 +130,7 @@ const Photo = ({ url, title, caption, width, height }) => {
     <div>
       {title && <Typography variant="h6">{title}</Typography>}
       <div className={classes.photoContainer}>
-        {url && <img src={url} width={width} height={height} loading="lazy" />}
+        {url && <img src={url} className={classes.image} loading="lazy" />}
         {caption && <PhotoCaption caption={caption} />}
       </div>
     </div>
@@ -133,4 +165,4 @@ PhotoCaption.propTypes = {
   caption: PropTypes.string,
 };
 
-export { PhotoViewer, Photo };
+export { PhotoViewer, Photo, ids };

@@ -19,6 +19,7 @@ import { ids as buttonIds, RecipePageButtons } from "./RecipePageButtons";
 import { RecipeRating } from "./RecipeRating";
 import { ServingInfoList } from "./ServingInfoList";
 import { TimingInfo } from "./TimingInfo";
+import { RecipePhotos } from "./RecipePhotos";
 
 const TEXT_CONFIRM_DELETE = "Are you sure you want to delete this recipe?";
 const KEY_RECIPE_BEFORE_EDITS = "keyRecipeBeforeEdits";
@@ -95,6 +96,36 @@ function reduceIngredients(ingredients, action) {
   return newIngredients;
 }
 /*
+action:{
+   type: 'add'||'edit'||'remove'||'clear'
+   photo: the photo object
+   index: index of photo to edit. only for type: 'edit'
+}
+photos: array of photo
+*/
+function reducePhotos(photos, action) {
+  let newPhotos;
+  switch (action.type) {
+    case "add":
+      newPhotos = [...photos];
+      newPhotos.push(action.photo);
+      break;
+    case "edit":
+      newPhotos = [...photos];
+      newPhotos[action.index] = action.photo;
+      break;
+    case "remove":
+      newPhotos = photos.filter((photo) => photo.url !== action.photo.url);
+      break;
+    case "clear":
+      newPhotos = [];
+      break;
+    default:
+      throw new Error("Invalid action.type for reducePhotos");
+  }
+  return newPhotos;
+}
+/*
  *@prop id: the id of the recipe to display;
  *  @type null || string
  *@prop user: the logged in user
@@ -116,6 +147,7 @@ const RecipePage = (props) => {
   const [rating, setRating] = useState(0);
   const [timeToMake, setTimeToMake] = useState(null);
   const [servingInfo, setServingInfo] = useState(null);
+  const [photos, modifyPhotos] = useReducer(reducePhotos, []);
   const [ownerId, setOwnerId] = useState(undefined);
 
   //page control state
@@ -294,6 +326,14 @@ const RecipePage = (props) => {
             dispatchErrors={dispatchErrors}
           />
         </Grid>
+      </Grid>
+      <Grid item xs={12}>
+        <RecipePhotos
+          photos={photos}
+          editable={editable}
+          modifyPhotos={modifyPhotos}
+          snackbarRef={props.snackbarRef}
+        />
       </Grid>
       <Grid item xs={12}>
         <Paper>
