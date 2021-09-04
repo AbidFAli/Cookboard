@@ -16,10 +16,10 @@ import { InstructionList } from "./InstructionList";
 import { RecipeDescription } from "./RecipeDescription";
 import { RecipeName } from "./RecipeName";
 import { ids as buttonIds, RecipePageButtons } from "./RecipePageButtons";
+import { RecipePhotos } from "./RecipePhotos";
 import { RecipeRating } from "./RecipeRating";
 import { ServingInfoList } from "./ServingInfoList";
 import { TimingInfo } from "./TimingInfo";
-import { RecipePhotos } from "./RecipePhotos";
 
 const TEXT_CONFIRM_DELETE = "Are you sure you want to delete this recipe?";
 const KEY_RECIPE_BEFORE_EDITS = "keyRecipeBeforeEdits";
@@ -97,9 +97,10 @@ function reduceIngredients(ingredients, action) {
 }
 /*
 action:{
-   type: 'add'||'edit'||'remove'||'clear'
+   type: 'add'||'edit'||'remove'||'clear'|| 'setAll'
    photo: the photo object
    index: index of photo to edit. only for type: 'edit'
+   photos: the photos to add. only for type : "setAll"
 }
 photos: array of photo
 */
@@ -119,6 +120,9 @@ function reducePhotos(photos, action) {
       break;
     case "clear":
       newPhotos = [];
+      break;
+    case "setAll":
+      newPhotos = action.photos;
       break;
     default:
       throw new Error("Invalid action.type for reducePhotos");
@@ -258,6 +262,9 @@ const RecipePage = (props) => {
     setTimeToMake(recipe != null ? recipe.timeToMake : null);
     setServingInfo(recipe != null ? recipe.servingInfo : null);
     setOwnerId(recipe != null && recipe.user != null ? recipe.user : undefined);
+    if (recipe != null && recipe.photos != null) {
+      modifyPhotos({ type: "setAll", photos: recipe.photos });
+    }
   };
 
   const restoreRecipeBeforeEdits = async () => {

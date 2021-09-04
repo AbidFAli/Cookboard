@@ -4,7 +4,10 @@ import { createMemoryHistory } from "history";
 import { cloneDeep } from "lodash";
 import React from "react";
 import { Router } from "react-router";
-import { SnackbarProvider } from "../../components/NotificationSnackbar";
+import {
+  ID_BUTTON_CLOSE_NOTIFICATION,
+  SnackbarProvider,
+} from "../../components/NotificationSnackbar";
 import { ID_FIELD_DESCRIPTION } from "../../components/pages/recipe-page/RecipeDescription";
 import { ID_FIELD_RECIPE_NAME } from "../../components/pages/recipe-page/RecipeName";
 import {
@@ -61,6 +64,7 @@ const setupAndRenderRecipe = async (recipe, user) => {
   let { history } = renderRecipe(recipeId, user);
   if (recipe) {
     await waitForSnackbar();
+    userEvent.click(screen.getByTestId(ID_BUTTON_CLOSE_NOTIFICATION));
   }
   return {
     history,
