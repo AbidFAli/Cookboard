@@ -9,6 +9,7 @@ import { ErrorMessenger, reduceErrors } from "../../../Model/errorMessenger";
 import { Ingredient } from "../../../Model/ingredient";
 import Instruction from "../../../Model/instruction";
 import { PATH_LOGIN, PATH_MYRECIPES, PATH_RECIPES } from "../../../paths";
+import { recipePhotoService } from "../../../services/recipePhotoService";
 import recipeService from "../../../services/recipeService";
 import { isTokenExpiredError } from "../../../util/errors";
 import { IngredientList } from "./IngredientList";
@@ -303,6 +304,13 @@ const RecipePage = (props) => {
     window.sessionStorage.setItem(KEY_RECIPE_BEFORE_EDITS, recipeData);
   };
 
+  const handleSavePhoto = async () => {
+    for (const photo of photos) {
+      //this is async but im not waiting
+      recipePhotoService.performSave(photo.file, props.id, props.user);
+    }
+  };
+
   //functions for creating UI components
 
   return (
@@ -338,6 +346,8 @@ const RecipePage = (props) => {
         <RecipePhotos
           photos={photos}
           editable={editable}
+          recipeCreated={created}
+          savePhotos={handleSavePhoto}
           modifyPhotos={modifyPhotos}
           snackbarRef={props.snackbarRef}
         />

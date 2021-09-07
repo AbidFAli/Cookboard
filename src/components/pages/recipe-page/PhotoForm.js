@@ -1,8 +1,8 @@
 import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/grid";
 import IconButton from "@material-ui/core/IconButton";
-import MobileStepper from "@material-ui/core/MobileStepper";
 import TextField from "@material-ui/core/TextField";
+import Typography from "@material-ui/core/Typography";
 import AddIcon from "@material-ui/icons/Add";
 import DeleteIcon from "@material-ui/icons/Delete";
 import KeyboardArrowLeft from "@material-ui/icons/KeyboardArrowLeft";
@@ -19,13 +19,14 @@ const ids = {
   ID_RECIPE_IMAGE: "recipeImage",
   ID_NEXT_BUTTON: "recipePhotoFormNextButton",
   ID_BACK_BUTTON: "recipePhotoFormBackButton",
+  ID_BUTTON_UPLOAD_PHOTOS: "recipePhotoUploadButton",
 };
 
 const IMAGE_WIDTH = 400;
 const IMAGE_HEIGHT = 400;
 const PLACEHOLDER_URL = `https://via.placeholder.com/${IMAGE_WIDTH}x${IMAGE_HEIGHT}`;
 
-const PhotoForm = ({ photos, modifyPhotos, photoLimit }) => {
+const PhotoForm = ({ photos, modifyPhotos, photoLimit, savePhotos }) => {
   const [currentPhoto, setCurrentPhoto] = useState(0);
   const photoInputRef = useRef(null);
   let maxPhotos = photos.length;
@@ -38,8 +39,7 @@ const PhotoForm = ({ photos, modifyPhotos, photoLimit }) => {
     setCurrentPhoto(currentPhoto - 1);
   };
 
-  //todo: case of double selected file
-  const handleFileSelected = (event) => {
+  const handleFileSelected = () => {
     //using event.target.value wasn't working in tests(but was in browser?)
 
     if (
@@ -149,32 +149,33 @@ const PhotoForm = ({ photos, modifyPhotos, photoLimit }) => {
           </IconButton>
         </Grid>
         <Grid item>
-          <MobileStepper
-            steps={photos.length}
-            position="static"
-            variant="text"
-            activeStep={currentPhoto}
-            nextButton={
-              <Button
-                data-testid={ids.ID_NEXT_BUTTON}
-                disabled={currentPhoto === maxPhotos - 1}
-                onClick={handleNext}
-              >
-                Next
-                <KeyboardArrowRight />
-              </Button>
-            }
-            backButton={
-              <Button
-                disabled={currentPhoto === 0}
-                onClick={handleBack}
-                data-testid={ids.ID_BACK_BUTTON}
-              >
-                <KeyboardArrowLeft />
-                Back
-              </Button>
-            }
-          />
+          <Button
+            data-testid={ids.ID_NEXT_BUTTON}
+            disabled={currentPhoto === maxPhotos - 1}
+            onClick={handleNext}
+          >
+            Next
+            <KeyboardArrowRight />
+          </Button>
+          <Typography variant="body1">{`${
+            currentPhoto + 1
+          } / ${maxPhotos}`}</Typography>
+          <Button
+            disabled={currentPhoto === 0}
+            onClick={handleBack}
+            data-testid={ids.ID_BACK_BUTTON}
+          >
+            <KeyboardArrowLeft />
+            Back
+          </Button>
+        </Grid>
+        <Grid item>
+          <Button
+            data-testid={ids.ID_BUTTON_UPLOAD_PHOTOS}
+            onClick={savePhotos}
+          >
+            Upload photos
+          </Button>
         </Grid>
       </React.Fragment>
     );
@@ -213,6 +214,7 @@ PhotoForm.propTypes = {
   modifyPhotos: PropTypes.func,
   snackbarRef: PropTypes.object,
   photoLimit: PropTypes.number,
+  savePhotos: PropTypes.func,
 };
 
 PhotoForm.defaultProps = {

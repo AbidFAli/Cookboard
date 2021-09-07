@@ -8,8 +8,15 @@ const ids = {};
 
 const PHOTO_PLACEHOLDER_CAPTION = "This recipe has no photos";
 
-const RecipePhotos = ({ photos, editable, modifyPhotos, snackbarRef }) => {
-  let content;
+const RecipePhotos = ({
+  photos,
+  recipeCreated,
+  editable,
+  modifyPhotos,
+  snackbarRef,
+  savePhotos,
+}) => {
+  let content = null;
   if (!editable) {
     content = (
       <PhotoViewer
@@ -18,12 +25,13 @@ const RecipePhotos = ({ photos, editable, modifyPhotos, snackbarRef }) => {
         placeholderCaption={PHOTO_PLACEHOLDER_CAPTION}
       />
     );
-  } else {
+  } else if (recipeCreated) {
     content = (
       <PhotoForm
         photos={photos}
         modifyPhotos={modifyPhotos}
         snackbarRef={snackbarRef}
+        savePhotos={savePhotos}
       />
     );
   }
@@ -41,6 +49,8 @@ RecipePhotos.propTypes = {
   editable: PropTypes.bool,
   modifyPhotos: PropTypes.func,
   snackbarRef: PropTypes.object,
+  recipeCreated: PropTypes.bool,
+  savePhotos: PropTypes.func.isRequired,
 };
 
 export { RecipePhotos, ids };
