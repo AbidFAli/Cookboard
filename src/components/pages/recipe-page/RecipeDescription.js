@@ -25,6 +25,7 @@ const RecipeDescription = ({ editable, desc, setDesc }) => {
         label="Description"
         value={desc}
         onChange={(event) => handleChangeDesc(event.target.value)}
+        multiline
       />
     );
   } else {

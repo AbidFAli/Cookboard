@@ -127,6 +127,7 @@ const InstructionListItem = ({
           onChange={(event) => handleEditWrapper(event.target.value)}
           error={errorMessage != null}
           helperText={errorMessage}
+          multiline
         />
         <IconButton size="small" onClick={handleRemoveWrapper}>
           <DeleteIcon />
