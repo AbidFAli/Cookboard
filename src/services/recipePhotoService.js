@@ -3,6 +3,8 @@ import { authHeaderForUser } from "./recipeServiceHelper";
 
 const BASE_URL = "http://localhost:3001/api/recipes";
 
+//perhaps make this a class. Have it store the recipeId and user since you access it sooo much.
+
 /*
  * *@returns {
  * url: String; the url to save to
@@ -12,7 +14,7 @@ const BASE_URL = "http://localhost:3001/api/recipes";
 const getPhotoSaveURL = async (recipeId, user, fileName) => {
   try {
     const response = await axios.post(
-      `${BASE_URL}/${recipeId}/photos/save/url`,
+      `${BASE_URL}/${recipeId}/photos/uploadUrl`,
       { fileName },
       {
         headers: authHeaderForUser(user),
@@ -42,45 +44,46 @@ const uploadPhoto = async (url, fields, file) => {
 };
 
 /*
- *@param file: instance of File class
+ *Saves the photo image
+ *@param photoFile: file for the image
  *@param recipe: recipe to save the photo for
  *@param user: the current user
- *@returns location: URL at which to access the saved photo
+ *@returns key
  */
-const performSave = async (file, recipeId, user) => {
+const saveImage = async (photoFile, recipeId, user) => {
   try {
-    let { url, fields } = await getPhotoSaveURL(recipeId, user, file.name);
-    const response = await uploadPhoto(url, fields, file);
+    let { url, fields } = await getPhotoSaveURL(recipeId, user, photoFile.name);
+    await uploadPhoto(url, fields, photoFile);
+    return fields.key;
   } catch (error) {
     console.log(error);
   }
-
-  //await sendSaveSuccess()
 };
+
 /*
- *@param metadata: {
+ *Sets the recipe photo metadata(recipe.photos) in the database. Will replace existing metadata
+ *@param metadata: [{
  *  key: string; key for photo. Required.
  *  caption: caption for photo
- *}
+ *}]
  *@param recipeId: id for the recipe
  *@param user: user making the request
  */
-const sendSaveSuccess = async (metadata, recipeId, user) => {
-  let url = `${BASE_URL}/${recipeId}/photos/save/success`;
-  await axios.post(url, metadata, {
-    headers: authHeaderForUser(user),
-  });
+const savePhotos = async (metadata, recipeId, user) => {
+  let url = `${BASE_URL}/${recipeId}/photos`;
+  await axios.put(
+    url,
+    { photos: metadata },
+    {
+      headers: authHeaderForUser(user),
+    }
+  );
 };
 
 //use this one, other stuff is exported for testing purposes
 const recipePhotoService = {
-  performSave,
+  saveImage,
+  savePhotos,
 };
 
-export {
-  recipePhotoService,
-  getPhotoSaveURL,
-  uploadPhoto,
-  sendSaveSuccess,
-  performSave,
-};
+export { recipePhotoService };

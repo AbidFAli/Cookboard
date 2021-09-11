@@ -19,7 +19,7 @@ const ids = {
   ID_RECIPE_IMAGE: "recipeImage",
   ID_NEXT_BUTTON: "recipePhotoFormNextButton",
   ID_BACK_BUTTON: "recipePhotoFormBackButton",
-  ID_BUTTON_UPLOAD_PHOTOS: "recipePhotoUploadButton",
+  ID_BUTTON_SAVE_CHANGES: "recipePhotoSaveChangesButton",
 };
 
 const IMAGE_WIDTH = 400;
@@ -118,10 +118,10 @@ const PhotoForm = ({ photos, modifyPhotos, photoLimit, savePhotos }) => {
       />
     </Grid>
   );
-  let rest = null;
+  let formControls = null;
   let imageBox = null;
   if (photos.length > 0) {
-    rest = (
+    formControls = (
       <React.Fragment>
         <Grid item>
           <TextField
@@ -169,23 +169,13 @@ const PhotoForm = ({ photos, modifyPhotos, photoLimit, savePhotos }) => {
             Back
           </Button>
         </Grid>
-        <Grid item>
-          <Button
-            data-testid={ids.ID_BUTTON_UPLOAD_PHOTOS}
-            onClick={savePhotos}
-          >
-            Upload photos
-          </Button>
-        </Grid>
       </React.Fragment>
     );
 
     imageBox = (
       <img
         src={
-          photos[currentPhoto].url !== ""
-            ? photos[currentPhoto].url
-            : PLACEHOLDER_URL
+          photos[currentPhoto].url ? photos[currentPhoto].url : PLACEHOLDER_URL
         }
         height={`${IMAGE_HEIGHT} px`}
         width={`${IMAGE_WIDTH} px`}
@@ -198,7 +188,20 @@ const PhotoForm = ({ photos, modifyPhotos, photoLimit, savePhotos }) => {
     <Grid container direction="column">
       {imageBox}
       {filePicker}
-      {rest}
+      {formControls}
+      <Grid item>
+        <Button
+          data-testid={ids.ID_BUTTON_SAVE_CHANGES}
+          onClick={savePhotos}
+          disabled={
+            photos.length > 0 &&
+            !photos[currentPhoto].file &&
+            !photos[currentPhoto].url
+          }
+        >
+          Save Changes
+        </Button>
+      </Grid>
     </Grid>
   );
 };
@@ -206,9 +209,13 @@ const PhotoForm = ({ photos, modifyPhotos, photoLimit, savePhotos }) => {
 PhotoForm.propTypes = {
   photos: PropTypes.arrayOf(
     PropTypes.shape({
-      url: PropTypes.string.isRequired,
+      url: PropTypes.string,
       title: PropTypes.string,
       caption: PropTypes.string,
+      file: PropTypes.oneOfType([
+        PropTypes.instanceOf(File),
+        PropTypes.instanceOf(Blob),
+      ]),
     })
   ),
   modifyPhotos: PropTypes.func,

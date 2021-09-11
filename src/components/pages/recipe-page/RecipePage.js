@@ -96,40 +96,7 @@ function reduceIngredients(ingredients, action) {
   }
   return newIngredients;
 }
-/*
-action:{
-   type: 'add'||'edit'||'remove'||'clear'|| 'setAll'
-   photo: the photo object
-   index: index of photo to edit. only for type: 'edit'
-   photos: the photos to add. only for type : "setAll"
-}
-photos: array of photo
-*/
-function reducePhotos(photos, action) {
-  let newPhotos;
-  switch (action.type) {
-    case "add":
-      newPhotos = [...photos];
-      newPhotos.push(action.photo);
-      break;
-    case "edit":
-      newPhotos = [...photos];
-      newPhotos[action.index] = action.photo;
-      break;
-    case "remove":
-      newPhotos = photos.filter((photo) => photo.url !== action.photo.url);
-      break;
-    case "clear":
-      newPhotos = [];
-      break;
-    case "setAll":
-      newPhotos = action.photos;
-      break;
-    default:
-      throw new Error("Invalid action.type for reducePhotos");
-  }
-  return newPhotos;
-}
+
 /*
  *@prop id: the id of the recipe to display;
  *  @type null || string
@@ -152,7 +119,7 @@ const RecipePage = (props) => {
   const [rating, setRating] = useState(0);
   const [timeToMake, setTimeToMake] = useState(null);
   const [servingInfo, setServingInfo] = useState(null);
-  const [photos, modifyPhotos] = useReducer(reducePhotos, []);
+  const [photos, setPhotos] = useState([]);
   const [ownerId, setOwnerId] = useState(undefined);
 
   //page control state
@@ -264,7 +231,7 @@ const RecipePage = (props) => {
     setServingInfo(recipe != null ? recipe.servingInfo : null);
     setOwnerId(recipe != null && recipe.user != null ? recipe.user : undefined);
     if (recipe != null && recipe.photos != null) {
-      modifyPhotos({ type: "setAll", photos: recipe.photos });
+      setPhotos(recipe.photos);
     }
   };
 
@@ -348,8 +315,8 @@ const RecipePage = (props) => {
           editable={editable}
           recipeCreated={created}
           savePhotos={handleSavePhoto}
-          modifyPhotos={modifyPhotos}
           snackbarRef={props.snackbarRef}
+          recipeId={props.id}
         />
       </Grid>
       <Grid item xs={12}>

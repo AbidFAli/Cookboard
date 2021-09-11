@@ -1,7 +1,7 @@
 import { cleanup, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import userFixture from "../../../test/fixtures/user/userNoRecipes";
-import testHelper from "../../../test/util/recipePageTestHelper";
+import testHelper from "../../../test/util/photoEditPageTestHelper";
 import { ids, PLACEHOLDER_URL } from "./PhotoForm";
 jest.mock("../../../services/recipeService");
 
@@ -37,15 +37,15 @@ const testFiles = [
   }),
 ];
 
-describe("PhotoForm integration tests within RecipePage", () => {
+describe("PhotoForm integration tests within PhotoEditPage", () => {
   afterEach(cleanup);
 
   beforeEach(() => {
-    jest.useFakeTimers();
     jest.clearAllMocks();
+    jest.useFakeTimers();
   });
 
-  afterAll(() => {
+  afterEach(() => {
     jest.useRealTimers();
   });
 
@@ -59,10 +59,10 @@ describe("PhotoForm integration tests within RecipePage", () => {
         ingredients: [{ name: "egg", amount: 1, id: "2001" }],
         id: "1234",
         user: user.id,
+        photos: [],
       };
 
-      await testHelper.setupAndRenderRecipe(recipe, user);
-      testHelper.clickEdit();
+      await testHelper.renderPage(user, recipe.photos, recipe.id);
     });
 
     test("can upload an image", async () => {
@@ -108,6 +108,12 @@ describe("PhotoForm integration tests within RecipePage", () => {
       clickAdd();
       expect(screen.getByTestId(ids.ID_BUTTON_ADD_PHOTO)).toBeDisabled();
     });
+
+    test("save button is disabled if a photo is blank", async () => {
+      uploadFile(testFiles[0]);
+      clickAdd();
+      expect(screen.getByTestId(ids.ID_BUTTON_SAVE_CHANGES)).toBeDisabled();
+    });
   });
 
   describe("when editing photos", () => {
@@ -115,17 +121,23 @@ describe("PhotoForm integration tests within RecipePage", () => {
       let user = userFixture();
       recipe = {
         name: "waffles",
-        ingredients: [{ name: "egg", amount: 1, id: "2001" }],
         id: "1234",
         user: user.id,
         photos: [
-          { url: "waffles.com", caption: "waffles" },
-          { url: "syrup.com", caption: "waffles and syrup" },
+          {
+            key: "/waffles.png",
+            url: "awss3.com/waffles.png",
+            caption: "waffles",
+          },
+          {
+            key: "/syrup.png",
+            url: "awss3.com/syrup.png",
+            caption: "waffles and syrup",
+          },
         ],
       };
 
-      await testHelper.setupAndRenderRecipe(recipe, user);
-      testHelper.clickEdit();
+      await testHelper.renderPage(user, recipe.photos, recipe.id);
     });
 
     test("can change the photo for an existing entry in the list", async () => {
@@ -159,8 +171,7 @@ describe("PhotoForm integration tests within RecipePage", () => {
         ],
       };
 
-      await testHelper.setupAndRenderRecipe(recipe, user);
-      testHelper.clickEdit();
+      await testHelper.renderPage(user, recipe.photos, recipe.id);
     });
 
     test("can delete the first photo", async () => {

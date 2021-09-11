@@ -1,8 +1,9 @@
 import FastfoodIcon from "@material-ui/icons/Fastfood";
 import PropTypes from "prop-types";
 import React from "react";
+import { useHistory } from "react-router";
+import { Link } from "react-router-dom";
 import { PhotoViewer } from "../../PhotoViewer";
-import { PhotoForm } from "./PhotoForm";
 
 const ids = {};
 
@@ -12,11 +13,12 @@ const RecipePhotos = ({
   photos,
   recipeCreated,
   editable,
-  modifyPhotos,
   snackbarRef,
-  savePhotos,
+  recipeId,
 }) => {
+  const history = useHistory();
   let content = null;
+
   if (!editable) {
     content = (
       <PhotoViewer
@@ -27,15 +29,16 @@ const RecipePhotos = ({
     );
   } else if (recipeCreated) {
     content = (
-      <PhotoForm
-        photos={photos}
-        modifyPhotos={modifyPhotos}
-        snackbarRef={snackbarRef}
-        savePhotos={savePhotos}
-      />
+      <Link
+        to={{
+          pathname: `${history.location.pathname}/photos/edit`,
+        }}
+      >
+        Click me to add photos
+      </Link>
     );
   }
-  return content;
+  return <div>{content}</div>;
 };
 
 RecipePhotos.propTypes = {
@@ -47,10 +50,9 @@ RecipePhotos.propTypes = {
     })
   ),
   editable: PropTypes.bool,
-  modifyPhotos: PropTypes.func,
   snackbarRef: PropTypes.object,
   recipeCreated: PropTypes.bool,
-  savePhotos: PropTypes.func.isRequired,
+  recipeId: PropTypes.string,
 };
 
 export { RecipePhotos, ids };

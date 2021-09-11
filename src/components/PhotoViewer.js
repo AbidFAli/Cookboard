@@ -17,7 +17,7 @@ const useStyles = makeStyles({
     height: "auto",
   },
   image: {
-    width: "100%",
+    maxWidth: "100%",
     height: "auto",
   },
   captionContainer: {
@@ -30,6 +30,7 @@ const useStyles = makeStyles({
   photoContainer: {
     position: "relative",
     marginBottom: "0",
+    width: "50%",
   },
   caption: {
     fontWeight: "bold",
@@ -39,9 +40,8 @@ const useStyles = makeStyles({
 //const Photo = {url, title, caption}
 const PhotoViewer = (props) => {
   const classes = useStyles();
-  const [photos, setPhotos] = useState(props.photos ?? []);
   const [currentPhoto, setCurrentPhoto] = useState(0);
-  let maxPhotos = photos.length;
+  let maxPhotos = props.photos.length;
 
   const handleNext = () => {
     setCurrentPhoto(currentPhoto + 1);
@@ -52,18 +52,18 @@ const PhotoViewer = (props) => {
   };
 
   let content = null;
-  if (photos.length > 0) {
+  if (props.photos.length > 0) {
     content = (
       <React.Fragment>
         <Photo
-          url={photos[currentPhoto].url}
-          title={photos[currentPhoto].title}
-          caption={photos[currentPhoto].caption}
+          url={props.photos[currentPhoto].url}
+          title={props.photos[currentPhoto].title}
+          caption={props.photos[currentPhoto].caption}
           width={props.photoWidth}
           height={props.photoHeight}
         />
         <MobileStepper
-          steps={photos.length}
+          steps={props.photos.length}
           position="static"
           variant="dots"
           activeStep={currentPhoto}
