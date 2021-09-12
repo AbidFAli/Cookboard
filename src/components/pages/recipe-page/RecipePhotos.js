@@ -1,8 +1,8 @@
+import Button from "@material-ui/core/Button";
 import FastfoodIcon from "@material-ui/icons/Fastfood";
 import PropTypes from "prop-types";
 import React from "react";
 import { useHistory } from "react-router";
-import { Link } from "react-router-dom";
 import { PhotoViewer } from "../../PhotoViewer";
 
 const ids = {};
@@ -13,12 +13,15 @@ const RecipePhotos = ({
   photos,
   recipeCreated,
   editable,
-  snackbarRef,
-  recipeId,
+  saveEditedFields,
 }) => {
   const history = useHistory();
   let content = null;
 
+  const navigateToPhotoEditPage = () => {
+    saveEditedFields();
+    history.push(`${history.location.pathname}/photos/edit`);
+  };
   if (!editable) {
     content = (
       <PhotoViewer
@@ -29,19 +32,14 @@ const RecipePhotos = ({
     );
   } else if (recipeCreated) {
     content = (
-      <Link
-        to={{
-          pathname: `${history.location.pathname}/photos/edit`,
-        }}
-      >
-        Click me to add photos
-      </Link>
+      <Button onClick={navigateToPhotoEditPage}>Click me to add photos</Button>
     );
   }
   return <div>{content}</div>;
 };
 
 RecipePhotos.propTypes = {
+  editable: PropTypes.bool,
   photos: PropTypes.arrayOf(
     PropTypes.shape({
       url: PropTypes.string.isRequired,
@@ -49,10 +47,8 @@ RecipePhotos.propTypes = {
       caption: PropTypes.string,
     })
   ),
-  editable: PropTypes.bool,
-  snackbarRef: PropTypes.object,
   recipeCreated: PropTypes.bool,
-  recipeId: PropTypes.string,
+  saveEditedFields: PropTypes.func,
 };
 
 export { RecipePhotos, ids };

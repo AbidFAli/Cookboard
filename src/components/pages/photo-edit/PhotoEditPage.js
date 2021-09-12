@@ -17,6 +17,9 @@ const messages = {
   LEAVE_UPLOAD: "Are you sure you want to leave without finishing your upload?",
 };
 
+const ids = {
+  ID_BACK_BUTTON: "idGoBack",
+};
 /*
 action:{
    type: 'add'||'edit'||'remove'||'clear'|| 'setAll'
@@ -122,7 +125,10 @@ const PhotoEditPage = ({ user, snackbarRef, recipeId }) => {
         {progressVisible && (
           <UploadProgress progress={100 * (progressStep / maxStep)} />
         )}
-        <IconButton onClick={() => history.goBack()}>
+        <IconButton
+          data-testid={ids.ID_BACK_BUTTON}
+          onClick={() => history.goBack()}
+        >
           <ArrowBackIcon />
         </IconButton>
       </Grid>
@@ -137,4 +143,4 @@ PhotoEditPage.propTypes = {
   recipeId: PropTypes.string.isRequired,
 };
 
-export { PhotoEditPage, messages };
+export { PhotoEditPage, messages, ids };

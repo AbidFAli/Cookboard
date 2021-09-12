@@ -24,6 +24,7 @@ import { TimingInfo } from "./TimingInfo";
 
 const TEXT_CONFIRM_DELETE = "Are you sure you want to delete this recipe?";
 const KEY_RECIPE_BEFORE_EDITS = "keyRecipeBeforeEdits";
+const KEY_RECIPE_EDITED_FIELDS = "KeyRecipeEditedFields";
 
 const MESSAGE_RECIPE_LOADED = "Recipe loaded.";
 const MESSAGE_TOKEN_EXPIRED =
@@ -111,7 +112,7 @@ const RecipePage = (props) => {
     new ErrorMessenger()
   );
 
-  //recipe state
+  //recipe state, editable by user on this page
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [instructions, modifyInstructions] = useReducer(reduceInstructions, []);
@@ -119,6 +120,7 @@ const RecipePage = (props) => {
   const [rating, setRating] = useState(0);
   const [timeToMake, setTimeToMake] = useState(null);
   const [servingInfo, setServingInfo] = useState(null);
+  //recipe state, uneditable by user on this page
   const [photos, setPhotos] = useState([]);
   const [ownerId, setOwnerId] = useState(undefined);
 
@@ -135,7 +137,18 @@ const RecipePage = (props) => {
     if (props.id) {
       recipeService.getById(props.id).then((recipe) => {
         props.snackbarRef.current.displayMessage(MESSAGE_RECIPE_LOADED);
-        setPageState(recipe);
+        let oldRecipeJSON = window.sessionStorage.getItem(
+          KEY_RECIPE_EDITED_FIELDS
+        );
+        window.sessionStorage.removeItem(KEY_RECIPE_EDITED_FIELDS);
+        if (oldRecipeJSON && history.action === "POP") {
+          let oldRecipe = JSON.parse(oldRecipeJSON);
+          oldRecipe.photos = recipe.photos;
+          setPageState(oldRecipe);
+          setEditable(true);
+        } else {
+          setPageState(recipe);
+        }
       });
     }
   }, [props.id]);
@@ -235,27 +248,19 @@ const RecipePage = (props) => {
     }
   };
 
-  const restoreRecipeBeforeEdits = async () => {
-    let recipeBeforeEdits = window.sessionStorage.getItem(
-      KEY_RECIPE_BEFORE_EDITS
-    );
-    recipeBeforeEdits = JSON.parse(recipeBeforeEdits);
-    setPageState(recipeBeforeEdits);
+  /*
+  Key: key in session storage where recipe is saved
+  */
+  const restoreRecipe = async (key) => {
+    let oldRecipe = window.sessionStorage.getItem(key);
+    oldRecipe = JSON.parse(oldRecipe);
+    setPageState(oldRecipe);
   };
 
-  const changeEditable = async () => {
-    dispatchErrors({ type: "reset" });
-    if (created && editable) {
-      await restoreRecipeBeforeEdits();
-    } else if (!created && editable) {
-      history.push(PATH_MYRECIPES);
-    } else if (created) {
-      saveRecipeLocally();
-    }
-    setEditable(!editable);
-  };
-
-  const saveRecipeLocally = () => {
+  /*
+   *Key: key in session storage where recipe is saved
+   */
+  const saveRecipeLocally = (key) => {
     let recipeToSave = {
       id: props.id,
       name,
@@ -266,9 +271,29 @@ const RecipePage = (props) => {
       timeToMake,
       servingInfo,
       user: ownerId,
+      photos: photos,
     };
     let recipeData = JSON.stringify(recipeToSave);
-    window.sessionStorage.setItem(KEY_RECIPE_BEFORE_EDITS, recipeData);
+    window.sessionStorage.setItem(key, recipeData);
+  };
+
+  const cancelEdits = async () => {
+    dispatchErrors({ type: "reset" });
+    window.sessionStorage.removeItem(KEY_RECIPE_EDITED_FIELDS);
+    if (created && editable) {
+      await restoreRecipe(KEY_RECIPE_BEFORE_EDITS);
+    } else if (!created && editable) {
+      history.push(PATH_MYRECIPES);
+    }
+    setEditable(false);
+  };
+
+  const beginEdits = () => {
+    dispatchErrors({ type: "reset" });
+    if (created && !editable) {
+      saveRecipeLocally(KEY_RECIPE_BEFORE_EDITS);
+    }
+    setEditable(true);
   };
 
   const handleSavePhoto = async () => {
@@ -276,6 +301,11 @@ const RecipePage = (props) => {
       //this is async but im not waiting
       recipePhotoService.performSave(photo.file, props.id, props.user);
     }
+  };
+
+  //saves the contents of
+  const saveEditedFields = () => {
+    saveRecipeLocally(KEY_RECIPE_EDITED_FIELDS);
   };
 
   //functions for creating UI components
@@ -287,7 +317,7 @@ const RecipePage = (props) => {
         item
         xs={12}
         spacing={3}
-        justify="space-between"
+        justifyContent="space-between"
         alignItems="flex-end"
       >
         <Grid item>
@@ -315,8 +345,7 @@ const RecipePage = (props) => {
           editable={editable}
           recipeCreated={created}
           savePhotos={handleSavePhoto}
-          snackbarRef={props.snackbarRef}
-          recipeId={props.id}
+          saveEditedFields={saveEditedFields}
         />
       </Grid>
       <Grid item xs={12}>
@@ -380,7 +409,8 @@ const RecipePage = (props) => {
           handleUpdate={handleUpdate}
           handleCreate={handleCreate}
           handleDeleteRecipe={handleDeleteRecipe}
-          changeEditable={changeEditable}
+          cancelEdits={cancelEdits}
+          beginEdits={beginEdits}
         />
       </Grid>
     </Grid>

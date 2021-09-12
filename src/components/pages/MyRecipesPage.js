@@ -51,7 +51,7 @@ function MyRecipesPage({ user, snackbarRef }) {
         item
         xs={12}
         spacing={3}
-        justify="center"
+        justifyContent="center"
         alignItems="flex-end"
       >
         <Grid item>

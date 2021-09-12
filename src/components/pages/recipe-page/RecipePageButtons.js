@@ -27,7 +27,8 @@ const RecipePageButtons = ({
   handleUpdate,
   handleCreate,
   handleDeleteRecipe,
-  changeEditable,
+  cancelEdits,
+  beginEdits,
 }) => {
   const createDeleteButton = function () {
     let deleteButton = null;
@@ -43,18 +44,6 @@ const RecipePageButtons = ({
       </Button>
     );
     return deleteButton;
-  };
-
-  const createEditButton = function () {
-    return (
-      <Fab
-        data-testid={ID_EDIT_BUTTON}
-        color="primary"
-        onClick={() => changeEditable()}
-      >
-        <EditIcon />
-      </Fab>
-    );
   };
 
   let saveButton = null;
@@ -77,7 +66,7 @@ const RecipePageButtons = ({
       <Fab
         data-testid={ID_CANCEL_BUTTON}
         color="secondary"
-        onClick={() => changeEditable()}
+        onClick={cancelEdits}
       >
         <CancelIcon />
       </Fab>
@@ -91,11 +80,7 @@ const RecipePageButtons = ({
 
     if (!editable) {
       floatingActionButton = (
-        <Fab
-          data-testid={ID_EDIT_BUTTON}
-          color="primary"
-          onClick={() => changeEditable()}
-        >
+        <Fab data-testid={ID_EDIT_BUTTON} color="primary" onClick={beginEdits}>
           <EditIcon />
         </Fab>
       );
@@ -108,7 +93,7 @@ const RecipePageButtons = ({
         <Grid item>{floatingActionButton}</Grid>
         <Grid item>{saveButton}</Grid>
       </Grid>
-      <Grid container item xs={12} md={6} justify="flex-end">
+      <Grid container item xs={12} md={6} justifyContent="flex-end">
         <Grid item>{deleteButton}</Grid>
       </Grid>
     </React.Fragment>
@@ -124,7 +109,8 @@ RecipePageButtons.propTypes = {
   handleUpdate: PropTypes.func.isRequired,
   handleCreate: PropTypes.func.isRequired,
   handleDeleteRecipe: PropTypes.func.isRequired,
-  changeEditable: PropTypes.func.isRequired,
+  cancelEdits: PropTypes.func.isRequired,
+  beginEdits: PropTypes.func.isRequired,
 };
 
 export { ids, RecipePageButtons };

@@ -164,7 +164,7 @@ describe("IngredientList integration tests within RecipePage", () => {
     test("shows an error message if an ingredients amount is 0", () => {
       let amountField = screen.getByLabelText("Amount");
       userEvent.clear(amountField);
-      userEvent.type(amountField, 0);
+      userEvent.type(amountField, "0");
       expect(
         screen.getByText(ERROR_MESSAGE_AMOUNT_MISSING)
       ).toBeInTheDocument();
