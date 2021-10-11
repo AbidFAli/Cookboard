@@ -1,9 +1,10 @@
 import axios from "axios";
+import { PATH_API_RECIPES } from "../paths";
 import { isTokenExpiredError } from "../util/errors";
 import { authHeaderForUser, processSearchParams } from "./recipeServiceHelper";
 import { userService } from "./userService";
 
-const BASE_URL = "http://localhost:3001/api/recipes";
+const BASE_URL = PATH_API_RECIPES;
 const DEFAULT_SEARCH_BATCH_SIZE = 20;
 
 //will throw TokenExpiredErrors

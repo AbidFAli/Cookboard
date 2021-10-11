@@ -355,7 +355,7 @@ const LoginWindow = ({ user, updateUser }) => {
     <Grid
       container
       spacing={2}
-      justify="center"
+      justifyContent="center"
       alignItems="center"
       direction="column"
     >
@@ -369,11 +369,11 @@ const LoginWindow = ({ user, updateUser }) => {
             container
             spacing={2}
             direction="column"
-            justify="center"
+            justifyContent="center"
             alignItems="center"
           >
             {fields}
-            <Grid item container justify="center" alignItems="center">
+            <Grid item container justifyContent="center" alignItems="center">
               {buttons}
             </Grid>
           </Grid>

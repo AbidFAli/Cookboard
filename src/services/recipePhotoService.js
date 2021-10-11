@@ -1,7 +1,8 @@
 import axios from "axios";
+import { PATH_API_RECIPES } from "../paths";
 import { authHeaderForUser } from "./recipeServiceHelper";
 
-const BASE_URL = "http://localhost:3001/api/recipes";
+const BASE_URL = PATH_API_RECIPES;
 
 //perhaps make this a class. Have it store the recipeId and user since you access it sooo much.
 

@@ -10,7 +10,10 @@ const PATH_REGISTRATION = "/login#signup";
 const PATH_SEARCH = "/search";
 const PATH_HOME = "/home";
 
+const PATH_API_RECIPES = process.env.REACT_APP_API_BASE_URL + "/recipes";
+
 export {
+  PATH_API_RECIPES,
   PATH_MYRECIPES,
   PATH_LOGIN,
   PATH_REGISTRATION,

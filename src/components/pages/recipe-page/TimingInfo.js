@@ -103,7 +103,7 @@ const TimingInfo = ({
 
 TimingInfo.propTypes = {
   timeToMake: PropTypes.shape({
-    value: PropTypes.number,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     unit: PropTypes.string,
   }),
   setTimeToMake: PropTypes.func,
