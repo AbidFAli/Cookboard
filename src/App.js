@@ -1,62 +1,76 @@
-import Container from '@material-ui/core/Container';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Toolbar from '@material-ui/core/Toolbar';
-import React, { useState } from 'react';
+import Container from "@material-ui/core/Container";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import Toolbar from "@material-ui/core/Toolbar";
+import React, { useRef, useState } from "react";
 import {
-  BrowserRouter as Router, Redirect, Route, Switch
+  BrowserRouter as Router,
+  Redirect,
+  Route,
+  Switch,
 } from "react-router-dom";
-import './App.css';
-import { AppBar } from './components/AppBar';
-import { LoginWindow } from './components/LoginWindow.js';
-import { MyRecipesPage } from './components/MyRecipesPage.js';
-import { PATH_LOGIN, PATH_MYRECIPES } from './paths.js';
-
-
-
+import "./App.css";
+import { AppBar } from "./components/AppBar";
+import { SnackbarProvider } from "./components/NotificationSnackbar";
+import { HomePage } from "./components/pages/home-page/HomePage";
+import { LoginWindow } from "./components/pages/LoginWindow.js";
+import { MyRecipesPage } from "./components/pages/MyRecipesPage.js";
+import { RecipeBrowser } from "./components/pages/recipe-browser/RecipeBrowser";
+import { RecipeSwitch } from "./components/RecipeSwitch";
+import * as paths from "./paths.js";
 
 // const navTabs = [
 //   { link: "/search/", name: "Search" },
 //   { link: "/recipes/browse", name: "Browse Recipes" },
-//   { link: "/recipes/create", name: "Create Recipes" },
 //   { link: "/meals/plan", name: "Plan Meals" },
 //   { link: "/pantry/", name: "My Pantry" },
 //   { link: "/grocerylist/", name: "Grocery List" },
 //   { link: "/favs/", name: "Favorites" }
-// ]; 
+// ];
 
+const App = (props) => {
+  const [user, setUser] = useState(undefined);
+  const snackbarRef = useRef({});
 
-const App = ({basePath}) =>  {
-  const [user, setUser] = useState(undefined)
+  const clearUser = () => {
+    setUser(undefined);
+  };
+
   let appBar = (
     <React.Fragment>
-      <AppBar user = {user} clearUser = {() => setUser(undefined)} />
+      <AppBar user={user} clearUser={clearUser} />
       <Toolbar />
     </React.Fragment>
-    
-  )
+  );
+
   return (
     <Router>
       <CssBaseline />
-      <Container maxWidth='md'>
+      <Container maxWidth="md">
         {appBar}
-        <Switch>  
-            <Route path={PATH_MYRECIPES}>
-              <MyRecipesPage user = {user} /> 
-            </Route>
-            <Route path = {PATH_LOGIN}>
-              <LoginWindow user = {user} updateUser = {setUser} />
-            </Route>
-            <Route path="/">
-                <Redirect to= {PATH_LOGIN} />
-            </Route>
+        <Switch>
+          <Route path={paths.PATH_MYRECIPES}>
+            <MyRecipesPage user={user} snackbarRef={snackbarRef} />
+          </Route>
+          <Route path={paths.PATH_RECIPES}>
+            <RecipeSwitch user={user} snackbarRef={snackbarRef} />
+          </Route>
+          <Route path={paths.PATH_SEARCH}>
+            <RecipeBrowser snackbarRef={snackbarRef} />
+          </Route>
+          <Route path={paths.PATH_LOGIN}>
+            <LoginWindow user={user} updateUser={setUser} />
+          </Route>
+          <Route path={paths.PATH_HOME}>
+            <HomePage />
+          </Route>
+          <Route path="/">
+            <Redirect to={paths.PATH_HOME} />
+          </Route>
         </Switch>
+        <SnackbarProvider ref={snackbarRef} />
       </Container>
     </Router>
   );
-  
-}
-
-export {
-  App
 };
 
+export { App };
