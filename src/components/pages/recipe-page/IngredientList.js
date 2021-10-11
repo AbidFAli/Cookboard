@@ -32,14 +32,12 @@ const ERROR_MESSAGE_INGREDIENT_LIST =
 /*
  *@prop ingredients
  *@prop editable
- *@prop handleAdd
- *@prop handleEdit
- *@prop handleRemove
+ *@prop modifyIngredients
  *@prop dispatchErrors
  */
 const IngredientList = (props) => {
   const addBlankIngredient = () => {
-    props.handleAdd(new Ingredient());
+    props.modifyIngredients({ type: "add", ingredient: new Ingredient() });
   };
 
   const renderIngredientListItem = (
@@ -53,8 +51,7 @@ const IngredientList = (props) => {
         key={ingr.id}
         ingr={ingr}
         editable={props.editable}
-        handleEdit={props.handleEdit}
-        handleRemove={props.handleRemove}
+        modifyIngredients={props.modifyIngredients}
         dispatchErrors={props.dispatchErrors}
         addIngredientError={addIngredientError}
         removeIngredientError={removeIngredientError}
@@ -93,9 +90,7 @@ const IngredientList = (props) => {
 
 IngredientList.propTypes = {
   editable: PropTypes.bool,
-  handleEdit: PropTypes.func,
-  handleAdd: PropTypes.func,
-  handleRemove: PropTypes.func,
+  modifyIngredients: PropTypes.func.isRequired,
   dispatchErrors: PropTypes.func,
   ingredients: PropTypes.array,
 };
@@ -103,16 +98,14 @@ IngredientList.propTypes = {
 /*
  *@prop ingr
  *@prop editable
- *@prop handleEdit
- *@prop handleRemove
+ *@prop modifyIngredients
  *@prop dispatchErrors
  *@ensures if amountText is a valid number, then ingr's amount is a number.
  */
 const IngredientListItem = ({
   ingr,
   editable,
-  handleEdit,
-  handleRemove,
+  modifyIngredients,
   addIngredientError,
   removeIngredientError,
 }) => {
@@ -158,7 +151,7 @@ const IngredientListItem = ({
   const handleNameChange = (name) => {
     let editedIngredient = { ...ingr };
     editedIngredient.name = name;
-    handleEdit(editedIngredient);
+    modifyIngredients({ type: "edit", ingredient: editedIngredient });
   };
 
   const handleAmountChange = (text) => {
@@ -170,19 +163,19 @@ const IngredientListItem = ({
     if (amountText !== "" && Number.isFinite(amount)) {
       editedIngredient.amount = amount;
     }
-    handleEdit(editedIngredient);
+    modifyIngredients({ type: "edit", ingredient: editedIngredient });
   };
 
   const handleUnitChange = (text) => {
     let unit = text.trim();
     let editedIngredient = { ...ingr };
     editedIngredient.unit = unit;
-    handleEdit(editedIngredient);
+    modifyIngredients({ type: "edit", ingredient: editedIngredient });
   };
 
   const handleRemoveWrapper = () => {
     removeIngredientError(ingr.id);
-    handleRemove(ingr);
+    modifyIngredients({ type: "remove", ingredient: ingr });
   };
 
   if (editable) {
@@ -233,11 +226,9 @@ const IngredientListItem = ({
 };
 
 IngredientListItem.propTypes = {
-  key: PropTypes.string,
   ingr: PropTypes.object,
   editable: PropTypes.bool,
-  handleEdit: PropTypes.func,
-  handleRemove: PropTypes.func,
+  modifyIngredients: PropTypes.func.isRequired,
   dispatchErrors: PropTypes.func,
   addIngredientError: PropTypes.func,
   removeIngredientError: PropTypes.func,

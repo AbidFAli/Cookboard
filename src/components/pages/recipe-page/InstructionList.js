@@ -23,13 +23,11 @@ const LABEL_INSTRUCTION_TEXT_FIELD = "Instruction";
 const InstructionList = ({
   instructions,
   editable,
-  handleAdd,
-  handleRemove,
-  handleEdit,
+  modifyInstructions,
   dispatchErrors,
 }) => {
   const addBlankInstruction = () => {
-    handleAdd(new Instruction());
+    modifyInstructions({ type: "add", text: "" });
   };
 
   const renderInstruction = (
@@ -44,8 +42,7 @@ const InstructionList = ({
         instr={instruction}
         pos={pos}
         editable={editable}
-        handleEdit={handleEdit}
-        handleRemove={handleRemove}
+        modifyInstructions={modifyInstructions}
         addInstructionError={addInstructionError}
         removeInstructionError={removeInstructionError}
       />
@@ -79,12 +76,18 @@ const InstructionList = ({
   );
 };
 
+InstructionList.propTypes = {
+  instructions: PropTypes.array,
+  editable: PropTypes.bool,
+  modifyInstructions: PropTypes.func,
+  dispatchErrors: PropTypes.func,
+};
+
 const InstructionListItem = ({
   instr,
   pos,
   editable,
-  handleEdit,
-  handleRemove,
+  modifyInstructions,
   addInstructionError,
   removeInstructionError,
 }) => {
@@ -104,13 +107,13 @@ const InstructionListItem = ({
 
   const handleEditWrapper = (newText) => {
     setInstrText(newText);
-    handleEdit(pos, newText);
+    modifyInstructions({ type: "edit", index: pos, text: newText });
     checkForErrors(newText);
   };
 
   const handleRemoveWrapper = () => {
     removeInstructionError(instr.id);
-    handleRemove(pos);
+    modifyInstructions({ type: "remove", index: pos });
   };
 
   if (editable) {
@@ -124,6 +127,7 @@ const InstructionListItem = ({
           onChange={(event) => handleEditWrapper(event.target.value)}
           error={errorMessage != null}
           helperText={errorMessage}
+          multiline
         />
         <IconButton size="small" onClick={handleRemoveWrapper}>
           <DeleteIcon />
@@ -139,13 +143,13 @@ const InstructionListItem = ({
   }
 };
 
-InstructionList.propTypes = {
-  instructions: PropTypes.array,
+InstructionListItem.propTypes = {
+  instr: PropTypes.instanceOf(Instruction),
+  pos: PropTypes.number,
   editable: PropTypes.bool,
-  handleEdit: PropTypes.func,
-  handleAdd: PropTypes.func,
-  handleRemove: PropTypes.func,
-  dispatchErrors: PropTypes.func,
+  modifyInstructions: PropTypes.func.isRequired,
+  addInstructionError: PropTypes.func,
+  removeInstructionError: PropTypes.func,
 };
 
 export {
