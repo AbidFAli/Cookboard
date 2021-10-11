@@ -72,6 +72,7 @@ function RecipeList(props) {
 
 RecipeList.propTypes = {
   recipes: PropTypes.arrayOf(PropTypes.object),
+  messageNoContent: PropTypes.string,
 };
 
 export { RecipeList };
