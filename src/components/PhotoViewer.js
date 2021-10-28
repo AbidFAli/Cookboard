@@ -12,14 +12,6 @@ const ids = {
   BUTTON_PREV_PHOTO: "buttonPrevPhoto",
 };
 const useStyles = makeStyles({
-  imagePlaceholder: {
-    width: "20%",
-    height: "auto",
-  },
-  image: {
-    maxWidth: "100%",
-    height: "auto",
-  },
   captionContainer: {
     backgroundColor: "rgba(255, 255, 255,.3)",
     position: "absolute",
@@ -30,10 +22,13 @@ const useStyles = makeStyles({
   photoContainer: {
     position: "relative",
     marginBottom: "0",
-    width: "50%",
+    width: "100%",
   },
   caption: {
     fontWeight: "bold",
+  },
+  componentContainer: {
+    width: "50%",
   },
 });
 
@@ -90,17 +85,19 @@ const PhotoViewer = (props) => {
         />
       </React.Fragment>
     );
-  } else if (props.placeholderElement) {
+  } else if (props.placeholderImage) {
     content = (
       <React.Fragment>
-        {React.cloneElement(props.placeholderElement, {
-          className: classes.imagePlaceholder,
-        })}
-        <Typography>{props.placeholderCaption}</Typography>
+        <Photo url={props.placeholderImage} />
+        <Typography align={"center"}>{props.placeholderCaption}</Typography>
       </React.Fragment>
     );
   }
-  return <Paper>{content} </Paper>;
+  return (
+    <div className={classes.componentContainer}>
+      <Paper>{content}</Paper>
+    </div>
+  );
 };
 
 PhotoViewer.propTypes = {
@@ -113,7 +110,7 @@ PhotoViewer.propTypes = {
   ),
   photoWidth: PropTypes.number,
   photoHeight: PropTypes.number,
-  placeholderElement: PropTypes.element, //<img> or <svg> or MaterialUI icon
+  placeholderImage: PropTypes.string, //url to the placeholder image
   placeholderCaption: PropTypes.string,
 };
 
@@ -127,12 +124,10 @@ const Photo = ({ url, title, caption, width, height }) => {
   const classes = useStyles();
 
   return (
-    <div>
+    <div className={classes.photoContainer}>
       {title && <Typography variant="h6">{title}</Typography>}
-      <div className={classes.photoContainer}>
-        {url && <img src={url} className={classes.image} loading="lazy" />}
-        {caption && <PhotoCaption caption={caption} />}
-      </div>
+      {url && <img src={url} loading="lazy" />}
+      {caption && <PhotoCaption caption={caption} />}
     </div>
   );
 };
@@ -161,6 +156,7 @@ const PhotoCaption = ({ caption }) => {
     </div>
   );
 };
+
 PhotoCaption.propTypes = {
   caption: PropTypes.string,
 };

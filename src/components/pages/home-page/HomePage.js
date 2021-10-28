@@ -10,8 +10,24 @@ import { PhotoViewer } from "../../PhotoViewer";
 
 const useStyles = makeStyles({
   root: {
+    marginTop: "5%",
     backgroundImage: `url(${backgroundPic})`,
-    backgroundSize: "cover",
+    width: "100%",
+    height: "80vh",
+    outlineStyle: "solid",
+  },
+  photoViewer: {
+    marginTop: "5px",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "40vh",
+    width: "40vw",
+    maxWidth: "60vw",
+    "& img": {
+      width: "100%",
+      height: "40vh",
+    },
   },
 });
 
@@ -23,21 +39,25 @@ const photos = [
 const HomePage = (props) => {
   const classes = useStyles();
   return (
-    <div className={classes.root}>
-      <Grid
-        container
-        spacing={2}
-        justify="center"
-        alignItems="center"
-        direction="column"
-      >
-        <Grid item>
-          <Typography variant="h1">Cookboard</Typography>
+    <div className={classes.outline}>
+      <div className={classes.root}>
+        <Grid
+          container
+          spacing={2}
+          justify="center"
+          alignItems="center"
+          direction="column"
+        >
+          <Grid item>
+            <Typography variant="h1">Cookboard</Typography>
+          </Grid>
+          <Grid item>
+            <div className={classes.photoViewer}>
+              <PhotoViewer photos={photos} />
+            </div>
+          </Grid>
         </Grid>
-        <Grid item>
-          <PhotoViewer photoWidth={600} photoHeight={450} photos={photos} />
-        </Grid>
-      </Grid>
+      </div>
     </div>
   );
 };

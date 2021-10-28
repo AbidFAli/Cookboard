@@ -1,13 +1,24 @@
 import Button from "@material-ui/core/Button";
-import FastfoodIcon from "@material-ui/icons/Fastfood";
+import { styled } from "@mui/styles";
 import PropTypes from "prop-types";
 import React from "react";
 import { useHistory } from "react-router";
+import fastfoodPic from "../../../images/fastfood_black_48dp.svg";
 import { PhotoViewer } from "../../PhotoViewer";
 
 const ids = {};
 
 const PHOTO_PLACEHOLDER_CAPTION = "This recipe has no photos";
+
+const PhotoContainer = styled("div")(() => ({
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  "& img": {
+    width: "100%",
+    height: "40vh",
+  },
+}));
 
 const RecipePhotos = ({
   photos,
@@ -26,7 +37,7 @@ const RecipePhotos = ({
     content = (
       <PhotoViewer
         photos={photos}
-        placeholderElement={<FastfoodIcon />}
+        placeholderImage={fastfoodPic}
         placeholderCaption={PHOTO_PLACEHOLDER_CAPTION}
       />
     );
@@ -35,7 +46,7 @@ const RecipePhotos = ({
       <Button onClick={navigateToPhotoEditPage}>Click me to add photos</Button>
     );
   }
-  return <div>{content}</div>;
+  return <PhotoContainer>{content}</PhotoContainer>;
 };
 
 RecipePhotos.propTypes = {
