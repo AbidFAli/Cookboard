@@ -130,7 +130,7 @@ const PhotoForm = ({ photos, modifyPhotos, photoLimit, savePhotos }) => {
             onChange={(event) => handleCaptionChange(event)}
           />
         </Grid>
-        <Grid item>
+        <Grid item container>
           <IconButton
             data-testid={ids.ID_BUTTON_DELETE_PHOTO}
             onClick={handleDeletePhoto}
@@ -148,26 +148,32 @@ const PhotoForm = ({ photos, modifyPhotos, photoLimit, savePhotos }) => {
             <AddIcon />
           </IconButton>
         </Grid>
-        <Grid item>
-          <Button
-            data-testid={ids.ID_NEXT_BUTTON}
-            disabled={currentPhoto === maxPhotos - 1}
-            onClick={handleNext}
-          >
-            Next
-            <KeyboardArrowRight />
-          </Button>
-          <Typography variant="body1">{`${
-            currentPhoto + 1
-          } / ${maxPhotos}`}</Typography>
-          <Button
-            disabled={currentPhoto === 0}
-            onClick={handleBack}
-            data-testid={ids.ID_BACK_BUTTON}
-          >
-            <KeyboardArrowLeft />
-            Back
-          </Button>
+        <Grid item container direction="row" justifyContent="space-evenly">
+          <Grid item>
+            <Button
+              data-testid={ids.ID_NEXT_BUTTON}
+              disabled={currentPhoto === maxPhotos - 1}
+              onClick={handleNext}
+            >
+              Next
+              <KeyboardArrowRight />
+            </Button>
+          </Grid>
+          <Grid item>
+            <Typography variant="body1">{`${
+              currentPhoto + 1
+            } / ${maxPhotos}`}</Typography>
+          </Grid>
+          <Grid item>
+            <Button
+              disabled={currentPhoto === 0}
+              onClick={handleBack}
+              data-testid={ids.ID_BACK_BUTTON}
+            >
+              <KeyboardArrowLeft />
+              Back
+            </Button>
+          </Grid>
         </Grid>
       </React.Fragment>
     );
@@ -189,18 +195,20 @@ const PhotoForm = ({ photos, modifyPhotos, photoLimit, savePhotos }) => {
       {imageBox}
       {filePicker}
       {formControls}
-      <Grid item>
-        <Button
-          data-testid={ids.ID_BUTTON_SAVE_CHANGES}
-          onClick={savePhotos}
-          disabled={
-            photos.length > 0 &&
-            !photos[currentPhoto].file &&
-            !photos[currentPhoto].url
-          }
-        >
-          Save Changes
-        </Button>
+      <Grid container justifyContent="center">
+        <Grid item>
+          <Button
+            data-testid={ids.ID_BUTTON_SAVE_CHANGES}
+            onClick={savePhotos}
+            disabled={
+              photos.length > 0 &&
+              !photos[currentPhoto].file &&
+              !photos[currentPhoto].url
+            }
+          >
+            Save Changes
+          </Button>
+        </Grid>
       </Grid>
     </Grid>
   );

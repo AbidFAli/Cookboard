@@ -61,5 +61,8 @@
   },
   "jest": {
     "resetMocks": false
+  },
+  "volta": {
+    "node": "14.18.1"
   }
 }

@@ -12,7 +12,6 @@ const useStyles = makeStyles({
   root: {
     marginTop: "5%",
     backgroundImage: `url(${backgroundPic})`,
-    width: "100%",
     height: "80vh",
     outlineStyle: "solid",
   },

@@ -1,5 +1,7 @@
 import Grid from "@material-ui/core/Grid";
 import IconButton from "@material-ui/core/IconButton";
+import Paper from "@material-ui/core/Paper";
+import { makeStyles } from "@material-ui/core/styles";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import PropTypes from "prop-types";
 import React, { useEffect, useReducer, useState } from "react";
@@ -9,6 +11,14 @@ import { recipePhotoService } from "../../../services/recipePhotoService";
 import recipeService from "../../../services/recipeService";
 import { PhotoForm } from "./PhotoForm";
 import { UploadProgress } from "./UploadProgress";
+
+const useStyles = makeStyles({
+  root: {
+    marginTop: "5%",
+    width: "100%",
+    height: "80vh",
+  },
+});
 
 const PHOTO_LIMIT = 4;
 
@@ -57,6 +67,7 @@ function reducePhotos(photos, action) {
 
 //Photo = {url, key, caption, title, file}
 const PhotoEditPage = ({ user, snackbarRef, recipeId }) => {
+  const classes = useStyles();
   const history = useHistory();
   const [photos, dispatchPhotos] = useReducer(reducePhotos, []);
   const [progressStep, setProgressStep] = useState(0);
@@ -113,26 +124,28 @@ const PhotoEditPage = ({ user, snackbarRef, recipeId }) => {
   };
 
   return (
-    <React.Fragment>
-      <Prompt when={uploading} message={messages.LEAVE_UPLOAD} />
-      <Grid>
-        <PhotoForm
-          photos={photos}
-          modifyPhotos={dispatchPhotos}
-          photoLimit={PHOTO_LIMIT}
-          savePhotos={savePhotos}
-        />
-        {progressVisible && (
-          <UploadProgress progress={100 * (progressStep / maxStep)} />
-        )}
-        <IconButton
-          data-testid={ids.ID_BACK_BUTTON}
-          onClick={() => history.goBack()}
-        >
-          <ArrowBackIcon />
-        </IconButton>
-      </Grid>
-    </React.Fragment>
+    <div className={classes.root}>
+      <Paper>
+        <Prompt when={uploading} message={messages.LEAVE_UPLOAD} />
+        <Grid>
+          <PhotoForm
+            photos={photos}
+            modifyPhotos={dispatchPhotos}
+            photoLimit={PHOTO_LIMIT}
+            savePhotos={savePhotos}
+          />
+          {progressVisible && (
+            <UploadProgress progress={100 * (progressStep / maxStep)} />
+          )}
+          <IconButton
+            data-testid={ids.ID_BACK_BUTTON}
+            onClick={() => history.goBack()}
+          >
+            <ArrowBackIcon />
+          </IconButton>
+        </Grid>
+      </Paper>
+    </div>
   );
 };
 
