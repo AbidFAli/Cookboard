@@ -1,7 +1,7 @@
 import axios from "axios";
 import { authHeaderForUser } from "./recipeServiceHelper";
 
-const BASE_URL = "http://localhost:3001/api/recipes";
+const BASE_URL = `${process.env.REACT_APP_API_BASE_URL}/recipes`;
 
 //perhaps make this a class. Have it store the recipeId and user since you access it sooo much.
 

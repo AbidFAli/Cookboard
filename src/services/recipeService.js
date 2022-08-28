@@ -3,7 +3,7 @@ import { isTokenExpiredError } from "../util/errors";
 import { authHeaderForUser, processSearchParams } from "./recipeServiceHelper";
 import { userService } from "./userService";
 
-const BASE_URL = "http://localhost:3001/api/recipes";
+const BASE_URL = `${process.env.REACT_APP_API_BASE_URL}/recipes`;
 const DEFAULT_SEARCH_BATCH_SIZE = 20;
 
 //will throw TokenExpiredErrors
