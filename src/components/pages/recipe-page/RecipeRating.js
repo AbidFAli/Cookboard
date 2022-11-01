@@ -1,11 +1,19 @@
+import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import Rating from "@material-ui/lab/Rating";
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useEffect, useState } from "react";
 const ID_RATING_SLIDER = "idRecipePage_RatingSlider";
+const ID_AVG_RATING = "idRecipePage_AverageRating";
 
-const RecipeRating = ({ rating, editable, setRating }) => {
+const RecipeRating = ({ initialRating, avgRating, editable, onSave }) => {
+  const [rating, setRating] = useState(initialRating);
+
+  useEffect(() => {
+    setRating(initialRating);
+  }, [initialRating]);
+
   return (
     <Grid container item xs={6} direction="column">
       <Grid item>
@@ -21,14 +29,25 @@ const RecipeRating = ({ rating, editable, setRating }) => {
           preciscion={0.5}
           onChange={(event, newRating) => setRating(newRating)}
         />
+
+        {rating !== initialRating && (
+          <Button onClick={() => onSave(rating)}>Save</Button>
+        )}
+      </Grid>
+      <Grid item>
+        <Typography variant="h5" gutterBottom>
+          Average
+        </Typography>
+        <Rating name={ID_AVG_RATING} value={avgRating} readOnly={true} />
       </Grid>
     </Grid>
   );
 };
 
 RecipeRating.propTypes = {
-  rating: PropTypes.number.isRequired,
+  initialRating: PropTypes.number.isRequired,
   editable: PropTypes.bool.isRequired,
-  setRating: PropTypes.func.isRequired,
+  onSave: PropTypes.func.isRequired, //onSave = (newRating) => something
+  avgRating: PropTypes.number.isRequired,
 };
-export { RecipeRating };
+export { RecipeRating, ID_RATING_SLIDER, ID_AVG_RATING };

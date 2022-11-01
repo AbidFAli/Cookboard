@@ -5,8 +5,10 @@ import {
   PATH_CREATE_RECIPE,
   PATH_RECIPES_EDIT_PHOTOS,
   PATH_RECIPES_PAGE,
+  PATH_SEARCH,
 } from "../paths";
 import { PhotoEditPage } from "./pages/photo-edit/PhotoEditPage";
+import { RecipeBrowser } from "./pages/recipe-browser/RecipeBrowser";
 import { RecipePage } from "./pages/recipe-page/RecipePage";
 
 function RecipeSwitch({ user, snackbarRef }) {
@@ -35,6 +37,9 @@ function RecipeSwitch({ user, snackbarRef }) {
           />
         )}
       />
+      <Route path={PATH_SEARCH}>
+        <RecipeBrowser snackbarRef={snackbarRef} />
+      </Route>
     </Switch>
   );
 }

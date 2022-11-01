@@ -10,6 +10,7 @@ import { Ingredient } from "../../../Model/ingredient";
 import Instruction from "../../../Model/instruction";
 import { PATH_LOGIN, PATH_MYRECIPES, PATH_RECIPES } from "../../../paths";
 import { recipePhotoService } from "../../../services/recipePhotoService";
+import { recipeRatingService } from "../../../services/recipeRatingService";
 import recipeService from "../../../services/recipeService";
 import { isTokenExpiredError } from "../../../util/errors";
 import { IngredientList } from "./IngredientList";
@@ -98,6 +99,23 @@ function reduceIngredients(ingredients, action) {
   return newIngredients;
 }
 
+const logger = (realUpdate, msg, toString) => {
+  if (toString === undefined) {
+    toString = (x) => String(x);
+  }
+
+  return (number) => {
+    console.log(msg + "" + toString(number));
+    realUpdate(number);
+  };
+};
+
+const ratingToString = (rating) => {
+  let str = `value:${rating.value},hasRated: ${rating.hasRated}, loaded: ${rating.loaded},`;
+  str += `id:${rating.id}`;
+  return str;
+};
+
 /*
  *@prop id: the id of the recipe to display;
  *  @type null || string
@@ -117,7 +135,15 @@ const RecipePage = (props) => {
   const [description, setDescription] = useState("");
   const [instructions, modifyInstructions] = useReducer(reduceInstructions, []);
   const [ingredients, modifyIngredients] = useReducer(reduceIngredients, []);
-  const [rating, setRating] = useState(0);
+
+  const [avgRating, realSetAvgRating] = useState(0);
+  const [userRating, realSetUserRating] = useState({
+    value: 0,
+    hasRated: false,
+    loaded: false,
+    id: "",
+  });
+
   const [timeToMake, setTimeToMake] = useState(null);
   const [servingInfo, setServingInfo] = useState(null);
   //recipe state, uneditable by user on this page
@@ -133,25 +159,56 @@ const RecipePage = (props) => {
   //whether the recipe has been created or not
   const [created, setCreated] = useState(props.id != null);
 
+  const setAvgRating = logger(realSetAvgRating, "Avg rating is: ");
+  const setUserRating = logger(
+    realSetUserRating,
+    "My rating is: ",
+    ratingToString
+  );
+
   useEffect(() => {
-    if (props.id) {
-      recipeService.getById(props.id).then((recipe) => {
-        props.snackbarRef.current.displayMessage(MESSAGE_RECIPE_LOADED);
-        let oldRecipeJSON = window.sessionStorage.getItem(
-          KEY_RECIPE_EDITED_FIELDS
-        );
-        window.sessionStorage.removeItem(KEY_RECIPE_EDITED_FIELDS);
-        if (oldRecipeJSON && history.action === "POP") {
-          let oldRecipe = JSON.parse(oldRecipeJSON);
-          oldRecipe.photos = recipe.photos;
-          setPageState(oldRecipe);
-          setEditable(true);
-        } else {
-          setPageState(recipe);
-        }
-      });
+    if (!props.id) {
+      return;
     }
-  }, [props.id]);
+    recipeService.getById(props.id).then((recipe) => {
+      props.snackbarRef.current.displayMessage(MESSAGE_RECIPE_LOADED);
+      let oldRecipeJSON = window.sessionStorage.getItem(
+        KEY_RECIPE_EDITED_FIELDS
+      );
+      window.sessionStorage.removeItem(KEY_RECIPE_EDITED_FIELDS);
+      if (oldRecipeJSON && history.action === "POP") {
+        console.log("Recipe loaded from local storage");
+        let oldRecipe = JSON.parse(oldRecipeJSON);
+        oldRecipe.photos = recipe.photos;
+        setPageState(oldRecipe);
+        setEditable(true);
+      } else {
+        setPageState(recipe);
+      }
+    });
+    if (props.user) {
+      recipeRatingService
+        .getRatings(props.id, props.user)
+        .then((ratingList) => {
+          if (ratingList.length == 1) {
+            let newRating = {
+              value: ratingList[0].value,
+              hasRated: true,
+              loaded: true,
+              id: ratingList[0].id,
+            };
+            setUserRating(newRating);
+          } else {
+            setUserRating({
+              value: userRating.value,
+              hasRated: userRating.hasRated,
+              loaded: true,
+              id: userRating.id,
+            });
+          }
+        });
+    }
+  }, [props.id, props.user]);
 
   const handleRecipeServiceError = (error) => {
     if (isTokenExpiredError(error)) {
@@ -177,7 +234,7 @@ const RecipePage = (props) => {
     let newRecipe = {
       name: name.trim(),
       description,
-      rating,
+      avgRating: avgRating,
       timeToMake,
       servingInfo,
       instructions: instructions.map((instr) => instr.text),
@@ -239,7 +296,8 @@ const RecipePage = (props) => {
     let newIngredients =
       recipe != null && recipe.ingredients != null ? recipe.ingredients : [];
     modifyIngredients({ type: "setAll", ingredients: newIngredients });
-    setRating(recipe != null && recipe.rating != null ? recipe.rating : 0);
+    setAvgRating(recipe != null && recipe.rating !== null ? recipe.rating : 0);
+
     setTimeToMake(recipe != null ? recipe.timeToMake : null);
     setServingInfo(recipe != null ? recipe.servingInfo : null);
     setOwnerId(recipe != null && recipe.user != null ? recipe.user : undefined);
@@ -267,7 +325,7 @@ const RecipePage = (props) => {
       description,
       instructions: instructions.map((instr) => instr.text),
       ingredients,
-      rating,
+      avgRating: avgRating,
       timeToMake,
       servingInfo,
       user: ownerId,
@@ -306,6 +364,40 @@ const RecipePage = (props) => {
   //saves the contents of
   const saveEditedFields = () => {
     saveRecipeLocally(KEY_RECIPE_EDITED_FIELDS);
+  };
+
+  //TODO: test error cases
+  const recipeRatingOnSave = async (ratingValue) => {
+    if (!userRating.hasRated) {
+      let ratingInfo = await recipeRatingService.addRating(
+        props.id,
+        props.user,
+        ratingValue
+      ); //str || ""
+      if (ratingInfo !== null) {
+        setUserRating({
+          id: ratingInfo.rating.id,
+          hasRated: true,
+          loaded: true,
+          value: ratingValue,
+        });
+        setAvgRating(ratingInfo.average);
+      } else {
+        console.log("Add rating failed");
+      }
+    } else {
+      // let ratingInfo = await recipeRatingService.updateRating(
+      //   props.id,
+      //   props.user,
+      //   ratingValue
+      // );
+      // if (ratingInfo !== null) {
+      // }
+      console.error("Update rating has not been implemeted");
+    }
+
+    //if user has not rated before, then create rating
+    //else update rating
   };
 
   //functions for creating UI components
@@ -357,9 +449,15 @@ const RecipePage = (props) => {
               editable={editable}
             />
             <RecipeRating
-              rating={rating}
-              editable={editable}
-              setRating={setRating}
+              initialRating={userRating.value}
+              editable={
+                userRating.loaded &&
+                props.user &&
+                props.user.id &&
+                ownerId !== props.user.id
+              }
+              avgRating={avgRating}
+              onSave={recipeRatingOnSave}
             />
           </Grid>
         </Paper>
