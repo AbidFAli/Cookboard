@@ -1,7 +1,6 @@
 import { fireEvent, within } from "@testing-library/dom";
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import React from "react";
 import Instruction from "../../../Model/instruction.js";
 import { Recipe } from "../../../Model/recipe.js";
 import userFixture from "../../../test/fixtures/user/userNoRecipes";
@@ -18,6 +17,7 @@ import { ID_EDIT_BUTTON } from "./RecipePage";
 //Integration tests with RecipePage and InstructionList
 
 jest.mock("../../../services/recipeService");
+jest.mock("../../../services/recipeRatingService");
 
 const removeInstruction = (instruction) => {
   let deleteButton = within(instruction).getByRole("button");
@@ -94,7 +94,7 @@ describe("Tests for InstructionList integration with RecipePage", () => {
     });
 
     test("adding succeeds for a recipe with no instructions", async () => {
-      await testHelper.setupAndRenderRecipe(recipe, user);
+      await testHelper.setupAndRenderRecipe({ recipe, user });
       fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON));
       fireEvent.click(screen.getByTestId(ID_BUTTON_ADD_INSTRUCTION));
       userEvent.type(getInstructionFields(0), "turn on stove");
@@ -105,7 +105,7 @@ describe("Tests for InstructionList integration with RecipePage", () => {
 
     test("adding succeeds for a recipe with some instructions", async () => {
       recipe.instructions = ["step one", "step two"];
-      await testHelper.setupAndRenderRecipe(recipe, user);
+      await testHelper.setupAndRenderRecipe({ recipe, user });
 
       fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON));
       fireEvent.click(screen.getByTestId(ID_BUTTON_ADD_INSTRUCTION));
@@ -114,8 +114,8 @@ describe("Tests for InstructionList integration with RecipePage", () => {
       expect(screen.getByDisplayValue(newInstruction)).toBeInTheDocument();
     });
 
-    test("multiple instructions can be added", async () => {
-      await testHelper.setupAndRenderRecipe(recipe, user);
+    test.only("multiple instructions can be added", async () => {
+      await testHelper.setupAndRenderRecipe({ recipe, user });
       fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON));
       let instructions = ["step one", "step two"];
       let numAdded = 0;
@@ -141,7 +141,7 @@ describe("Tests for InstructionList integration with RecipePage", () => {
         id: "12345",
         user: user.id,
       };
-      await testHelper.setupAndRenderRecipe(recipe, user);
+      await testHelper.setupAndRenderRecipe({ recipe, user });
       fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON));
     });
 
@@ -182,7 +182,7 @@ describe("Tests for InstructionList integration with RecipePage", () => {
         id: "1234",
         user: user.id,
       };
-      await testHelper.setupAndRenderRecipe(recipe, user);
+      await testHelper.setupAndRenderRecipe({ recipe, user });
       fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON));
     });
 

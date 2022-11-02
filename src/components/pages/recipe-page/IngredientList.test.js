@@ -7,7 +7,6 @@ import {
   waitFor,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import React from "react";
 import { Ingredient } from "../../../Model/ingredient.js";
 import userFixture from "../../../test/fixtures/user/userNoRecipes";
 import testHelper from "../../../test/util/recipePageTestHelper";
@@ -24,6 +23,7 @@ import { ID_EDIT_BUTTON } from "./RecipePage";
 //Integration tests with RecipePage and IngredientList
 
 jest.mock("../../../services/recipeService");
+jest.mock("../../../services/recipeRatingService");
 
 /*
  *name: str,
@@ -136,7 +136,7 @@ describe("IngredientList integration tests within RecipePage", () => {
         user: user.id,
       };
 
-      await testHelper.setupAndRenderRecipe(recipe, user);
+      await testHelper.setupAndRenderRecipe({ recipe, user });
       testHelper.clickEdit();
     });
 
@@ -213,7 +213,7 @@ describe("IngredientList integration tests within RecipePage", () => {
         id: "12345",
         user: user.id,
       };
-      await testHelper.setupAndRenderRecipe(recipe, user);
+      await testHelper.setupAndRenderRecipe({ recipe, user });
       fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON));
     });
 
@@ -280,7 +280,7 @@ describe("IngredientList integration tests within RecipePage", () => {
         user: user.id,
       };
 
-      await testHelper.setupAndRenderRecipe(recipe, user);
+      await testHelper.setupAndRenderRecipe({ recipe, user });
       fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON));
     });
 

@@ -18,6 +18,7 @@ import {
   MESSAGE_RECIPE_LOADED,
   RecipePage,
 } from "../../components/pages/recipe-page/RecipePage";
+import { recipeRatingService } from "../../services/recipeRatingService";
 import recipeService from "../../services/recipeService";
 
 //private methods
@@ -58,9 +59,14 @@ const waitForSnackbar = async () => {
   history: history object used in the Recipe Page
 }
 */
-const setupAndRenderRecipe = async (recipe, user) => {
+const setupAndRenderRecipe = async ({ recipe, user, ratings = [] }) => {
   let recipeId = recipe && recipe.id ? recipe.id : null;
   recipeService.getById.mockResolvedValue(cloneDeep(recipe));
+  let userRating = ratings.find((rating) => rating.userId === user.id);
+  if (userRating === undefined) {
+    userRating = [];
+  }
+  recipeRatingService.getRatings.mockResolvedValueOnce(userRating);
   let { history } = renderRecipe(recipeId, user);
   if (recipe) {
     await waitForSnackbar();
