@@ -1,7 +1,7 @@
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
-import { cloneDeep } from "lodash";
+import { cloneDeep, isNil } from "lodash";
 import PropTypes from "prop-types";
 import React, { useEffect, useReducer, useState } from "react";
 import { useHistory } from "react-router";
@@ -17,7 +17,7 @@ import { IngredientList } from "./IngredientList";
 import { InstructionList } from "./InstructionList";
 import { RecipeDescription } from "./RecipeDescription";
 import { RecipeName } from "./RecipeName";
-import { ids as buttonIds, RecipePageButtons } from "./RecipePageButtons";
+import { RecipePageButtons, ids as buttonIds } from "./RecipePageButtons";
 import { RecipePhotos } from "./RecipePhotos";
 import { RecipeRating } from "./RecipeRating";
 import { ServingInfoList } from "./ServingInfoList";
@@ -30,6 +30,7 @@ const KEY_RECIPE_EDITED_FIELDS = "KeyRecipeEditedFields";
 const MESSAGE_RECIPE_LOADED = "Recipe loaded.";
 const MESSAGE_TOKEN_EXPIRED =
   "It has been too long since your last login. Please log in again.";
+const MESSAGE_RATING_UPDATED = "Rating updated succesfully";
 
 //moved these ids to the RecipePageButtons but i dont want to fix the import issues in other files
 const ID_EDIT_BUTTON = buttonIds.ID_EDIT_BUTTON;
@@ -254,7 +255,7 @@ const RecipePage = (props) => {
     return newRecipe;
   };
 
-  const handleUpdate = async () => {
+  const handleUpdateRecipe = async () => {
     if (errors.size() === 0) {
       let newRecipe = getRecipeStateToSave();
       try {
@@ -267,7 +268,7 @@ const RecipePage = (props) => {
     }
   };
 
-  const handleCreate = async () => {
+  const handleCreateRecipe = async () => {
     if (errors.size() === 0) {
       let newRecipe = getRecipeStateToSave();
       try {
@@ -296,7 +297,7 @@ const RecipePage = (props) => {
     let newIngredients =
       recipe != null && recipe.ingredients != null ? recipe.ingredients : [];
     modifyIngredients({ type: "setAll", ingredients: newIngredients });
-    setAvgRating(recipe != null && recipe.rating !== null ? recipe.rating : 0);
+    setAvgRating(recipe != null && !isNil(recipe.rating) ? recipe.rating : 0);
 
     setTimeToMake(recipe != null ? recipe.timeToMake : null);
     setServingInfo(recipe != null ? recipe.servingInfo : null);
@@ -368,6 +369,14 @@ const RecipePage = (props) => {
 
   //TODO: test error cases
   const recipeRatingOnSave = async (ratingValue) => {
+    //set rating early before the service call has completed
+    setUserRating((prevUserRating) => ({
+      value: ratingValue,
+      hasRated: true,
+      loaded: prevUserRating.loaded,
+      id: prevUserRating.id,
+    }));
+
     if (!userRating.hasRated) {
       let ratingInfo = await recipeRatingService.addRating(
         props.id,
@@ -376,23 +385,27 @@ const RecipePage = (props) => {
       ); //str || ""
       if (ratingInfo !== null) {
         setUserRating({
-          id: ratingInfo.rating.id,
+          value: ratingValue,
           hasRated: true,
           loaded: true,
-          value: ratingValue,
+          id: ratingInfo.rating.id,
         });
+
         setAvgRating(ratingInfo.average);
       } else {
         console.log("Add rating failed");
       }
     } else {
-      // let ratingInfo = await recipeRatingService.updateRating(
-      //   props.id,
-      //   props.user,
-      //   ratingValue
-      // );
-      // if (ratingInfo !== null) {
-      // }
+      let ratingInfo = await recipeRatingService.updateRating(
+        props.id,
+        props.user,
+        ratingValue
+      );
+      if (ratingInfo !== null) {
+        //set the average rating, display a message
+        setAvgRating(ratingInfo.avgRating);
+        props.snackbarRef.current.displayMessage(MESSAGE_RATING_UPDATED);
+      }
       console.error("Update rating has not been implemeted");
     }
 
@@ -504,8 +517,8 @@ const RecipePage = (props) => {
           editable={editable}
           created={created}
           errors={errors}
-          handleUpdate={handleUpdate}
-          handleCreate={handleCreate}
+          handleUpdate={handleUpdateRecipe}
+          handleCreate={handleCreateRecipe}
           handleDeleteRecipe={handleDeleteRecipe}
           cancelEdits={cancelEdits}
           beginEdits={beginEdits}

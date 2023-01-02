@@ -18,7 +18,7 @@ const RecipeRating = ({ initialRating, avgRating, editable, onSave }) => {
     <Grid container item xs={6} direction="column">
       <Grid item>
         <Typography variant="h5" gutterBottom>
-          Rating
+          Your Rating
         </Typography>
       </Grid>
       <Grid item>
@@ -39,6 +39,7 @@ const RecipeRating = ({ initialRating, avgRating, editable, onSave }) => {
           Average
         </Typography>
         <Rating name={ID_AVG_RATING} value={avgRating} readOnly={true} />
+        <Typography variant="body1">{avgRating}</Typography>
       </Grid>
     </Grid>
   );

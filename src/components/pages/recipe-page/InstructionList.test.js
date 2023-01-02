@@ -1,6 +1,7 @@
 import { fireEvent, within } from "@testing-library/dom";
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import React from "react";
 import Instruction from "../../../Model/instruction.js";
 import { Recipe } from "../../../Model/recipe.js";
 import userFixture from "../../../test/fixtures/user/userNoRecipes";
@@ -114,7 +115,7 @@ describe("Tests for InstructionList integration with RecipePage", () => {
       expect(screen.getByDisplayValue(newInstruction)).toBeInTheDocument();
     });
 
-    test.only("multiple instructions can be added", async () => {
+    test("multiple instructions can be added", async () => {
       await testHelper.setupAndRenderRecipe({ recipe, user });
       fireEvent.click(screen.getByTestId(ID_EDIT_BUTTON));
       let instructions = ["step one", "step two"];
