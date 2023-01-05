@@ -1,5 +1,5 @@
 import axios from "axios";
-import { authHeaderForUser } from "./recipeServiceHelper";
+import { authHeaderForUser } from "./recipeService";
 
 const BASE_URL = `${process.env.REACT_APP_API_BASE_URL}/recipes`;
 

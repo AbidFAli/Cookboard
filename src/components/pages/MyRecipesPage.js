@@ -4,7 +4,7 @@ import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import AddIcon from "@material-ui/icons/Add";
 import PropTypes from "prop-types";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { PATH_CREATE_RECIPE } from "../../paths";
 import recipeService from "../../services/recipeService";
@@ -30,6 +30,7 @@ function MyRecipesPage({ user, snackbarRef }) {
 
   useEffect(() => {
     if (user == null) {
+      //TODO: this could be expensive if the user is ever null.
       recipeService.getAll().then((fetchedRecipes) => {
         setRecipes(fetchedRecipes);
       });

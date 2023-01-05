@@ -1,5 +1,5 @@
 import axios from "axios";
-import { authHeaderForUser } from "./recipeServiceHelper";
+import { authHeaderForUser } from "./recipeService";
 
 const BASE_URL = `${process.env.REACT_APP_API_BASE_URL}/recipes/ratings`;
 
@@ -19,7 +19,7 @@ class RatingServiceError extends Error {
     numRatings: number of ratings for a recipe
   }}
  */
-const addRating = async (recipeId, user, rating ) => {
+const addRating = async (recipeId, user, rating) => {
   try {
     const response = await axios.post(
       BASE_URL,
@@ -76,6 +76,16 @@ const updateRating = async (recipeId, user, rating) => {
   );
   return response.data;
 };
+
+// const deleteRating = async (recipeId, user) => {
+//   let response = await axios.delete(
+//     BASE_URL+/recipeId,
+//     {},
+//     {
+//       headers: authHeaderForUser(user),
+//     }
+//   );
+// };
 
 const recipeRatingService = {
   addRating,
