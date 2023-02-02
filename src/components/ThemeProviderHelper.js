@@ -1,7 +1,8 @@
-import { createMuiTheme, ThemeProvider, StyledEngineProvider } from "@mui/material";
+import { createTheme, StyledEngineProvider } from "@mui/material";
+import { ThemeProvider } from "@mui/material/styles";
 import PropTypes from "prop-types";
 
-const theme = createMuiTheme();
+const theme = createTheme();
 const ThemeProviderHelper = (props) => {
   return (
     <StyledEngineProvider injectFirst>

@@ -1,7 +1,8 @@
+import { StyledEngineProvider, createTheme } from "@mui/material";
 import Container from "@mui/material/Container";
 import CssBaseline from "@mui/material/CssBaseline";
 import Toolbar from "@mui/material/Toolbar";
-import { ThemeProvider, StyledEngineProvider, createMuiTheme } from "@mui/material/styles";
+import { ThemeProvider } from "@mui/material/styles";
 import React, { useRef, useState } from "react";
 import {
   Redirect,
@@ -18,7 +19,7 @@ import { MyRecipesPage } from "./components/pages/MyRecipesPage.js";
 import { HomePage } from "./components/pages/home-page/HomePage";
 import * as paths from "./paths.js";
 
-const theme = createMuiTheme();
+const theme = createTheme();
 
 // const navTabs = [
 //   { link: "/search/", name: "Search" },
@@ -64,7 +65,10 @@ const App = (props) => {
               <Route path={paths.PATH_HOME}>
                 <HomePage />
               </Route>
-              <Route path="/" render={() => <Redirect to={paths.PATH_HOME} />} />
+              <Route
+                path="/"
+                render={() => <Redirect to={paths.PATH_HOME} />}
+              />
             </Switch>
             <SnackbarProvider ref={snackbarRef} />
           </Container>
