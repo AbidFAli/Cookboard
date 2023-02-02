@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { ThemeProviderHelper } from "components/ThemeProviderHelper";
 import { createMemoryHistory } from "history";
 import { cloneDeep } from "lodash";
 import React from "react";
@@ -33,10 +34,12 @@ const renderRecipe = (recipeId, user) => {
   const history = createMemoryHistory({ initialEntries });
   const ref = React.createRef();
   render(
-    <Router history={history}>
-      <RecipePage id={recipeId} user={user} snackbarRef={ref} />
-      <SnackbarProvider ref={ref} />
-    </Router>
+    <ThemeProviderHelper>
+      <Router history={history}>
+        <RecipePage id={recipeId} user={user} snackbarRef={ref} />
+        <SnackbarProvider ref={ref} />
+      </Router>
+    </ThemeProviderHelper>
   );
 
   return { history };

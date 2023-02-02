@@ -1,7 +1,7 @@
 import { fireEvent, within } from "@testing-library/dom";
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import React from "react";
+import { ThemeProviderHelper } from "components/ThemeProviderHelper.js";
 import Instruction from "../../../Model/instruction.js";
 import { Recipe } from "../../../Model/recipe.js";
 import userFixture from "../../../test/fixtures/user/userNoRecipes";
@@ -14,7 +14,6 @@ import {
   LABEL_INSTRUCTION_TEXT_FIELD,
 } from "./InstructionList";
 import { ID_EDIT_BUTTON } from "./RecipePage";
-
 //Integration tests with RecipePage and InstructionList
 
 jest.mock("../../../services/recipeService");
@@ -40,12 +39,14 @@ describe("InstructionList Unit Tests", () => {
 
   const renderInstructionList = (instructions, editable) => {
     render(
-      <InstructionList
-        instructions={instructions}
-        editable={editable}
-        modifyInstructions={jest.fn()}
-        dispatchErrors={jest.fn()}
-      />
+      <ThemeProviderHelper>
+        <InstructionList
+          instructions={instructions}
+          editable={editable}
+          modifyInstructions={jest.fn()}
+          dispatchErrors={jest.fn()}
+        />
+      </ThemeProviderHelper>
     );
   };
 

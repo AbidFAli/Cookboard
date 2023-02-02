@@ -1,9 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useErrorMessenger } from "../Model/errorMessenger";
 import { ERROR_MESSAGE_NAN, NumericInput } from "./NumericInput";
+import { ThemeProviderHelper } from "./ThemeProviderHelper";
 
 const TEST_ID = "idValue";
 const TEST_BUTTON = "testButton";
@@ -17,20 +18,22 @@ function LiveTest({ validator, watcher }) {
   const [value, setValue] = useState(0);
 
   return (
-    <div>
-      <NumericInput
-        value={value}
-        setValue={setValue}
-        errors={errors}
-        valueName="Value"
-        {...funcs}
-        data-testid={TEST_ID}
-        validator={validator}
-      />
-      {watcher && (
-        <button data-testid={TEST_BUTTON} onClick={() => watcher(value)} />
-      )}
-    </div>
+    <ThemeProviderHelper>
+      <div>
+        <NumericInput
+          value={value}
+          setValue={setValue}
+          errors={errors}
+          valueName="Value"
+          {...funcs}
+          data-testid={TEST_ID}
+          validator={validator}
+        />
+        {watcher && (
+          <button data-testid={TEST_BUTTON} onClick={() => watcher(value)} />
+        )}
+      </div>
+    </ThemeProviderHelper>
   );
 }
 

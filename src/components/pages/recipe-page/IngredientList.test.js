@@ -7,6 +7,7 @@ import {
   waitFor,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { ThemeProviderHelper } from "components/ThemeProviderHelper.js";
 import { Ingredient } from "../../../Model/ingredient.js";
 import userFixture from "../../../test/fixtures/user/userNoRecipes";
 import testHelper from "../../../test/util/recipePageTestHelper";
@@ -51,12 +52,14 @@ const getNthIngredientField = (labelText, n) => {
 
 const renderIngredientList = (ingredients) => {
   render(
-    <IngredientList
-      ingredients={ingredients}
-      editable={false}
-      modifyIngredients={jest.fn()}
-      dispatchErrors={jest.fn()}
-    />
+    <ThemeProviderHelper>
+      <IngredientList
+        ingredients={ingredients}
+        editable={false}
+        modifyIngredients={jest.fn()}
+        dispatchErrors={jest.fn()}
+      />
+    </ThemeProviderHelper>
   );
 };
 

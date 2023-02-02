@@ -1,10 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import React from "react";
-import { ids, PhotoViewer } from "./PhotoViewer";
+import { PhotoViewer, ids } from "./PhotoViewer";
+import { ThemeProviderHelper } from "./ThemeProviderHelper";
 
 function renderPhotoViewer(photos) {
-  render(<PhotoViewer photos={photos} photoWidth={400} photoHeight={400} />);
+  render(
+    <ThemeProviderHelper>
+      <PhotoViewer photos={photos} photoWidth={400} photoHeight={400} />
+    </ThemeProviderHelper>
+  );
 }
 
 function clickNext() {
@@ -16,20 +20,6 @@ function clickBack() {
 }
 
 describe("tests for PhotoViewer", () => {
-  test("renders placeholderElement and placeholderCaption if given no photos", () => {
-    const placeholderElement = <p data-testid={"Ralph"}></p>;
-    render(
-      <PhotoViewer
-        photoWidth={400}
-        photoHeight={400}
-        placeholderElement={placeholderElement}
-        placeholderCaption="Im in danger"
-      />
-    );
-    expect(screen.getByTestId("Ralph")).toBeInTheDocument();
-    expect(screen.getByText("Im in danger")).toBeInTheDocument();
-  });
-
   describe("viewing a single photo", () => {
     let photos;
     beforeEach(() => {

@@ -1,20 +1,20 @@
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { ThemeProviderHelper } from "components/ThemeProviderHelper";
 import { createMemoryHistory } from "history";
-import React from "react";
 import { Router } from "react-router";
 import { Route, Switch } from "react-router-dom";
 import { Recipe } from "../../../Model/recipe";
 import { PATH_RECIPES, PATH_SEARCH } from "../../../paths";
 import recipeService from "../../../services/recipeService";
-import { ids, RecipeBrowser } from "./RecipeBrowser";
+import { RecipeBrowser, ids } from "./RecipeBrowser";
 import {
   errorMessages as optionsErrors,
   ids as optionsIds,
 } from "./RecipeBrowserOptions";
 
 //do this as a manual mock
-jest.mock("../../../services/recipeService.js", () => {
+jest.mock("../../../services/recipeService", () => {
   const module = {
     create: jest.fn(),
     getById: jest.fn(),
@@ -36,14 +36,16 @@ async function renderBrowser() {
   const history = createMemoryHistory({ initialEntries: [PATH_SEARCH] });
   await act(async () => {
     render(
-      <Router history={history}>
-        <Switch>
-          <Route path={PATH_SEARCH}>
-            <RecipeBrowser />
-          </Route>
-          <Route path={PATH_RECIPES}></Route>
-        </Switch>
-      </Router>
+      <ThemeProviderHelper>
+        <Router history={history}>
+          <Switch>
+            <Route path={PATH_SEARCH}>
+              <RecipeBrowser />
+            </Route>
+            <Route path={PATH_RECIPES}></Route>
+          </Switch>
+        </Router>
+      </ThemeProviderHelper>
     );
   });
   return history;

@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { ThemeProviderHelper } from "components/ThemeProviderHelper";
 import { createMemoryHistory } from "history";
 import React from "react";
 import { Router } from "react-router";
@@ -8,8 +9,8 @@ import {
   SnackbarProvider,
 } from "../../components/NotificationSnackbar";
 import {
-  messages,
   PhotoEditPage,
+  messages,
 } from "../../components/pages/photo-edit/PhotoEditPage";
 import recipeService from "../../services/recipeService";
 
@@ -29,10 +30,12 @@ const renderPage = async (user, photos, recipeId) => {
   });
 
   render(
-    <Router history={history}>
-      <PhotoEditPage user={user} snackbarRef={ref} recipeId={recipeId} />
-      <SnackbarProvider ref={ref} />
-    </Router>
+    <ThemeProviderHelper>
+      <Router history={history}>
+        <PhotoEditPage user={user} snackbarRef={ref} recipeId={recipeId} />
+        <SnackbarProvider ref={ref} />
+      </Router>
+    </ThemeProviderHelper>
   );
   await waitFor(() =>
     expect(screen.getByText(messages.PHOTOS_LOADED)).toBeInTheDocument()
