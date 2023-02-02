@@ -1,6 +1,6 @@
-import IconButton from "@material-ui/core/IconButton";
-import List from "@material-ui/core/List";
-import AddIcon from "@material-ui/icons/Add";
+import IconButton from "@mui/material/IconButton";
+import List from "@mui/material/List";
+import AddIcon from "@mui/icons-material/Add";
 import PropTypes from "prop-types";
 import React, { useState } from "react";
 
@@ -76,7 +76,7 @@ const FormList = ({
       <IconButton
         data-testid={idAddButton}
         onClick={() => addNewBlankListItem()}
-      >
+        size="large">
         <AddIcon />
       </IconButton>
     );

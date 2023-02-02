@@ -1,9 +1,9 @@
-import Button from "@material-ui/core/Button";
-import Grid from "@material-ui/core/Grid";
-import MobileStepper from "@material-ui/core/MobileStepper";
-import Paper from "@material-ui/core/Paper";
-import TextField from "@material-ui/core/TextField";
-import Typography from "@material-ui/core/Typography";
+import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid";
+import MobileStepper from "@mui/material/MobileStepper";
+import Paper from "@mui/material/Paper";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
@@ -147,12 +147,12 @@ function RecipeBrowser(props) {
 
   const searchBar = (
     <TextField
+      variant="standard"
       value={searchOptions.name}
       inputProps={{ "data-testid": ID_SEARCH_BAR }}
       type="search"
       onChange={(event) => setSearchOptionsName(event.target.value)}
-      helperText="Enter a recipe name"
-    />
+      helperText="Enter a recipe name" />
   );
 
   const resultsInfo = (

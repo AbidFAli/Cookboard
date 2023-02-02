@@ -1,8 +1,8 @@
-import Button from "@material-ui/core/Button";
-import Fab from "@material-ui/core/Fab";
-import Grid from "@material-ui/core/Grid";
-import CancelIcon from "@material-ui/icons/Cancel";
-import EditIcon from "@material-ui/icons/Edit";
+import Button from "@mui/material/Button";
+import Fab from "@mui/material/Fab";
+import Grid from "@mui/material/Grid";
+import CancelIcon from "@mui/icons-material/Cancel";
+import EditIcon from "@mui/icons-material/Edit";
 import PropTypes from "prop-types";
 import React from "react";
 

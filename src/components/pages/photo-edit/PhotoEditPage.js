@@ -1,10 +1,10 @@
-import Grid from "@material-ui/core/Grid";
-import IconButton from "@material-ui/core/IconButton";
-import Paper from "@material-ui/core/Paper";
-import { makeStyles } from "@material-ui/core/styles";
-import ArrowBackIcon from "@material-ui/icons/ArrowBack";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import Grid from "@mui/material/Grid";
+import IconButton from "@mui/material/IconButton";
+import Paper from "@mui/material/Paper";
+import { makeStyles } from "@mui/styles";
 import PropTypes from "prop-types";
-import React, { useEffect, useReducer, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { useHistory } from "react-router";
 import { Prompt } from "react-router-dom";
 import { recipePhotoService } from "../../../services/recipePhotoService";
@@ -140,6 +140,7 @@ const PhotoEditPage = ({ user, snackbarRef, recipeId }) => {
           <IconButton
             data-testid={ids.ID_BACK_BUTTON}
             onClick={() => history.goBack()}
+            size="large"
           >
             <ArrowBackIcon />
           </IconButton>

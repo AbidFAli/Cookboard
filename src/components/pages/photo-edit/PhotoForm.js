@@ -1,12 +1,12 @@
-import Button from "@material-ui/core/Button";
-import Grid from "@material-ui/core/grid";
-import IconButton from "@material-ui/core/IconButton";
-import TextField from "@material-ui/core/TextField";
-import Typography from "@material-ui/core/Typography";
-import AddIcon from "@material-ui/icons/Add";
-import DeleteIcon from "@material-ui/icons/Delete";
-import KeyboardArrowLeft from "@material-ui/icons/KeyboardArrowLeft";
-import KeyboardArrowRight from "@material-ui/icons/KeyboardArrowRight";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
+import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid";
+import IconButton from "@mui/material/IconButton";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 import PropTypes from "prop-types";
 import React, { useRef, useState } from "react";
 
@@ -125,16 +125,16 @@ const PhotoForm = ({ photos, modifyPhotos, photoLimit, savePhotos }) => {
       <React.Fragment>
         <Grid item>
           <TextField
+            variant="standard"
             inputProps={{ "data-testid": ids.ID_FIELD_PHOTO_CAPTION }}
             label="Photo Caption"
-            onChange={(event) => handleCaptionChange(event)}
-          />
+            onChange={(event) => handleCaptionChange(event)} />
         </Grid>
         <Grid item container>
           <IconButton
             data-testid={ids.ID_BUTTON_DELETE_PHOTO}
             onClick={handleDeletePhoto}
-          >
+            size="large">
             <DeleteIcon />
           </IconButton>
           <IconButton
@@ -144,7 +144,7 @@ const PhotoForm = ({ photos, modifyPhotos, photoLimit, savePhotos }) => {
               photos.length === photoLimit ||
               (photos.length > 0 && photos[photos.length - 1].url === "")
             }
-          >
+            size="large">
             <AddIcon />
           </IconButton>
         </Grid>

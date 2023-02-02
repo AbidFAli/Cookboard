@@ -1,7 +1,7 @@
-import Button from "@material-ui/core/Button";
-import Grid from "@material-ui/core/Grid";
-import Typography from "@material-ui/core/Typography";
-import Rating from "@material-ui/lab/Rating";
+import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import Rating from "@mui/lab/Rating";
 import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
 const ID_RATING_SLIDER = "idRecipePage_RatingSlider";

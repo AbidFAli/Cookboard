@@ -1,6 +1,6 @@
-import Grid from "@material-ui/core/Grid";
-import Paper from "@material-ui/core/Paper";
-import Typography from "@material-ui/core/Typography";
+import Grid from "@mui/material/Grid";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
 import { cloneDeep, isNil } from "lodash";
 import PropTypes from "prop-types";
 import React, { useEffect, useReducer, useState } from "react";

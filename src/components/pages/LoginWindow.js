@@ -1,12 +1,12 @@
-import Button from "@material-ui/core/Button";
-import Grid from "@material-ui/core/Grid";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-//import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from "@material-ui/core/ListItemText";
-import Paper from "@material-ui/core/Paper";
-import TextField from "@material-ui/core/TextField";
-import Typography from "@material-ui/core/Typography";
+import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+//import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from "@mui/material/ListItemText";
+import Paper from "@mui/material/Paper";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
@@ -218,17 +218,18 @@ const LoginWindow = ({ user, updateUser }) => {
 
   let fieldUsername = (
     <TextField
+      variant="standard"
       label="Username"
       value={username}
       helperText={errorUsername}
       error={errorUsername !== ""}
       onChange={(event) => handleUsernameChange(event.target.value)}
       inputProps={{ "data-testid": ID_INPUT_USERNAME }}
-      id={ID_INPUT_USERNAME}
-    />
+      id={ID_INPUT_USERNAME} />
   );
   let fieldPassword = (
     <TextField
+      variant="standard"
       label="Password"
       type="password"
       value={password}
@@ -236,30 +237,29 @@ const LoginWindow = ({ user, updateUser }) => {
       error={errorPassword !== ""}
       onChange={(event) => handlePasswordChange(event.target.value)}
       inputProps={{ "data-testid": ID_INPUT_PASSWORD }}
-      id={ID_INPUT_PASSWORD}
-    />
+      id={ID_INPUT_PASSWORD} />
   );
   let fieldPasswordConfirm = (
     <TextField
+      variant="standard"
       label="Re-enter your password"
       type="password"
       value={confirmPassword}
       helperText=""
       onChange={(event) => handleConfirmPasswordChange(event.target.value)}
       inputProps={{ "data-testid": ID_INPUT_CONFIRM_PASSWORD }}
-      id={ID_INPUT_CONFIRM_PASSWORD}
-    />
+      id={ID_INPUT_CONFIRM_PASSWORD} />
   );
   let fieldEmail = (
     <TextField
+      variant="standard"
       label="Email"
       value={email}
       helperText={errorEmail}
       error={errorEmail !== ""}
       onChange={(event) => handleEmailChange(event.target.value)}
       inputProps={{ "data-testid": ID_INPUT_EMAIL }}
-      id={ID_INPUT_EMAIL}
-    />
+      id={ID_INPUT_EMAIL} />
   );
   let loginButton = (
     <Button
@@ -355,7 +355,7 @@ const LoginWindow = ({ user, updateUser }) => {
     <Grid
       container
       spacing={2}
-      justify="center"
+      justifyContent="center"
       alignItems="center"
       direction="column"
     >
@@ -369,11 +369,11 @@ const LoginWindow = ({ user, updateUser }) => {
             container
             spacing={2}
             direction="column"
-            justify="center"
+            justifyContent="center"
             alignItems="center"
           >
             {fields}
-            <Grid item container justify="center" alignItems="center">
+            <Grid item container justifyContent="center" alignItems="center">
               {buttons}
             </Grid>
           </Grid>

@@ -1,7 +1,6 @@
-import { AppBar as MuiAppBar, Toolbar } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { AppBar as MuiAppBar, Toolbar } from "@mui/material";
+import { makeStyles } from "@mui/styles";
 import PropTypes from "prop-types";
-import React from "react";
 import { Link } from "react-router-dom";
 import * as paths from "../paths";
 import { LogoutButton } from "./LogoutButton";

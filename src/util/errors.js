@@ -3,7 +3,7 @@ const isTokenExpiredError = (error) => {
 }
 
 const isUsernameTakenError = (error) => {
-  return error.response && error.response.data.name === 'UserCreationError' && error.response.data.error.match(/username must be unique/i)
+  return error.response && error.response.data.name === 'UserCreationError' && error.response.data.error.match(/username must be unique/i);
 }
 
 export {

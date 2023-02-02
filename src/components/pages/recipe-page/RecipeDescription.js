@@ -1,6 +1,6 @@
-import Grid from "@material-ui/core/Grid";
-import TextField from "@material-ui/core/TextField";
-import Typography from "@material-ui/core/Typography";
+import Grid from "@mui/material/Grid";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 import PropTypes from "prop-types";
 import React from "react";
 
@@ -20,13 +20,13 @@ const RecipeDescription = ({ editable, desc, setDesc }) => {
   if (editable) {
     viewDescription = (
       <TextField
+        variant="standard"
         inputProps={{ "data-testid": ID_FIELD_DESCRIPTION }}
         name="fieldDescription"
         label="Description"
         value={desc}
         onChange={(event) => handleChangeDesc(event.target.value)}
-        multiline
-      />
+        multiline />
     );
   } else {
     viewDescription = (

@@ -1,8 +1,8 @@
-import IconButton from "@material-ui/core/IconButton";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
-import TextField from "@material-ui/core/TextField";
-import DeleteIcon from "@material-ui/icons/Delete";
+import IconButton from "@mui/material/IconButton";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import TextField from "@mui/material/TextField";
+import DeleteIcon from "@mui/icons-material/Delete";
 import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
 //import {UnitedValue, ERROR_TYPE_UNIT, ERROR_TYPE_VALUE} from './UnitedValue'
@@ -182,29 +182,29 @@ const IngredientListItem = ({
     return (
       <ListItem data-testid={ingr.id}>
         <TextField
+          variant="standard"
           label="Name"
           id={"INGR_NAME_" + ingr.id}
           value={ingr != null && ingr.name != null ? ingr.name : ""}
           onChange={(event) => handleNameChange(event.target.value)}
           error={nameErrorMessage != null}
-          helperText={nameErrorMessage}
-        />
+          helperText={nameErrorMessage} />
         <TextField
+          variant="standard"
           label="Amount"
           id={"INGR_AMOUNT_" + ingr.id}
           inputProps={{ "data-testid": ID_FIELD_INGREDIENT_AMOUNT }}
           value={ingr != null && ingr.amount != null ? ingr.amount : ""}
           onChange={(event) => handleAmountChange(event.target.value)}
           error={amountErrorMessage != null}
-          helperText={amountErrorMessage}
-        />
+          helperText={amountErrorMessage} />
         <TextField
+          variant="standard"
           label="Unit"
           id={"INGR_UNIT_" + ingr.id}
           inputProps={{ "data-testid": ID_FIELD_INGREDIENT_UNIT }}
           value={ingr != null && ingr.unit != null ? ingr.unit : ""}
-          onChange={(event) => handleUnitChange(event.target.value)}
-        />
+          onChange={(event) => handleUnitChange(event.target.value)} />
         <IconButton
           size="small"
           data-testid={ID_DELETE_INGREDIENT_BUTTON}

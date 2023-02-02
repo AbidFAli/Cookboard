@@ -1,8 +1,8 @@
-import Fab from "@material-ui/core/Fab";
-import Grid from "@material-ui/core/Grid";
-import Paper from "@material-ui/core/Paper";
-import Typography from "@material-ui/core/Typography";
-import AddIcon from "@material-ui/icons/Add";
+import Fab from "@mui/material/Fab";
+import Grid from "@mui/material/Grid";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
+import AddIcon from "@mui/icons-material/Add";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";

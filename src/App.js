@@ -1,7 +1,7 @@
-import Container from "@material-ui/core/Container";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import Toolbar from "@material-ui/core/Toolbar";
-import { ThemeProvider, createMuiTheme } from "@material-ui/core/styles";
+import Container from "@mui/material/Container";
+import CssBaseline from "@mui/material/CssBaseline";
+import Toolbar from "@mui/material/Toolbar";
+import { ThemeProvider, StyledEngineProvider, createMuiTheme } from "@mui/material/styles";
 import React, { useRef, useState } from "react";
 import {
   Redirect,
@@ -45,30 +45,32 @@ const App = (props) => {
   );
 
   return (
-    <ThemeProvider theme={theme}>
-      <Router>
-        <CssBaseline />
-        <Container maxWidth="md">
-          {appBar}
-          <Switch>
-            <Route path={paths.PATH_MYRECIPES}>
-              <MyRecipesPage user={user} snackbarRef={snackbarRef} />
-            </Route>
-            <Route path={paths.PATH_RECIPES}>
-              <RecipeSwitch user={user} snackbarRef={snackbarRef} />
-            </Route>
-            <Route path={paths.PATH_LOGIN}>
-              <LoginWindow user={user} updateUser={setUser} />
-            </Route>
-            <Route path={paths.PATH_HOME}>
-              <HomePage />
-            </Route>
-            <Route path="/" render={() => <Redirect to={paths.PATH_HOME} />} />
-          </Switch>
-          <SnackbarProvider ref={snackbarRef} />
-        </Container>
-      </Router>
-    </ThemeProvider>
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={theme}>
+        <Router>
+          <CssBaseline />
+          <Container maxWidth="md">
+            {appBar}
+            <Switch>
+              <Route path={paths.PATH_MYRECIPES}>
+                <MyRecipesPage user={user} snackbarRef={snackbarRef} />
+              </Route>
+              <Route path={paths.PATH_RECIPES}>
+                <RecipeSwitch user={user} snackbarRef={snackbarRef} />
+              </Route>
+              <Route path={paths.PATH_LOGIN}>
+                <LoginWindow user={user} updateUser={setUser} />
+              </Route>
+              <Route path={paths.PATH_HOME}>
+                <HomePage />
+              </Route>
+              <Route path="/" render={() => <Redirect to={paths.PATH_HOME} />} />
+            </Switch>
+            <SnackbarProvider ref={snackbarRef} />
+          </Container>
+        </Router>
+      </ThemeProvider>
+    </StyledEngineProvider>
   );
 };
 

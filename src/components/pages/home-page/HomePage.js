@@ -1,7 +1,6 @@
-import Grid from "@material-ui/core/Grid";
-import { makeStyles } from "@material-ui/core/styles";
-import Typography from "@material-ui/core/Typography";
-import React from "react";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import { makeStyles } from "@mui/styles";
 import breakfastPic from "../../../images/breakfast.jpg";
 import dinnerPic from "../../../images/dinner.jpg";
 import backgroundPic from "../../../images/homepage_background.jpg";
@@ -43,7 +42,7 @@ const HomePage = (props) => {
         <Grid
           container
           spacing={2}
-          justify="center"
+          justifyContent="center"
           alignItems="center"
           direction="column"
         >

@@ -1,5 +1,5 @@
-import TextField from "@material-ui/core/TextField";
-import Typography from "@material-ui/core/Typography";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 import PropTypes from "prop-types";
 import React from "react";
 import { ErrorMessenger } from "../../../Model/errorMessenger";
@@ -32,14 +32,14 @@ const RecipeName = ({
   if (editable) {
     return (
       <TextField
+        variant="standard"
         inputProps={{ "data-testid": ID_FIELD_RECIPE_NAME }}
         defaultValue={recipeName != null ? recipeName : ""}
         error={errors.hasError(ERROR_RECIPE_NAME)}
         helperText={errors.getErrorMessage(ERROR_RECIPE_NAME)}
         label="Recipe Name"
         onChange={(event) => handleChangeRecipeName(event.target.value)}
-        required={true}
-      />
+        required={true} />
     );
   } else {
     return <Typography variant="h2">{recipeName}</Typography>;

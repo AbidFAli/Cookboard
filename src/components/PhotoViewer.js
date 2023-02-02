@@ -1,9 +1,9 @@
-import { Button, Paper } from "@material-ui/core";
-import MobileStepper from "@material-ui/core/MobileStepper";
-import { makeStyles } from "@material-ui/core/styles";
-import Typography from "@material-ui/core/Typography";
-import KeyboardArrowLeft from "@material-ui/icons/KeyboardArrowLeft";
-import KeyboardArrowRight from "@material-ui/icons/KeyboardArrowRight";
+import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
+import { Button, Paper } from "@mui/material";
+import MobileStepper from "@mui/material/MobileStepper";
+import Typography from "@mui/material/Typography";
+import { makeStyles } from "@mui/styles";
 import PropTypes from "prop-types";
 import React, { useState } from "react";
 

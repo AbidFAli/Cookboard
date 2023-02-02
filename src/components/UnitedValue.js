@@ -1,5 +1,5 @@
-//import Typography from '@material-ui/core/Typography';
-import TextField from "@material-ui/core/TextField";
+//import Typography from '@mui/material/Typography';
+import TextField from "@mui/material/TextField";
 import PropTypes from "prop-types";
 import React, { useState } from "react";
 
@@ -50,21 +50,21 @@ const UnitedValue = (props) => {
   return (
     <React.Fragment>
       <TextField
+        variant="standard"
         inputProps={inputPropsValue}
         defaultValue={props.value != null ? props.value : ""}
         label={props.valueName ?? null}
         error={valueErrorMessage != null}
         helperText={valueErrorMessage}
-        onChange={(event) => handleChangeValue(event.target.value)}
-      />
+        onChange={(event) => handleChangeValue(event.target.value)} />
       <TextField
+        variant="standard"
         inputProps={inputPropsUnit}
         defaultValue={props.unit != null ? props.unit : ""}
         label={props.valueName != null ? props.valueName + " (Unit)" : null}
         error={unitErrorMessage != null}
         helperText={unitErrorMessage}
-        onChange={(event) => handleChangeUnit(event.target.value)}
-      />
+        onChange={(event) => handleChangeUnit(event.target.value)} />
     </React.Fragment>
   );
 };

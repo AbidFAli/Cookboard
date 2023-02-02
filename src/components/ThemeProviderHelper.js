@@ -1,9 +1,13 @@
-import { createMuiTheme, ThemeProvider } from "@material-ui/core";
+import { createMuiTheme, ThemeProvider, StyledEngineProvider } from "@mui/material";
 import PropTypes from "prop-types";
 
 const theme = createMuiTheme();
 const ThemeProviderHelper = (props) => {
-  return <ThemeProvider theme={theme}>{props.children}</ThemeProvider>;
+  return (
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={theme}>{props.children}</ThemeProvider>
+    </StyledEngineProvider>
+  );
 };
 
 ThemeProviderHelper.propTypes = {

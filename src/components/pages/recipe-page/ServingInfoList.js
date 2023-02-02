@@ -1,9 +1,9 @@
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
-import Paper from "@material-ui/core/Paper";
-import TextField from "@material-ui/core/TextField";
-import Typography from "@material-ui/core/Typography";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import Paper from "@mui/material/Paper";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 import PropTypes from "prop-types";
 import React from "react";
 import { UnitedValue } from "../../UnitedValue";
@@ -124,6 +124,7 @@ const ServingInfoList = ({
       <List component="ul">
         <ListItem>
           <TextField
+            variant="standard"
             name={FIELD_NUM_SERVED}
             inputProps={{ "data-testid": FIELD_NUM_SERVED }}
             defaultValue={
@@ -134,11 +135,11 @@ const ServingInfoList = ({
             error={errors.hasError(ERROR_NUM_SERVED)}
             helperText={errors.getErrorMessage(ERROR_NUM_SERVED)}
             label="Number Served"
-            onChange={(event) => handleChangeNumServed(event.target.value)}
-          />
+            onChange={(event) => handleChangeNumServed(event.target.value)} />
         </ListItem>
         <ListItem>
           <TextField
+            variant="standard"
             name={FIELD_YIELD}
             inputProps={{ "data-testid": FIELD_YIELD }}
             defaultValue={
@@ -149,8 +150,7 @@ const ServingInfoList = ({
             error={errors.hasError(ERROR_YIELD)}
             helperText={errors.getErrorMessage(ERROR_YIELD)}
             label="Yield"
-            onChange={(event) => handleChangeYield(event.target.value)}
-          />
+            onChange={(event) => handleChangeYield(event.target.value)} />
         </ListItem>
         <ListItem>
           <UnitedValue

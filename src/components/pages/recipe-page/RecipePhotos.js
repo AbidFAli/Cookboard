@@ -1,4 +1,4 @@
-import Button from "@material-ui/core/Button";
+import Button from "@mui/material/Button";
 import { styled } from "@mui/styles";
 import PropTypes from "prop-types";
 import React from "react";

@@ -1,8 +1,8 @@
-import IconButton from "@material-ui/core/IconButton";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
-import TextField from "@material-ui/core/TextField";
-import DeleteIcon from "@material-ui/icons/Delete";
+import IconButton from "@mui/material/IconButton";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import TextField from "@mui/material/TextField";
+import DeleteIcon from "@mui/icons-material/Delete";
 import PropTypes from "prop-types";
 import React, { useState } from "react";
 import Instruction from "../../../Model/instruction";
@@ -121,14 +121,14 @@ const InstructionListItem = ({
       <ListItem component="li">
         <ListItemText primary={`${1 + pos}.`} />
         <TextField
+          variant="standard"
           value={instrText}
           id={"TEXT_FIELD_INSTRUCTION_" + instr.id}
           label={LABEL_INSTRUCTION_TEXT_FIELD}
           onChange={(event) => handleEditWrapper(event.target.value)}
           error={errorMessage != null}
           helperText={errorMessage}
-          multiline
-        />
+          multiline />
         <IconButton size="small" onClick={handleRemoveWrapper}>
           <DeleteIcon />
         </IconButton>
