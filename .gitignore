@@ -23,7 +23,6 @@ yarn-debug.log*
 yarn-error.log*
 .eslintcache
 .vs
-.vscode
 
 #cypress examples
 /cypress/integration/examples
